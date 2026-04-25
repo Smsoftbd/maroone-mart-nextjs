@@ -1,0 +1,19 @@
+import type { Metadata } from "next";
+import { CheckoutForm } from "@/components/checkout/CheckoutForm";
+import { getStore } from "@/lib/api/store";
+
+export const metadata: Metadata = {
+  title: "Checkout",
+  robots: { index: false },
+};
+
+export default async function CheckoutPage() {
+  const store = await getStore();
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <h1 className="font-display text-3xl font-bold mb-8 text-center">Checkout</h1>
+      <CheckoutForm currency={store.currency_symbol} />
+    </div>
+  );
+}

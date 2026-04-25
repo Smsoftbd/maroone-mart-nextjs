@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "additionalDirectories": [
+      "/var/www/newtest-next/src/app/(store)/products"
+    ]
+  }
+}
