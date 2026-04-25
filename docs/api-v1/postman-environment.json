@@ -1,0 +1,134 @@
+{
+  "id": "elevenpos-ecommerce-env",
+  "name": "ElevenPOS Ecommerce API v1",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "https://your-store.com",
+      "type": "default",
+      "enabled": true,
+      "description": "Your store's root URL (no trailing slash). Change this to your actual domain."
+    },
+    {
+      "key": "api_base",
+      "value": "{{base_url}}/api/v1/ecommerce",
+      "type": "default",
+      "enabled": true,
+      "description": "Full API base path. All ecommerce endpoints are relative to this."
+    },
+    {
+      "key": "public_key",
+      "value": "pk_your_public_key_here",
+      "type": "default",
+      "enabled": true,
+      "description": "Public API key (pk_...). Safe to use for read-only / catalog endpoints. Get from ElevenPOS dashboard → Settings → API Keys."
+    },
+    {
+      "key": "secret_key",
+      "value": "sk_your_secret_key_here",
+      "type": "secret",
+      "enabled": true,
+      "description": "Secret API key (sk_...). Required for order creation, payments, write operations. Never expose in frontend code."
+    },
+    {
+      "key": "customer_token",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Bearer token for authenticated customer. Auto-set by the 'Customer Login' and 'Customer Register' requests via test scripts."
+    },
+    {
+      "key": "cart_token",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Guest cart UUID token. Auto-set by 'Add Item to Cart' request via test script. Send as X-Cart-Token header for guest cart calls."
+    },
+    {
+      "key": "product_slug",
+      "value": "sample-product",
+      "type": "default",
+      "enabled": true,
+      "description": "Reusable product slug for testing product detail, reviews, comments, questions. Replace with a real slug from your store."
+    },
+    {
+      "key": "category_slug",
+      "value": "sample-category",
+      "type": "default",
+      "enabled": true,
+      "description": "Reusable category slug for testing category endpoints. Replace with a real slug from your store."
+    },
+    {
+      "key": "order_id",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Order/Sale ID. Auto-set by 'Place Order' request via test script. Used in payment and order detail requests."
+    },
+    {
+      "key": "cart_item_id",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Cart item ID. Auto-set by 'Add Item to Cart' request via test script. Used in update/delete cart item requests."
+    },
+    {
+      "key": "wishlist_item_id",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Wishlist item ID. Auto-set by 'Add to Wishlist' request via test script. Used in remove-from-wishlist request."
+    },
+    {
+      "key": "return_id",
+      "value": "",
+      "type": "default",
+      "enabled": true,
+      "description": "Return request ID. Auto-set by 'Submit Return Request' via test script. Used in return detail and cancel requests."
+    },
+    {
+      "key": "barcode_id",
+      "value": "1",
+      "type": "default",
+      "enabled": true,
+      "description": "Product barcode/variant ID used when adding to cart or placing an order. Replace with a real barcode ID from GET /products/{slug}."
+    },
+    {
+      "key": "blog_slug",
+      "value": "sample-blog-post",
+      "type": "default",
+      "enabled": true,
+      "description": "Blog post slug for testing blog detail endpoint. Replace with a real blog slug from your store."
+    },
+    {
+      "key": "page_slug",
+      "value": "about-us",
+      "type": "default",
+      "enabled": true,
+      "description": "Static page slug for testing the page detail endpoint. Replace with a real page slug from your store."
+    },
+    {
+      "key": "language",
+      "value": "en",
+      "type": "default",
+      "enabled": true,
+      "description": "Language code for translated content (e.g., en, bn). Passed as ?lang= query param."
+    },
+    {
+      "key": "customer_email",
+      "value": "testcustomer@example.com",
+      "type": "default",
+      "enabled": true,
+      "description": "Test customer email address used in register/login requests."
+    },
+    {
+      "key": "customer_password",
+      "value": "password123",
+      "type": "secret",
+      "enabled": true,
+      "description": "Test customer password used in register/login requests."
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "timestamp": 1704067200000
+}
