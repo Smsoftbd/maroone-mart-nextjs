@@ -2,6 +2,9 @@ import "server-only";
 
 import type { ApiErrorShape } from "./types";
 
+export type { LocalizedString } from "@/lib/utils/l10n";
+export { resolveL10n } from "@/lib/utils/l10n";
+
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
 const SECRET_KEY = process.env.API_SECRET_KEY!;

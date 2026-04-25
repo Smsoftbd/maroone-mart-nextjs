@@ -34,7 +34,7 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${dmSans.variable} h-full`}
     >
-      <body className="min-h-full font-body text-[var(--color-text-primary)] bg-[var(--color-surface-0)]">
+      <body suppressHydrationWarning className="min-h-full font-body text-[var(--color-text-primary)] bg-[var(--color-surface-0)]">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[9999] focus:bg-brand-500 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"

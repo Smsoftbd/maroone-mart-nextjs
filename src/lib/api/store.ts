@@ -1,6 +1,7 @@
 import "server-only";
 
-import { apiRequest, CACHE_TAGS, REVALIDATE } from "./client";
+import { apiRequest, CACHE_TAGS, REVALIDATE, resolveL10n } from "./client";
+import type { LocalizedString } from "./client";
 import type {
   Store,
   HeroBanner,
@@ -8,8 +9,6 @@ import type {
   Popup,
   HomepageCategory,
 } from "./types";
-
-type LocalizedString = { en: string; [lang: string]: string };
 
 type ApiStore = {
   store_name: LocalizedString;
@@ -104,11 +103,11 @@ export async function getTranslations(
 }
 
 export async function getHeroBanners(): Promise<HeroBanner[]> {
-  const res = await apiRequest<{ data: HeroBanner[] }>("/hero-banners", {
+  const res = await apiRequest<{ data: Array<Omit<HeroBanner, "title" | "subtitle"> & { title: LocalizedString | string; subtitle?: LocalizedString | string }> }>("/hero-banners", {
     revalidate: REVALIDATE.BANNERS,
     tags: CACHE_TAGS.BANNERS,
   });
-  return res.data;
+  return res.data.map((b) => ({ ...b, title: resolveL10n(b.title), subtitle: b.subtitle ? resolveL10n(b.subtitle) : undefined }));
 }
 
 export async function getSliders(): Promise<Slider[]> {
@@ -129,12 +128,12 @@ export async function getHomepageCategories(
   lang?: string
 ): Promise<HomepageCategory[]> {
   const params = lang ? `?lang=${lang}` : "";
-  const res = await apiRequest<{ data: HomepageCategory[] }>(
+  const res = await apiRequest<{ data: Array<Omit<HomepageCategory, "name"> & { name: LocalizedString | string }> }>(
     `/homepage-categories${params}`,
     {
       revalidate: REVALIDATE.CATEGORIES,
       tags: CACHE_TAGS.CATEGORIES,
     }
   );
-  return res.data;
+  return res.data.map((c) => ({ ...c, name: resolveL10n(c.name) }));
 }

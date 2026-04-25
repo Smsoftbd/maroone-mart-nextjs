@@ -18,7 +18,7 @@ export function ProductTabs({ product, reviews, questions }: ProductTabsProps) {
 
   const tabs = [
     { id: "description" as Tab, label: "Description" },
-    { id: "specs" as Tab, label: "Specifications", hidden: product.specifications.length === 0 },
+    { id: "specs" as Tab, label: "Specifications", hidden: (product.specifications ?? []).length === 0 },
     { id: "reviews" as Tab, label: `Reviews (${reviews.length})` },
     { id: "questions" as Tab, label: `Q&A (${questions.length})` },
   ].filter((t) => !t.hidden);
@@ -57,7 +57,7 @@ export function ProductTabs({ product, reviews, questions }: ProductTabsProps) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <tbody className="divide-y divide-[var(--color-border)]">
-              {product.specifications.map((spec, i) => (
+              {(product.specifications ?? []).map((spec, i) => (
                 <tr key={i}>
                   <td className="py-3 pr-6 font-medium text-[var(--color-text-secondary)] w-40">
                     {spec.label}

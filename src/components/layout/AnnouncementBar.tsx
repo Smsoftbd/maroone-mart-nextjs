@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 interface AnnouncementBarProps {
@@ -8,10 +8,13 @@ interface AnnouncementBarProps {
 }
 
 export function AnnouncementBar({ message }: AnnouncementBarProps) {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return !sessionStorage.getItem("announcement-dismissed");
-  });
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    if (sessionStorage.getItem("announcement-dismissed")) {
+      setVisible(false);
+    }
+  }, []);
 
   const dismiss = () => {
     setVisible(false);

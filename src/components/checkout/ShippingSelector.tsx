@@ -5,6 +5,7 @@ import { Truck } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatPrice } from "@/lib/utils/format";
 import type { DeliveryCharge } from "@/lib/api/types";
+import { resolveL10n } from "@/lib/utils/l10n";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
@@ -45,36 +46,39 @@ export function ShippingSelector({
 
   return (
     <div className="space-y-2">
-      {charges.map((charge) => (
-        <label
-          key={charge.id}
-          className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
-            methodName === charge.name
-              ? "border-brand-500 bg-brand-50"
-              : "border-[var(--color-border)] hover:border-brand-300"
-          }`}
-        >
-          <input
-            type="radio"
-            name="delivery"
-            className="accent-brand-500"
-            checked={methodName === charge.name}
-            onChange={() => onChange(charge)}
-          />
-          <Truck className="h-4 w-4 text-[var(--color-text-muted)]" />
-          <div className="flex-1">
-            <span className="text-sm font-medium">{charge.name}</span>
-            {charge.estimated_days && (
-              <span className="text-xs text-[var(--color-text-muted)] ml-2">
-                {charge.estimated_days} day{charge.estimated_days !== 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-          <span className="text-sm font-bold">
-            {charge.cost === 0 ? "Free" : formatPrice(charge.cost, currency)}
-          </span>
-        </label>
-      ))}
+      {charges.map((charge) => {
+        const displayName = resolveL10n(charge.name);
+        return (
+          <label
+            key={charge.id}
+            className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
+              methodName === displayName
+                ? "border-brand-500 bg-brand-50"
+                : "border-[var(--color-border)] hover:border-brand-300"
+            }`}
+          >
+            <input
+              type="radio"
+              name="delivery"
+              className="accent-brand-500"
+              checked={methodName === displayName}
+              onChange={() => onChange(charge)}
+            />
+            <Truck className="h-4 w-4 text-[var(--color-text-muted)]" />
+            <div className="flex-1">
+              <span className="text-sm font-medium">{displayName}</span>
+              {charge.estimated_days && (
+                <span className="text-xs text-[var(--color-text-muted)] ml-2">
+                  {charge.estimated_days} day{charge.estimated_days !== 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
+            <span className="text-sm font-bold">
+              {charge.cost === 0 ? "Free" : formatPrice(charge.cost, currency)}
+            </span>
+          </label>
+        );
+      })}
     </div>
   );
 }

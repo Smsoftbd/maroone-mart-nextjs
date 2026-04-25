@@ -4,6 +4,36 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
 
 import type { CartData, AddToCartResponse } from "./types";
+import { resolveL10n } from "@/lib/utils/l10n";
+
+function normalizeCartData(data: CartData): CartData {
+  return {
+    ...data,
+    items: data.items.map((item) => ({
+      ...item,
+      product: item.product
+        ? {
+            ...item.product,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            name: resolveL10n(item.product.name as any),
+          }
+        : item.product,
+      barcode: item.barcode
+        ? {
+            ...item.barcode,
+            attributes: Array.isArray(item.barcode.attributes)
+              ? item.barcode.attributes.map((a) => ({
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  name: resolveL10n(a.name as any),
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  value: resolveL10n(a.value as any),
+                }))
+              : [],
+          }
+        : item.barcode,
+    })),
+  };
+}
 
 type CartAuth = {
   cartToken?: string | null;
@@ -34,11 +64,15 @@ async function cartFetch<T>(
     const error = await res.json().catch(() => ({}));
     throw new Error(error.message || error.error || "Cart request failed");
   }
-  return res.json();
+  const json = await res.json();
+  console.log("[cart-api] full response:", JSON.stringify(json, null, 2));
+  console.log("[cart-api] first item:", json?.data?.items?.[0] ? JSON.stringify(json.data.items[0], null, 2) : "no items");
+  return json;
 }
 
 export async function getCart(auth: CartAuth): Promise<{ data: CartData }> {
-  return cartFetch("/cart", { method: "GET", cache: "no-store" }, auth);
+  const res = await cartFetch<{ data: CartData }>("/cart", { method: "GET", cache: "no-store" }, auth);
+  return { data: normalizeCartData(res.data) };
 }
 
 export async function addToCart(
@@ -46,7 +80,7 @@ export async function addToCart(
   quantity: number,
   auth: CartAuth
 ): Promise<AddToCartResponse> {
-  return cartFetch(
+  const res = await cartFetch<AddToCartResponse>(
     "/cart/items",
     {
       method: "POST",
@@ -54,6 +88,7 @@ export async function addToCart(
     },
     auth
   );
+  return { ...res, data: normalizeCartData(res.data) };
 }
 
 export async function updateCartItem(
@@ -61,7 +96,7 @@ export async function updateCartItem(
   quantity: number,
   auth: CartAuth
 ): Promise<{ data: CartData }> {
-  return cartFetch(
+  const res = await cartFetch<{ data: CartData }>(
     `/cart/items/${cartItemId}`,
     {
       method: "PUT",
@@ -69,19 +104,22 @@ export async function updateCartItem(
     },
     auth
   );
+  return { data: normalizeCartData(res.data) };
 }
 
 export async function removeCartItem(
   cartItemId: number,
   auth: CartAuth
 ): Promise<{ data: CartData }> {
-  return cartFetch(
+  const res = await cartFetch<{ data: CartData }>(
     `/cart/items/${cartItemId}`,
     { method: "DELETE" },
     auth
   );
+  return { data: normalizeCartData(res.data) };
 }
 
 export async function clearCart(auth: CartAuth): Promise<{ data: CartData }> {
-  return cartFetch("/cart", { method: "DELETE" }, auth);
+  const res = await cartFetch<{ data: CartData }>("/cart", { method: "DELETE" }, auth);
+  return { data: normalizeCartData(res.data) };
 }

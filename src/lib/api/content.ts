@@ -1,6 +1,7 @@
 import "server-only";
 
-import { apiRequest, REVALIDATE, CACHE_TAGS } from "./client";
+import { apiRequest, REVALIDATE, CACHE_TAGS, resolveL10n } from "./client";
+import type { LocalizedString } from "./client";
 import type {
   Faq,
   Outlet,
@@ -39,20 +40,23 @@ export async function getOutlets(): Promise<Outlet[]> {
   return res.data;
 }
 
+type ApiPageSummary = Omit<PageSummary, "title"> & { title: LocalizedString | string };
+type ApiPage = Omit<Page, "title"> & { title: LocalizedString | string };
+
 export async function getPages(): Promise<PageSummary[]> {
-  const res = await apiRequest<{ data: PageSummary[] }>("/pages", {
+  const res = await apiRequest<{ data: ApiPageSummary[] }>("/pages", {
     revalidate: REVALIDATE.PAGES,
     tags: CACHE_TAGS.CONTENT,
   });
-  return res.data;
+  return res.data.map((p) => ({ ...p, title: resolveL10n(p.title) }));
 }
 
 export async function getPage(slug: string): Promise<Page> {
-  const res = await apiRequest<{ data: Page }>(`/pages/${slug}`, {
+  const res = await apiRequest<{ data: ApiPage }>(`/pages/${slug}`, {
     revalidate: REVALIDATE.PAGES,
     tags: CACHE_TAGS.CONTENT,
   });
-  return res.data;
+  return { ...res.data, title: resolveL10n(res.data.title) };
 }
 
 export async function getBlogs(

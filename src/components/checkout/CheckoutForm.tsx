@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { ShippingSelector } from "./ShippingSelector";
@@ -16,6 +16,7 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { formatPrice } from "@/lib/utils/format";
 import { appToast } from "@/lib/utils/toast";
 import type { DeliveryCharge, PaymentMethod } from "@/lib/api/types";
+import { resolveL10n } from "@/lib/utils/l10n";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required").max(255),
@@ -30,24 +31,28 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
-const STEPS = [
-  "Contact",
-  "Shipping",
-  "Delivery",
-  "Payment",
-  "Coupon",
-  "Review",
-];
-
 interface CheckoutFormProps {
   currency: string;
+}
+
+function SectionCard({ children }: { children: React.ReactNode }) {
+  return (
+    <section className="bg-white border border-[var(--color-border)] rounded-2xl p-6">
+      {children}
+    </section>
+  );
+}
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="font-display text-base font-semibold mb-4">{children}</h2>
+  );
 }
 
 export function CheckoutForm({ currency }: CheckoutFormProps) {
   const router = useRouter();
   const { items, subTotal, clearCart } = useCartStore();
   const { customer, token } = useAuthStore();
-  const [step, setStep] = useState(0);
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -58,17 +63,16 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
-      name: customer?.name || "",
-      email: customer?.email || "",
-      phone: customer?.phone || "",
-      address: customer?.address || "",
-      city: customer?.city || "",
-      state: customer?.state || "",
-      country: customer?.country || "",
+      name: customer?.name ?? "",
+      email: customer?.email ?? "",
+      phone: customer?.phone ?? "",
+      address: customer?.address ?? "",
+      city: customer?.city ?? "",
+      state: customer?.state ?? "",
+      country: customer?.country ?? "",
     },
   });
 
@@ -95,7 +99,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
             state: data.state,
             country: data.country,
           },
-          payment_method: paymentMethod.name,
+          payment_method: resolveL10n(paymentMethod.name),
           coupon_code: couponCode || undefined,
           shipping_cost: shippingCost,
           note: data.note,
@@ -110,7 +114,9 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
 
       appToast.orderSuccess(result.order.invoice_number);
       await clearCart(token);
-      router.push(`/order-confirmation/${result.order.id}?invoice=${result.order.invoice_number}&total=${result.order.net_total}&points=${result.points_earned}`);
+      router.push(
+        `/order-confirmation/${result.order.id}?invoice=${result.order.invoice_number}&total=${result.order.net_total}&points=${result.points_earned}`
+      );
     } catch {
       appToast.apiError("Failed to place order. Please try again.");
     } finally {
@@ -118,87 +124,53 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
     }
   };
 
-  const nextStep = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
-  const prevStep = () => setStep((s) => Math.max(s - 1, 0));
-
   return (
-    <div className="max-w-2xl mx-auto">
-      {/* Step indicator */}
-      <div className="flex items-center gap-1 mb-8 overflow-x-auto pb-2">
-        {STEPS.map((label, i) => (
-          <div key={label} className="flex items-center gap-1 shrink-0">
-            <div
-              className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold transition-colors ${
-                i < step
-                  ? "bg-brand-500 text-white"
-                  : i === step
-                  ? "bg-surface-900 text-white"
-                  : "bg-surface-100 text-[var(--color-text-muted)]"
-              }`}
-            >
-              {i + 1}
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
+        {/* ── Left: form sections ── */}
+        <div className="space-y-6">
+          <SectionCard>
+            <SectionLabel>Contact Details</SectionLabel>
+            <div className="space-y-4">
+              <Input label="Full Name *" {...register("name")} error={errors.name?.message} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input label="Phone *" type="tel" {...register("phone")} error={errors.phone?.message} />
+                <Input label="Email" type="email" {...register("email")} error={errors.email?.message} />
+              </div>
             </div>
-            <span className={`text-xs font-medium ${i === step ? "" : "text-[var(--color-text-muted)]"}`}>
-              {label}
-            </span>
-            {i < STEPS.length - 1 && (
-              <ChevronRight className="h-3 w-3 text-[var(--color-text-muted)]" />
-            )}
-          </div>
-        ))}
-      </div>
+          </SectionCard>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Step 0: Contact */}
-        {step === 0 && (
-          <div className="space-y-4">
-            <h2 className="font-display text-xl font-semibold mb-4">Contact Details</h2>
-            <Input label="Full Name" {...register("name")} error={errors.name?.message} />
-            <Input label="Email" type="email" {...register("email")} error={errors.email?.message} />
-            <Input label="Phone *" type="tel" {...register("phone")} error={errors.phone?.message} />
-          </div>
-        )}
-
-        {/* Step 1: Shipping */}
-        {step === 1 && (
-          <div className="space-y-4">
-            <h2 className="font-display text-xl font-semibold mb-4">Shipping Address</h2>
-            <Input label="Address *" {...register("address")} error={errors.address?.message} />
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="City" {...register("city")} />
-              <Input label="State" {...register("state")} />
+          <SectionCard>
+            <SectionLabel>Shipping Address</SectionLabel>
+            <div className="space-y-4">
+              <Input label="Address *" {...register("address")} error={errors.address?.message} />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Input label="City" {...register("city")} />
+                <Input label="State" {...register("state")} />
+                <Input label="Country" {...register("country")} />
+              </div>
             </div>
-            <Input label="Country" {...register("country")} />
-          </div>
-        )}
+          </SectionCard>
 
-        {/* Step 2: Delivery */}
-        {step === 2 && (
-          <div>
-            <h2 className="font-display text-xl font-semibold mb-4">Delivery Method</h2>
+          <SectionCard>
+            <SectionLabel>Delivery Method</SectionLabel>
             <ShippingSelector
               currency={currency}
-              methodName={delivery?.name ?? ""}
+              methodName={resolveL10n(delivery?.name) ?? ""}
               onChange={setDelivery}
             />
-          </div>
-        )}
+          </SectionCard>
 
-        {/* Step 3: Payment */}
-        {step === 3 && (
-          <div>
-            <h2 className="font-display text-xl font-semibold mb-4">Payment Method</h2>
+          <SectionCard>
+            <SectionLabel>Payment Method</SectionLabel>
             <PaymentSelector
-              value={paymentMethod?.name ?? ""}
+              value={resolveL10n(paymentMethod?.name) ?? ""}
               onChange={setPaymentMethod}
             />
-          </div>
-        )}
+          </SectionCard>
 
-        {/* Step 4: Coupon */}
-        {step === 4 && (
-          <div>
-            <h2 className="font-display text-xl font-semibold mb-4">Coupon (Optional)</h2>
+          <SectionCard>
+            <SectionLabel>Coupon Code</SectionLabel>
             <CouponInput
               orderTotal={subTotal}
               currency={currency}
@@ -207,91 +179,101 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
                 setDiscountAmount(amount);
               }}
             />
-            <div className="mt-4 bg-surface-50 rounded-xl p-4 space-y-2 text-sm">
+          </SectionCard>
+
+          <SectionCard>
+            <SectionLabel>Order Notes</SectionLabel>
+            <textarea
+              {...register("note")}
+              placeholder="Special instructions or delivery notes (optional)"
+              rows={3}
+              className="w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </SectionCard>
+        </div>
+
+        {/* ── Right: order summary ── */}
+        <aside className="lg:sticky lg:top-24">
+          <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6">
+            <h2 className="font-display text-base font-semibold mb-4">Order Summary</h2>
+
+            <ul className="divide-y divide-[var(--color-border)] mb-4">
+              {items.filter((item) => item.product).map((item) => (
+                <li key={item.id} className="flex items-center gap-3 py-3">
+                  <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden border border-[var(--color-border)] bg-surface-50">
+                    <Image
+                      src={item.product.image}
+                      alt={item.product.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{item.product.name}</p>
+                    {item.barcode.attributes && item.barcode.attributes.length > 0 && (
+                      <p className="text-xs text-[var(--color-text-muted)]">
+                        {item.barcode.attributes.map((a) => a.value).join(", ")}
+                      </p>
+                    )}
+                    <p className="text-xs text-[var(--color-text-secondary)]">
+                      {formatPrice(item.barcode.after_discount, currency)} × {item.quantity}
+                    </p>
+                  </div>
+                  <span className="text-sm font-semibold shrink-0">
+                    {formatPrice(item.line_total, currency)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <div className="space-y-2 text-sm border-t border-[var(--color-border)] pt-4">
               <div className="flex justify-between">
                 <span className="text-[var(--color-text-secondary)]">Subtotal</span>
                 <span>{formatPrice(subTotal, currency)}</span>
               </div>
-              {shippingCost > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-[var(--color-text-secondary)]">Shipping</span>
-                  <span>{formatPrice(shippingCost, currency)}</span>
-                </div>
-              )}
+              <div className="flex justify-between">
+                <span className="text-[var(--color-text-secondary)]">
+                  Delivery{delivery ? ` (${resolveL10n(delivery.name)})` : ""}
+                </span>
+                <span>
+                  {delivery
+                    ? shippingCost === 0
+                      ? "Free"
+                      : formatPrice(shippingCost, currency)
+                    : "—"}
+                </span>
+              </div>
               {discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Discount</span>
-                  <span>-{formatPrice(discountAmount, currency)}</span>
+                  <span>−{formatPrice(discountAmount, currency)}</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-base border-t border-[var(--color-border)] pt-2 mt-2">
+              <div className="flex justify-between font-bold text-base border-t border-[var(--color-border)] pt-3 mt-1">
                 <span>Total</span>
                 <span>{formatPrice(total, currency)}</span>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Step 5: Review */}
-        {step === 5 && (
-          <div>
-            <h2 className="font-display text-xl font-semibold mb-4">Order Summary</h2>
-            <div className="space-y-3 mb-6">
-              <div className="bg-surface-50 rounded-xl p-4 text-sm space-y-1">
-                <p className="font-medium">{getValues("name")}</p>
-                <p className="text-[var(--color-text-secondary)]">{getValues("phone")}</p>
-                <p className="text-[var(--color-text-secondary)]">{getValues("address")}{getValues("city") ? `, ${getValues("city")}` : ""}</p>
-                <p className="text-[var(--color-text-secondary)]">Payment: {paymentMethod?.name || "Not selected"}</p>
-                {delivery && <p className="text-[var(--color-text-secondary)]">Delivery: {delivery.name}</p>}
-              </div>
-              <div className="space-y-2">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between text-sm">
-                    <span className="text-[var(--color-text-secondary)]">
-                      {item.product.name} × {item.quantity}
-                    </span>
-                    <span className="font-medium">{formatPrice(item.line_total, currency)}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="border-t border-[var(--color-border)] pt-3 flex justify-between font-bold">
-                <span>Total</span>
-                <span>{formatPrice(total, currency)}</span>
-              </div>
-            </div>
-            <textarea
-              {...register("note")}
-              placeholder="Order notes (optional)"
-              rows={3}
-              className="w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="flex gap-3 mt-8">
-          {step > 0 && (
-            <Button type="button" variant="secondary" onClick={prevStep}>
-              Back
-            </Button>
-          )}
-          {step < STEPS.length - 1 ? (
-            <Button type="button" variant="primary" className="flex-1" onClick={nextStep}>
-              Continue
-            </Button>
-          ) : (
             <Button
               type="submit"
               variant="primary"
-              className="flex-1"
+              className="w-full mt-6"
               loading={isSubmitting}
               disabled={items.length === 0}
             >
               Place Order — {formatPrice(total, currency)}
             </Button>
-          )}
-        </div>
-      </form>
-    </div>
+
+            {!paymentMethod && (
+              <p className="text-xs text-center text-[var(--color-text-muted)] mt-2">
+                Select a payment method to continue
+              </p>
+            )}
+          </div>
+        </aside>
+      </div>
+    </form>
   );
 }

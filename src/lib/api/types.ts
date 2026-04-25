@@ -203,6 +203,7 @@ export interface CartItemBarcode {
   selling_price: number;
   after_discount: number;
   stock: number;
+  attributes?: Attribute[];
 }
 
 export interface CartItemProduct {
@@ -464,14 +465,14 @@ export interface Comment {
 
 export interface DeliveryCharge {
   id: number;
-  name: string;
+  name: string | { en?: string; bn?: string; [lang: string]: string | undefined };
   cost: number;
   estimated_days?: number;
 }
 
 export interface PaymentMethod {
   id: number;
-  name: string;
+  name: string | { en?: string; bn?: string; [lang: string]: string | undefined };
   icon?: string;
 }
 

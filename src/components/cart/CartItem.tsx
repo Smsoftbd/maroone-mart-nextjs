@@ -15,27 +15,45 @@ interface CartItemProps {
 export function CartItem({ item, currency }: CartItemProps) {
   const { updateItem, removeItem } = useCart();
 
+  console.log("[CartItem] rendering item:", JSON.stringify(item, null, 2));
+
+  const productName = item.product?.name ?? "Unknown Product";
+  const productSlug = item.product?.slug ?? "#";
+  const productImage = item.product?.image ?? null;
+  const attributes = item.barcode?.attributes ?? [];
+
   return (
     <div className="flex gap-3 py-4">
-      <Link href={`/products/${item.product.slug}`} className="shrink-0">
-        <Image
-          src={item.product.image}
-          alt={item.product.name}
-          width={72}
-          height={72}
-          className="rounded-lg object-cover border border-[var(--color-border)]"
-        />
+      <Link href={productSlug !== "#" ? `/products/${productSlug}` : "#"} className="shrink-0">
+        {productImage ? (
+          <Image
+            src={productImage}
+            alt={productName}
+            width={72}
+            height={72}
+            className="rounded-lg object-cover border border-[var(--color-border)]"
+          />
+        ) : (
+          <div className="w-[72px] h-[72px] rounded-lg border border-[var(--color-border)] bg-surface-100 flex items-center justify-center text-xs text-[var(--color-text-muted)]">
+            No image
+          </div>
+        )}
       </Link>
       <div className="flex-1 min-w-0">
         <Link
-          href={`/products/${item.product.slug}`}
+          href={productSlug !== "#" ? `/products/${productSlug}` : "#"}
           className="font-body text-sm font-medium line-clamp-2 hover:text-brand-500 transition-colors"
         >
-          {item.product.name}
+          {productName}
         </Link>
         <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-          {item.barcode.sku}
+          {item.barcode?.sku}
         </p>
+        {attributes.length > 0 && (
+          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+            {attributes.map((a) => `${a.name}: ${a.value}`).join(" · ")}
+          </p>
+        )}
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center border border-[var(--color-border)] rounded-lg overflow-hidden">
             <button
@@ -52,7 +70,7 @@ export function CartItem({ item, currency }: CartItemProps) {
             <button
               className="px-2 py-1 hover:bg-surface-100 transition-colors disabled:opacity-40"
               onClick={() => updateItem(item.id, item.quantity + 1)}
-              disabled={item.quantity >= item.barcode.stock}
+              disabled={item.quantity >= (item.barcode?.stock ?? Infinity)}
               aria-label="Increase quantity"
             >
               <Plus className="h-3 w-3" />
