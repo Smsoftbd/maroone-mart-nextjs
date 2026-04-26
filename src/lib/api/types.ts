@@ -260,12 +260,17 @@ export interface AddToCartResponse {
 export type OrderStatus =
   | "draft"
   | "pending"
+  | "on_hold"
   | "confirmed"
   | "processing"
+  | "packaging"
+  | "ready"
   | "shipped"
   | "delivered"
+  | "completed"
   | "cancelled"
-  | "returned";
+  | "returned"
+  | "refunded";
 
 export type PaymentStatus = "due" | "partial" | "paid";
 
@@ -280,22 +285,50 @@ export interface OrderDetailProduct {
   id: number;
   name: string;
   slug: string;
-  sku: string;
+  sku?: string | null;
   image: string;
+}
+
+export interface OrderDetailBarcode {
+  id: number;
+  sku: string;
+  barcode: string;
+  selling_price: number;
+  discount: number;
+  discount_amount: number;
+  after_discount: number;
+  stock: number;
+  is_active: boolean;
+}
+
+export interface StatusHistoryItem {
+  id: number;
+  from_status: string;
+  from_label: string;
+  to_status: string;
+  to_label: string;
+  note: string | null;
+  changed_at: string;
 }
 
 export interface OrderDetail {
   id: number;
   sale_id: number;
   product_id: number;
+  product_barcode_id?: number;
+  batch_number?: string | null;
   qty: number;
+  used_qty?: number;
+  available_qty?: number;
   price: number;
   discount_percent: number;
   discount_amount: number;
+  after_discount?: number;
   sub_total: number;
   net_total: number;
   note: string | null;
   product: OrderDetailProduct;
+  barcode?: OrderDetailBarcode;
 }
 
 export interface OrderPaymentDetail {
@@ -337,9 +370,9 @@ export interface Order {
   note: string | null;
   delivery_status: string | null;
   tracking_number: string | null;
-  customer: OrderCustomer;
+  customer?: OrderCustomer;
   details: OrderDetail[];
-  paymentDetails: OrderPaymentDetail[];
+  paymentDetails?: OrderPaymentDetail[];
   created_at: string;
   updated_at: string;
 }

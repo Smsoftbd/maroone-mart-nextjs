@@ -15,6 +15,7 @@ import type {
   PaginatedResponse,
   OrderListItem,
   Order,
+  StatusHistoryItem,
 } from "./types";
 
 function authHeaders(token: string): Record<string, string> {
@@ -111,7 +112,7 @@ export async function getCustomerOrders(
 export async function getCustomerOrder(
   token: string,
   id: number
-): Promise<{ data: Order }> {
+): Promise<{ data: Order; status_history: StatusHistoryItem[] }> {
   return customerFetch(`/customer/orders/${id}`, {
     method: "GET",
     headers: authHeaders(token),

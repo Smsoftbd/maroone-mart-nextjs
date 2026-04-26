@@ -31,15 +31,20 @@ export const useAuthStore = create<AuthStore>()(
       customer: null,
       token: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true,
 
       initialize: async () => {
         const { token } = get();
-        if (!token) return;
+        if (!token) {
+          set({ isLoading: false });
+          return;
+        }
         try {
           await get().fetchProfile();
         } catch {
           set({ token: null, customer: null, isAuthenticated: false });
+        } finally {
+          set({ isLoading: false });
         }
       },
 

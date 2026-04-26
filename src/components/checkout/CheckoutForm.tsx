@@ -240,7 +240,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
                     </p>
                   </div>
                   <span className="text-sm font-semibold shrink-0">
-                    {formatPrice(item.line_total, currency)}
+                    {formatPrice(item.line_total || (item.unit_price || priceOverrides[item.barcode_id] || 0) * item.quantity, currency)}
                   </span>
                 </li>
               ))}
