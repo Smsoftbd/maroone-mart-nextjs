@@ -32,6 +32,11 @@
   --color-text-secondary: #6B6A65;
   --color-text-muted: #9E9D98;
 
+  /* Text on brand surfaces (overridden dynamically) */
+  --color-primary-text: #ffffff;
+  --color-secondary-text: #881337;
+  --color-tertiary-text: #9d174d;
+
   /* Borders */
   --color-border: #E8E7E2;
   --color-border-dark: #D0CFC9;
@@ -83,6 +88,25 @@
 
 html {
   scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-brand-50);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-500);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-brand-600);
+}
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-brand-500) var(--color-brand-50);
 }
 
 body {

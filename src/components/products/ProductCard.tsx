@@ -62,7 +62,7 @@ export function ProductCard({
 
         {/* Discount badge */}
         {discountPct && (
-          <span className="absolute top-2 left-2 bg-brand-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
+          <span className="absolute top-2 left-2 bg-[var(--color-secondary-text)] text-[var(--color-primary-text)] text-xs font-bold px-2 py-1 rounded-full z-10">
             -{discountPct}%
           </span>
         )}
@@ -87,7 +87,7 @@ export function ProductCard({
         {/* Add to cart overlay */}
         {inStock && (
           <button
-            className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-surface-900 text-white text-sm font-medium py-3 text-center flex items-center justify-center gap-2 z-10"
+            className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-brand-500 text-[var(--color-primary-text)] text-sm font-medium py-3 text-center flex items-center justify-center gap-2 z-10"
             onClick={handleAddToCart}
             disabled={isLoading}
             aria-label={`Add ${product.name} to cart`}

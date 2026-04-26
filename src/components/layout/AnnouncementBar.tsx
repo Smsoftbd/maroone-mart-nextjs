@@ -24,7 +24,7 @@ export function AnnouncementBar({ message }: AnnouncementBarProps) {
   if (!visible || !message) return null;
 
   return (
-    <div className="bg-surface-900 text-white text-sm py-2 px-4 text-center relative">
+    <div className="bg-brand-500 text-[var(--color-primary-text)] text-sm py-2 px-4 text-center relative">
       <div
         dangerouslySetInnerHTML={{ __html: message }}
         className="inline [&>p]:m-0"

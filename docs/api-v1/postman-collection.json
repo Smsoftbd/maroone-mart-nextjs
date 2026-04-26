@@ -16,13 +16,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/store",
-              "host": ["{{api_base}}"],
-              "path": ["store"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "store"
+              ]
             },
             "description": "Returns store branding, contact info, social links, theme colors, currency, and feature flags.\n\n**Use case:** Call on app startup to initialize store configuration and determine which features to render."
           },
@@ -39,15 +49,29 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/categories?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["categories"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "categories"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}", "description": "Language code for translated category names" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}",
+                  "description": "Language code for translated category names"
+                }
               ]
             },
             "description": "Returns all root categories with nested children. Use to build navigation menus and category sidebars."
@@ -59,15 +83,29 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/categories/{{category_slug}}?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["categories", "{{category_slug}}"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "categories",
+                "{{category_slug}}"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Returns a single category with description, banner, and immediate children.\n\n**Use case:** Category landing page header and subcategory filter chips."
@@ -84,13 +122,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/brands",
-              "host": ["{{api_base}}"],
-              "path": ["brands"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "brands"
+              ]
             },
             "description": "Returns all active brands. Use to populate brand filter on product listing pages."
           },
@@ -107,21 +155,61 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/products?lang={{language}}&per_page=20&page=1",
-              "host": ["{{api_base}}"],
-              "path": ["products"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products"
+              ],
               "query": [
-                { "key": "search", "value": "", "description": "Search by product name or SKU", "disabled": true },
-                { "key": "category", "value": "", "description": "Filter by category slug", "disabled": true },
-                { "key": "brand", "value": "", "description": "Filter by brand name", "disabled": true },
-                { "key": "featured", "value": "1", "description": "Return only featured products (pass '1')", "disabled": true },
-                { "key": "lang", "value": "{{language}}" },
-                { "key": "per_page", "value": "20", "description": "Results per page (max 100)" },
-                { "key": "page", "value": "1" }
+                {
+                  "key": "search",
+                  "value": "",
+                  "description": "Search by product name or SKU",
+                  "disabled": true
+                },
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Filter by category slug",
+                  "disabled": true
+                },
+                {
+                  "key": "brand",
+                  "value": "",
+                  "description": "Filter by brand name",
+                  "disabled": true
+                },
+                {
+                  "key": "featured",
+                  "value": "1",
+                  "description": "Return only featured products (pass '1')",
+                  "disabled": true
+                },
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                },
+                {
+                  "key": "per_page",
+                  "value": "20",
+                  "description": "Results per page (max 100)"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
               ]
             },
             "description": "Paginated product list with optional filters.\n\n**Tip:** `barcodes[0].after_discount` is the display price. If equal to `selling_price`, no discount is active.\n\n**Important:** For complex products (multiple variants), always fetch full product detail for all barcodes/attributes."
@@ -133,15 +221,29 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Full product details: all images, variant barcodes with attributes, specifications, translations, SEO meta.\n\n**Important:** Use `barcodes[].id` as `barcode_id` when adding to cart or placing an order."
@@ -153,15 +255,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/featured-products?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["featured-products"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "featured-products"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Products marked as featured. Use for homepage 'Featured Products' section."
@@ -173,15 +288,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/flash-sales?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["flash-sales"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "flash-sales"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Active flash sales with `ends_at` timestamp. Use `ends_at` to drive a countdown timer on the homepage."
@@ -193,16 +321,33 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/new-arrivals?limit=20&lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["new-arrivals"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "new-arrivals"
+              ],
               "query": [
-                { "key": "limit", "value": "20", "description": "Max 100" },
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Max 100"
+                },
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Most recently added products. Use for 'New Arrivals' section on homepage."
@@ -214,16 +359,33 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/top-selling?limit=20&lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["top-selling"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "top-selling"
+              ],
               "query": [
-                { "key": "limit", "value": "20", "description": "Max 100" },
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "limit",
+                  "value": "20",
+                  "description": "Max 100"
+                },
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Top-selling products by quantity sold. Use for 'Best Sellers' section."
@@ -241,13 +403,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}/reviews",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}", "reviews"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}",
+                "reviews"
+              ]
             },
             "description": "Approved reviews for a product. Use in the reviews tab on product detail page."
           },
@@ -258,9 +432,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -268,8 +451,14 @@
             },
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}/reviews",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}", "reviews"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}",
+                "reviews"
+              ]
             },
             "description": "Submit a product review. Goes into pending approval queue — admin must approve before it shows publicly.\n\n**Fields:** customer_name (required), customer_email (optional), rating (1-5, required), review (optional)"
           },
@@ -280,13 +469,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}/comments",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}", "comments"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}",
+                "comments"
+              ]
             },
             "description": "Approved comments for a product."
           },
@@ -297,9 +498,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -307,8 +517,14 @@
             },
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}/comments",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}", "comments"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}",
+                "comments"
+              ]
             },
             "description": "Submit a comment. Requires admin approval."
           },
@@ -319,13 +535,25 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}/questions",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}", "questions"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}",
+                "questions"
+              ]
             },
             "description": "Publicly visible answered Q&A for a product."
           },
@@ -336,9 +564,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -346,8 +583,14 @@
             },
             "url": {
               "raw": "{{api_base}}/products/{{product_slug}}/questions",
-              "host": ["{{api_base}}"],
-              "path": ["products", "{{product_slug}}", "questions"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "products",
+                "{{product_slug}}",
+                "questions"
+              ]
             },
             "description": "Ask a question about a product."
           },
@@ -358,16 +601,32 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/reviews?per_page=20&page=1",
-              "host": ["{{api_base}}"],
-              "path": ["reviews"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "reviews"
+              ],
               "query": [
-                { "key": "per_page", "value": "20" },
-                { "key": "page", "value": "1" }
+                {
+                  "key": "per_page",
+                  "value": "20"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
               ]
             },
             "description": "All approved reviews across all products. Use for a testimonials page showing store-wide social proof."
@@ -400,9 +659,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -410,8 +678,13 @@
             },
             "url": {
               "raw": "{{api_base}}/customer/register",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "register"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "register"
+              ]
             },
             "description": "Create a new customer account.\n\n**Test script:** Auto-sets `customer_token` environment variable on success.\n\n**Errors:** 422 if email already registered or passwords don't match."
           },
@@ -437,9 +710,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -447,8 +729,13 @@
             },
             "url": {
               "raw": "{{api_base}}/customer/login",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "login"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "login"
+              ]
             },
             "description": "Authenticate a customer and get a Bearer token.\n\n**Test script:** Auto-sets `customer_token` environment variable.\n\n**Errors:** 422 if credentials invalid, 403 if account inactive."
           },
@@ -459,14 +746,28 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/logout",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "logout"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "logout"
+              ]
             },
             "description": "Invalidates the current access token. Clear stored token in your app after this call."
           },
@@ -477,14 +778,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/me",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "me"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "me"
+              ]
             },
             "description": "Returns the authenticated customer's profile. Use to pre-fill checkout address fields."
           },
@@ -495,10 +810,22 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -506,8 +833,13 @@
             },
             "url": {
               "raw": "{{api_base}}/customer/me",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "me"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "me"
+              ]
             },
             "description": "Update customer profile. All fields are optional. Include `password` and `password_confirmation` to change password."
           },
@@ -524,15 +856,34 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "X-Cart-Token", "value": "{{cart_token}}", "description": "Use this for guest cart. Remove if using Authorization header." },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}", "description": "Use this for authenticated cart. Remove if using X-Cart-Token.", "disabled": true },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "X-Cart-Token",
+                "value": "{{cart_token}}",
+                "description": "Use this for guest cart. Remove if using Authorization header."
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}",
+                "description": "Use this for authenticated cart. Remove if using X-Cart-Token.",
+                "disabled": true
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/cart",
-              "host": ["{{api_base}}"],
-              "path": ["cart"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "cart"
+              ]
             },
             "description": "Returns current cart with items, quantities, and subtotal."
           },
@@ -563,10 +914,23 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "X-Cart-Token", "value": "{{cart_token}}", "description": "Include for guest cart (empty on first call — token returned in response)" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "X-Cart-Token",
+                "value": "{{cart_token}}",
+                "description": "Include for guest cart (empty on first call — token returned in response)"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -574,8 +938,13 @@
             },
             "url": {
               "raw": "{{api_base}}/cart/items",
-              "host": ["{{api_base}}"],
-              "path": ["cart", "items"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "cart",
+                "items"
+              ]
             },
             "description": "Add a product variant to the cart. Use `barcode_id` from `GET /products/{slug}` → `barcodes[].id`.\n\n**Test script:** Auto-sets `cart_token` and `cart_item_id` environment variables.\n\n**Errors:** 422 if product not found, out of stock, or quantity exceeds max order quantity."
           },
@@ -586,10 +955,22 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "X-Cart-Token", "value": "{{cart_token}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "X-Cart-Token",
+                "value": "{{cart_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -597,8 +978,14 @@
             },
             "url": {
               "raw": "{{api_base}}/cart/items/{{cart_item_id}}",
-              "host": ["{{api_base}}"],
-              "path": ["cart", "items", "{{cart_item_id}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{cart_item_id}}"
+              ]
             },
             "description": "Update quantity of a cart item. Use `cart_item_id` from cart response (`data.items[].id`)."
           },
@@ -609,14 +996,29 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "X-Cart-Token", "value": "{{cart_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "X-Cart-Token",
+                "value": "{{cart_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/cart/items/{{cart_item_id}}",
-              "host": ["{{api_base}}"],
-              "path": ["cart", "items", "{{cart_item_id}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "cart",
+                "items",
+                "{{cart_item_id}}"
+              ]
             },
             "description": "Remove a single item from the cart."
           },
@@ -627,14 +1029,27 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "X-Cart-Token", "value": "{{cart_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "X-Cart-Token",
+                "value": "{{cart_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/cart",
-              "host": ["{{api_base}}"],
-              "path": ["cart"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "cart"
+              ]
             },
             "description": "Removes all items from the cart. Returns an empty cart object."
           },
@@ -666,20 +1081,33 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"customer\": {\n    \"name\": \"Jane Smith\",\n    \"email\": \"jane@example.com\",\n    \"phone\": \"+8801711223344\"\n  },\n  \"items\": [\n    {\n      \"barcode_id\": {{barcode_id}},\n      \"quantity\": 1\n    }\n  ],\n  \"shipping_address\": {\n    \"address\": \"456 New Road, Mirpur\",\n    \"city\": \"Dhaka\",\n    \"state\": \"Dhaka\",\n    \"country\": \"Bangladesh\"\n  },\n  \"payment_method\": \"Cash on Delivery\",\n  \"coupon_code\": \"\",\n  \"shipping_cost\": 80,\n  \"note\": \"Please call before delivery.\"\n}"
+              "raw": "{\n  \"customer\": {\n    \"name\": \"Jane Smith\",\n    \"email\": \"jane@example.com\",\n    \"phone\": \"+8801711223344\"\n  },\n  \"items\": [\n    {\n      \"barcode_id\": {{barcode_id}},\n      \"qty\": 1,\n      \"price\": 1000.00,\n      \"discount_percent\": 0,\n      \"invoice_discount_percent\": 0,\n      \"tax_percent\": 0,\n      \"sub_total\": 1000.00,\n      \"net_total\": 1000.00\n    }\n  ],\n  \"summary\": {\n    \"sub_total\": 1000.00,\n    \"discount_amount\": 0,\n    \"shipping_cost\": 80,\n    \"tax_total\": 0,\n    \"net_total\": 1080.00\n  },\n  \"shipping_address\": {\n    \"address\": \"456 New Road, Mirpur\",\n    \"city\": \"Dhaka\",\n    \"state\": \"Dhaka\",\n    \"country\": \"Bangladesh\"\n  },\n  \"coupon_code\": \"\",\n  \"note\": \"Please call before delivery.\"\n}"
             },
             "url": {
               "raw": "{{api_base}}/orders",
-              "host": ["{{api_base}}"],
-              "path": ["orders"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "orders"
+              ]
             },
-            "description": "Place a new order. Creates or finds customer contact by phone number.\n\n**Test script:** Auto-sets `order_id` environment variable.\n\n**Important:** Validate coupon via `POST /coupons/validate` before this call to show live discount preview.\n\n**Errors:** 422 if out of stock, invalid coupon, or validation failure."
+            "description": "Place a new order. Creates or finds customer contact by phone number.\n\n**Test script:** Auto-sets `order_id` environment variable.\n\n**Pricing fields (required per item):**\n- `qty` — quantity (numeric, not integer)\n- `price` — unit selling price\n- `discount_percent` — line-level discount % (0 if none)\n- `invoice_discount_percent` — invoice-level discount % per unit (0 if none)\n- `tax_percent` — VAT/tax % (0 if none)\n- `sub_total` — must equal `qty × (price − line discount)` — server validates\n- `net_total` — must equal `(after_invoice_discount + tax_amount) × qty` — server validates\n\n**Summary block (required):**\n- `sub_total` — sum of all line subtotals\n- `discount_amount` — coupon/invoice discount applied (0 if none)\n- `shipping_cost` — shipping charge\n- `tax_total` — sum of all line taxes\n- `net_total` — must equal `sub_total − discount_amount + tax_total + shipping_cost`\n\n**Important:** Validate coupon via `POST /coupons/validate` before this call to show live discount preview.\n\n**Errors:** 422 if out of stock, invalid coupon, math mismatch, or validation failure."
           },
           "response": []
         },
@@ -688,15 +1116,30 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/orders/{{order_id}}?phone=%2B8801711223344",
-              "host": ["{{api_base}}"],
-              "path": ["orders", "{{order_id}}"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}"
+              ],
               "query": [
-                { "key": "phone", "value": "+8801711223344", "description": "Must match the customer phone on the order (required)" }
+                {
+                  "key": "phone",
+                  "value": "+8801711223344",
+                  "description": "Must match the customer phone on the order (required)"
+                }
               ]
             },
             "description": "Retrieve order details without customer login — verified by phone number match.\n\n**Use case:** Order tracking page accessible without an account."
@@ -714,16 +1157,33 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/orders?per_page=15",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "orders"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "orders"
+              ],
               "query": [
-                { "key": "per_page", "value": "15" }
+                {
+                  "key": "per_page",
+                  "value": "15"
+                }
               ]
             },
             "description": "Paginated list of the authenticated customer's orders.\n\n**Order statuses:** draft, pending, confirmed, processing, shipped, delivered, cancelled, returned\n**Payment statuses:** due, partial, paid"
@@ -735,14 +1195,29 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/orders/{{order_id}}",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "orders", "{{order_id}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "orders",
+                "{{order_id}}"
+              ]
             },
             "description": "Full order detail including line items, shipping info, tracking number, and payment history."
           },
@@ -759,9 +1234,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -769,8 +1253,14 @@
             },
             "url": {
               "raw": "{{api_base}}/orders/{{order_id}}/pay",
-              "host": ["{{api_base}}"],
-              "path": ["orders", "{{order_id}}", "pay"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "orders",
+                "{{order_id}}",
+                "pay"
+              ]
             },
             "description": "Initiate payment for an order via a payment gateway.\n\n**gateway values:** `sslcommerz`, `stripe`\n\n**SSLCommerz:** Returns `gateway_url` — redirect customer to this URL.\n**Stripe:** Returns `client_secret` — use with Stripe.js to confirm payment.\n\n**Errors:** 422 if order already paid or no outstanding balance."
           },
@@ -781,9 +1271,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -791,8 +1290,14 @@
             },
             "url": {
               "raw": "{{api_base}}/payment/sslcommerz/verify",
-              "host": ["{{api_base}}"],
-              "path": ["payment", "sslcommerz", "verify"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "payment",
+                "sslcommerz",
+                "verify"
+              ]
             },
             "description": "Verify SSLCommerz payment after customer returns from payment page.\n\n**val_id:** From SSLCommerz callback query params.\n**value_a:** The order ID passed during payment initiation.\n\nShow success/failure UI based on `success` boolean in response."
           },
@@ -803,9 +1308,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -813,8 +1327,14 @@
             },
             "url": {
               "raw": "{{api_base}}/payment/stripe/verify",
-              "host": ["{{api_base}}"],
-              "path": ["payment", "stripe", "verify"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "payment",
+                "stripe",
+                "verify"
+              ]
             },
             "description": "Verify Stripe payment after successful payment intent confirmation via Stripe.js."
           },
@@ -825,19 +1345,35 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
             ],
             "body": {
               "mode": "urlencoded",
               "urlencoded": [
-                { "key": "val_id", "value": "24C08151513535810610733", "description": "SSLCommerz validation ID" },
-                { "key": "status", "value": "VALID" }
+                {
+                  "key": "val_id",
+                  "value": "24C08151513535810610733",
+                  "description": "SSLCommerz validation ID"
+                },
+                {
+                  "key": "status",
+                  "value": "VALID"
+                }
               ]
             },
             "url": {
               "raw": "{{api_base}}/payment/sslcommerz/ipn",
-              "host": ["{{api_base}}"],
-              "path": ["payment", "sslcommerz", "ipn"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "payment",
+                "sslcommerz",
+                "ipn"
+              ]
             },
             "description": "SSLCommerz IPN (Instant Payment Notification) webhook.\n\n**Do NOT call this from frontend.** SSLCommerz calls this automatically on payment events.\n\nNo API key required — called by SSLCommerz servers directly."
           },
@@ -853,9 +1389,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -863,8 +1408,13 @@
             },
             "url": {
               "raw": "{{api_base}}/coupons/validate",
-              "host": ["{{api_base}}"],
-              "path": ["coupons", "validate"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "coupons",
+                "validate"
+              ]
             },
             "description": "Validate a coupon code and preview the discount amount.\n\n**Returns:** discount_type (fixed/percentage), discount_value, discount_amount, final_total.\n\n**Tip:** Call on coupon field submit/blur — not on every keystroke.\n\n**Errors:** 422 if invalid, expired, or usage limit exceeded."
           },
@@ -881,14 +1431,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/returns",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "returns"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "returns"
+              ]
             },
             "description": "All return requests for the authenticated customer.\n\n**Return statuses:** pending, approved, rejected, cancelled"
           },
@@ -914,10 +1478,22 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -925,8 +1501,13 @@
             },
             "url": {
               "raw": "{{api_base}}/customer/returns",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "returns"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "returns"
+              ]
             },
             "description": "Submit a return request. Order must be in 'shipped' or 'delivered' status.\n\nGet `sale_detail_id` from `GET /customer/orders/{id}` → `items[].id`.\n\n**Test script:** Auto-sets `return_id` environment variable.\n\n**Errors:** 422 if order not in returnable status or duplicate pending return exists."
           },
@@ -937,14 +1518,29 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/returns/{{return_id}}",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "returns", "{{return_id}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "returns",
+                "{{return_id}}"
+              ]
             },
             "description": "Details of a specific return request including line items and status."
           },
@@ -955,14 +1551,30 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/returns/{{return_id}}/cancel",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "returns", "{{return_id}}", "cancel"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "returns",
+                "{{return_id}}",
+                "cancel"
+              ]
             },
             "description": "Cancel a pending return request. Only works on 'pending' status returns.\n\n**Errors:** 422 if not in pending status."
           },
@@ -979,14 +1591,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/wishlist",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "wishlist"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "wishlist"
+              ]
             },
             "description": "Returns all wishlisted products for the authenticated customer."
           },
@@ -1012,10 +1638,22 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1023,8 +1661,13 @@
             },
             "url": {
               "raw": "{{api_base}}/customer/wishlist",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "wishlist"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "wishlist"
+              ]
             },
             "description": "Add a product to wishlist by slug.\n\n**Test script:** Auto-sets `wishlist_item_id`.\n\n**Response:** 201 if newly added, 200 if already in wishlist — check status code to update heart icon state."
           },
@@ -1035,14 +1678,29 @@
           "request": {
             "method": "DELETE",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/wishlist/{{wishlist_item_id}}",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "wishlist", "{{wishlist_item_id}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "wishlist",
+                "{{wishlist_item_id}}"
+              ]
             },
             "description": "Remove an item from the wishlist using the wishlist item ID (not product ID)."
           },
@@ -1058,14 +1716,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Authorization", "value": "Bearer {{customer_token}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{customer_token}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/customer/loyalty",
-              "host": ["{{api_base}}"],
-              "path": ["customer", "loyalty"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "customer",
+                "loyalty"
+              ]
             },
             "description": "Returns loyalty point balance, point value, minimum redemption threshold, and transaction history.\n\n**Errors:** 404 if loyalty system is disabled for the store.\n\n**Tip:** Show `points_earned` from the order creation response on the order confirmation page."
           },
@@ -1082,13 +1754,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/delivery-charges",
-              "host": ["{{api_base}}"],
-              "path": ["delivery-charges"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "delivery-charges"
+              ]
             },
             "description": "Active shipping/delivery options with costs. Use to populate the shipping method selector on checkout."
           },
@@ -1099,13 +1781,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/payment-methods",
-              "host": ["{{api_base}}"],
-              "path": ["payment-methods"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "payment-methods"
+              ]
             },
             "description": "Active payment methods. Use `name` as the `payment_method` value in `POST /orders`."
           },
@@ -1122,13 +1814,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/hero-banners",
-              "host": ["{{api_base}}"],
-              "path": ["hero-banners"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "hero-banners"
+              ]
             },
             "description": "Full-width hero banners for homepage carousel. Ordered by sort_order."
           },
@@ -1139,13 +1841,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/sliders",
-              "host": ["{{api_base}}"],
-              "path": ["sliders"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "sliders"
+              ]
             },
             "description": "Slider/carousel images ordered by sort_order."
           },
@@ -1156,13 +1868,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/gallery",
-              "host": ["{{api_base}}"],
-              "path": ["gallery"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "gallery"
+              ]
             },
             "description": "Gallery/lookbook images ordered by sort_order."
           },
@@ -1173,13 +1895,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/popups",
-              "host": ["{{api_base}}"],
-              "path": ["popups"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "popups"
+              ]
             },
             "description": "Active popup modals within their date range. Use localStorage flag to avoid re-showing dismissed popups."
           },
@@ -1195,15 +1927,28 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/homepage-categories?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["homepage-categories"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "homepage-categories"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}"
+                }
               ]
             },
             "description": "Categories configured to appear on the homepage with display settings. Use for 'Shop by Category' section."
@@ -1221,15 +1966,30 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/faqs",
-              "host": ["{{api_base}}"],
-              "path": ["faqs"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "faqs"
+              ],
               "query": [
-                { "key": "category", "value": "", "description": "Filter by FAQ category name", "disabled": true }
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Filter by FAQ category name",
+                  "disabled": true
+                }
               ]
             },
             "description": "Active FAQ items. Optionally filter by category name."
@@ -1241,13 +2001,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/outlets",
-              "host": ["{{api_base}}"],
-              "path": ["outlets"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "outlets"
+              ]
             },
             "description": "Active physical store/outlet locations with address, phone, and map link."
           },
@@ -1258,13 +2028,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/pages",
-              "host": ["{{api_base}}"],
-              "path": ["pages"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "pages"
+              ]
             },
             "description": "List of active static pages (title + slug only). Use to build footer navigation links."
           },
@@ -1275,13 +2055,24 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/pages/{{page_slug}}",
-              "host": ["{{api_base}}"],
-              "path": ["pages", "{{page_slug}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "pages",
+                "{{page_slug}}"
+              ]
             },
             "description": "Full HTML content of a static page (About Us, Privacy Policy, Terms, etc.)."
           },
@@ -1297,13 +2088,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/support-ticket-types",
-              "host": ["{{api_base}}"],
-              "path": ["support-ticket-types"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "support-ticket-types"
+              ]
             },
             "description": "Active support ticket categories. Use to populate the issue type dropdown on the support form."
           },
@@ -1314,9 +2115,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1324,8 +2134,12 @@
             },
             "url": {
               "raw": "{{api_base}}/support-tickets",
-              "host": ["{{api_base}}"],
-              "path": ["support-tickets"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "support-tickets"
+              ]
             },
             "description": "Submit a new support ticket. Show `ticket_no` from response to customer for follow-up reference.\n\n**priority values:** low, medium, high, urgent (default: medium)"
           },
@@ -1341,9 +2155,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1351,8 +2174,12 @@
             },
             "url": {
               "raw": "{{api_base}}/contact",
-              "host": ["{{api_base}}"],
-              "path": ["contact"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "contact"
+              ]
             },
             "description": "Submit a contact form message."
           },
@@ -1363,9 +2190,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1373,8 +2209,13 @@
             },
             "url": {
               "raw": "{{api_base}}/newsletter/subscribe",
-              "host": ["{{api_base}}"],
-              "path": ["newsletter", "subscribe"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "newsletter",
+                "subscribe"
+              ]
             },
             "description": "Subscribe an email to the newsletter. Resubscribing a previously unsubscribed email reactivates it — no error thrown."
           },
@@ -1390,13 +2231,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/appointment-info",
-              "host": ["{{api_base}}"],
-              "path": ["appointment-info"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "appointment-info"
+              ]
             },
             "description": "Appointment availability settings: working days, hours, off-days.\n\nUse to disable unavailable dates in the booking calendar.\n\n**Errors:** 404 if appointment booking is disabled."
           },
@@ -1407,9 +2258,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "X-Api-Key", "value": "{{secret_key}}" },
-              { "key": "Accept", "value": "application/json" },
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{secret_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1417,8 +2277,12 @@
             },
             "url": {
               "raw": "{{api_base}}/appointments",
-              "host": ["{{api_base}}"],
-              "path": ["appointments"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "appointments"
+              ]
             },
             "description": "Book an appointment.\n\n**appointment_date:** YYYY-MM-DD format, must be today or future.\n**appointment_time:** HH:MM format (24-hour)."
           },
@@ -1434,15 +2298,29 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/translations?lang={{language}}",
-              "host": ["{{api_base}}"],
-              "path": ["translations"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "translations"
+              ],
               "query": [
-                { "key": "lang", "value": "{{language}}", "description": "Language code (required, e.g., bn, en)" }
+                {
+                  "key": "lang",
+                  "value": "{{language}}",
+                  "description": "Language code (required, e.g., bn, en)"
+                }
               ]
             },
             "description": "All UI string translations for a language as key-value pairs.\n\nLoad once on app startup and cache. Use key-value pairs to localize all UI text."
@@ -1460,13 +2338,23 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/blog-categories",
-              "host": ["{{api_base}}"],
-              "path": ["blog-categories"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "blog-categories"
+              ]
             },
             "description": "All active blog categories."
           },
@@ -1477,13 +2365,24 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/blog-categories/reviews",
-              "host": ["{{api_base}}"],
-              "path": ["blog-categories", "reviews"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "blog-categories",
+                "reviews"
+              ]
             },
             "description": "Single blog category by slug."
           },
@@ -1494,18 +2393,45 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/blogs?per_page=10&page=1",
-              "host": ["{{api_base}}"],
-              "path": ["blogs"],
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "blogs"
+              ],
               "query": [
-                { "key": "category", "value": "", "description": "Filter by category slug", "disabled": true },
-                { "key": "tag", "value": "", "description": "Filter by tag", "disabled": true },
-                { "key": "per_page", "value": "10", "description": "Max 100" },
-                { "key": "page", "value": "1" }
+                {
+                  "key": "category",
+                  "value": "",
+                  "description": "Filter by category slug",
+                  "disabled": true
+                },
+                {
+                  "key": "tag",
+                  "value": "",
+                  "description": "Filter by tag",
+                  "disabled": true
+                },
+                {
+                  "key": "per_page",
+                  "value": "10",
+                  "description": "Max 100"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                }
               ]
             },
             "description": "Published blog posts paginated. Filter by category slug or tag."
@@ -1517,13 +2443,24 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "X-Api-Key", "value": "{{public_key}}" },
-              { "key": "Accept", "value": "application/json" }
+              {
+                "key": "X-Api-Key",
+                "value": "{{public_key}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
             ],
             "url": {
               "raw": "{{api_base}}/blogs/{{blog_slug}}",
-              "host": ["{{api_base}}"],
-              "path": ["blogs", "{{blog_slug}}"]
+              "host": [
+                "{{api_base}}"
+              ],
+              "path": [
+                "blogs",
+                "{{blog_slug}}"
+              ]
             },
             "description": "Full published blog post with HTML content and SEO metadata."
           },

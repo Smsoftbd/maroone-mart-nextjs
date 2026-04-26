@@ -76,7 +76,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
     },
   });
 
-  const shippingCost = delivery?.cost ?? 0;
+  const shippingCost = delivery ? parseFloat(delivery.charge_amount) : 0;
   const total = subTotal + shippingCost - discountAmount;
 
   const onSubmit = async (data: FormData) => {
@@ -156,7 +156,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
             <SectionLabel>Delivery Method</SectionLabel>
             <ShippingSelector
               currency={currency}
-              methodName={resolveL10n(delivery?.name) ?? ""}
+              methodName={resolveL10n(delivery?.zone_name) ?? ""}
               onChange={setDelivery}
             />
           </SectionCard>
@@ -233,7 +233,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--color-text-secondary)]">
-                  Delivery{delivery ? ` (${resolveL10n(delivery.name)})` : ""}
+                  Delivery{delivery ? ` (${resolveL10n(delivery.zone_name)})` : ""}
                 </span>
                 <span>
                   {delivery

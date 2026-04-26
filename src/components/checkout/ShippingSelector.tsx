@@ -47,7 +47,8 @@ export function ShippingSelector({
   return (
     <div className="space-y-2">
       {charges.map((charge) => {
-        const displayName = resolveL10n(charge.name);
+        const displayName = resolveL10n(charge.zone_name);
+        const cost = parseFloat(charge.charge_amount);
         return (
           <label
             key={charge.id}
@@ -67,14 +68,14 @@ export function ShippingSelector({
             <Truck className="h-4 w-4 text-[var(--color-text-muted)]" />
             <div className="flex-1">
               <span className="text-sm font-medium">{displayName}</span>
-              {charge.estimated_days && (
+              {charge.free_delivery_above && (
                 <span className="text-xs text-[var(--color-text-muted)] ml-2">
-                  {charge.estimated_days} day{charge.estimated_days !== 1 ? "s" : ""}
+                  Free above {formatPrice(parseFloat(charge.free_delivery_above), currency)}
                 </span>
               )}
             </div>
             <span className="text-sm font-bold">
-              {charge.cost === 0 ? "Free" : formatPrice(charge.cost, currency)}
+              {cost === 0 ? "Free" : formatPrice(cost, currency)}
             </span>
           </label>
         );

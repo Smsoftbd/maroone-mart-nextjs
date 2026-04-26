@@ -55,11 +55,14 @@ function adjustLightness(hex: string, delta: number): string {
 
 export function buildColorStyleBlock(colors: {
   primary: string;
+  primary_text: string;
   secondary: string;
+  secondary_text: string;
   tertiary: string;
+  tertiary_text: string;
   default_text: string;
 }): string {
-  const { primary, secondary, tertiary, default_text } = colors;
+  const { primary, primary_text, secondary, secondary_text, tertiary, tertiary_text, default_text } = colors;
   const vars: Record<string, string> = {
     "--color-brand-50": tertiary,
     "--color-brand-100": adjustLightness(tertiary, -5),
@@ -68,6 +71,9 @@ export function buildColorStyleBlock(colors: {
     "--color-brand-600": adjustLightness(primary, -10),
     "--color-brand-900": adjustLightness(primary, -35),
     "--color-text-primary": default_text,
+    "--color-primary-text": primary_text,
+    "--color-secondary-text": secondary_text,
+    "--color-tertiary-text": tertiary_text,
   };
   const block = Object.entries(vars)
     .map(([k, v]) => `${k}:${v}`)

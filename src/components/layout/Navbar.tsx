@@ -53,17 +53,15 @@ export function Navbar({ store, categories }: NavbarProps) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 transition-all duration-300",
-        scrolled
-          ? "bg-white shadow-sm border-b border-[var(--color-border)]"
-          : "bg-white/95 backdrop-blur-sm"
+        "sticky top-0 z-40 transition-all duration-300 bg-brand-500",
+        scrolled ? "shadow-md" : "shadow-sm"
       )}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center h-16 gap-4">
           {/* Mobile: hamburger */}
           <button
-            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-surface-100 transition-colors"
+            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
             onClick={toggleMobileNav}
             aria-label="Open menu"
           >
@@ -78,11 +76,11 @@ export function Navbar({ store, categories }: NavbarProps) {
                 alt={store.name}
                 width={120}
                 height={40}
-                className="h-8 w-auto object-contain"
+                className="h-8 w-auto object-contain brightness-0 invert"
                 priority
               />
             ) : (
-              <span className="font-display text-xl font-bold text-brand-500">
+              <span className="font-display text-xl font-bold text-[var(--color-primary-text)]">
                 {store.name}
               </span>
             )}
@@ -94,7 +92,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               <Link
                 key={cat.id}
                 href={`/categories/${cat.slug}`}
-                className="text-sm font-medium text-[var(--color-text-secondary)] hover:text-brand-500 transition-colors whitespace-nowrap"
+                className="text-sm font-medium text-[var(--color-primary-text)]/80 hover:text-[var(--color-primary-text)] transition-colors whitespace-nowrap"
               >
                 {cat.name}
               </Link>
@@ -122,7 +120,7 @@ export function Navbar({ store, categories }: NavbarProps) {
             <div className="flex items-center gap-1">
               <button
                 onClick={openSearch}
-                className="p-2 rounded-full hover:bg-surface-100 transition-colors"
+                className="p-2 rounded-full hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
                 aria-label="Search"
               >
                 <Search className="h-5 w-5" />
@@ -131,7 +129,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               {store.features.wishlist && (
                 <Link
                   href="/account/wishlist"
-                  className="p-2 rounded-full hover:bg-surface-100 transition-colors"
+                  className="p-2 rounded-full hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
                   aria-label="Wishlist"
                 >
                   <Heart className="h-5 w-5" />
@@ -142,7 +140,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               <div className="relative">
                 <button
                   onClick={() => setAccountOpen((o) => !o)}
-                  className="p-2 rounded-full hover:bg-surface-100 transition-colors"
+                  className="p-2 rounded-full hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
                   aria-label="Account"
                 >
                   <User className="h-5 w-5" />
@@ -200,13 +198,13 @@ export function Navbar({ store, categories }: NavbarProps) {
               {/* Cart */}
               <button
                 onClick={openCart}
-                className="relative flex items-center gap-2 ml-1 px-4 py-2 bg-brand-500 text-white rounded-lg hover:bg-brand-600 transition-colors text-sm font-medium"
+                className="relative flex items-center gap-2 ml-1 px-4 py-2 bg-[var(--color-primary-text)] text-brand-500 rounded-lg hover:bg-white/90 transition-colors text-sm font-medium"
                 aria-label={`Cart, ${totalItems} items`}
               >
                 <ShoppingBag className="h-4 w-4" />
                 <span className="hidden sm:inline">Cart</span>
                 {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-surface-900 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                  <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-secondary-text)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
                     {totalItems > 99 ? "99+" : totalItems}
                   </span>
                 )}

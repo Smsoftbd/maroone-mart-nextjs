@@ -1196,6 +1196,8 @@ X-Cart-Token: {{cart_token}}
 
 Places a new order. Requires secret key. Creates or finds the customer contact by phone number.
 
+All pricing math is validated server-side — the server rejects any request where submitted totals don't match the expected calculations.
+
 **Headers:**
 ```
 X-Api-Key: {{secret_key}}
@@ -1213,38 +1215,89 @@ Content-Type: application/json
   "items": [
     {
       "barcode_id": 101,
-      "quantity": 2
+      "qty": 2,
+      "price": 139000.00,
+      "discount_percent": 0,
+      "invoice_discount_percent": 0,
+      "tax_percent": 0,
+      "sub_total": 278000.00,
+      "net_total": 278000.00
     }
   ],
+  "summary": {
+    "sub_total": 278000.00,
+    "discount_amount": 27800.00,
+    "shipping_cost": 80.00,
+    "tax_total": 0.00,
+    "net_total": 250280.00
+  },
   "shipping_address": {
     "address": "456 New Road, Mirpur",
     "city": "Dhaka",
     "state": "Dhaka",
     "country": "Bangladesh"
   },
-  "payment_method": "Cash on Delivery",
   "coupon_code": "SAVE10",
-  "shipping_cost": 80,
   "note": "Please call before delivery."
 }
 ```
+
+**Customer fields:**
 
 | Field | Type | Required | Notes |
 |-------|------|----------|-------|
 | `customer.name` | string | Yes | max 255 |
 | `customer.email` | email | No | — |
-| `customer.phone` | string | Yes | max 50; used to find existing contact |
-| `items` | array | Yes | min 1 item |
-| `items[].barcode_id` | integer | Yes | — |
-| `items[].quantity` | integer | Yes | min 1 |
+| `customer.phone` | string | Yes | max 50; used to find/create contact |
+
+**Item fields (per item in `items[]`):**
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `barcode_id` | integer | Yes | From `GET /products/{slug}` → `barcodes[].id` |
+| `qty` | numeric | Yes | min 0.0001 |
+| `price` | numeric | Yes | Unit selling price (min 0) |
+| `discount_percent` | numeric | No | Line-level discount % (0–100); default 0 |
+| `invoice_discount_percent` | numeric | No | Invoice-level discount % per unit (0–100); default 0 |
+| `tax_percent` | numeric | No | VAT/tax % applied after discounts; default 0 |
+| `sub_total` | numeric | Yes | Must equal `qty × (price − line_discount_amount)` |
+| `net_total` | numeric | Yes | Must equal `(after_invoice_discount + tax_amount) × qty` |
+
+**How line totals are calculated (mirrors DB stored columns):**
+
+```
+discount_amount       = ROUND((price × discount_percent) / 100, 2)
+after_discount        = ROUND(price − discount_amount, 2)
+sub_total             = ROUND(qty × after_discount, 2)                 ← submit this
+
+invoice_discount_amt  = ROUND((after_discount × invoice_discount_percent) / 100, 2)
+after_invoice_discount= ROUND(after_discount − invoice_discount_amt, 2)
+tax_amount            = ROUND((after_invoice_discount × tax_percent) / 100, 2)
+net_total             = ROUND((after_invoice_discount + tax_amount) × qty, 2)  ← submit this
+```
+
+**Summary fields:**
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `summary.sub_total` | numeric | Yes | Must equal sum of all line `sub_total` values |
+| `summary.discount_amount` | numeric | No | Coupon/invoice discount deducted from subtotal; default 0 |
+| `summary.shipping_cost` | numeric | No | Shipping charge; default 0 |
+| `summary.tax_total` | numeric | No | Must equal sum of all line `qty × tax_amount`; default 0 |
+| `summary.net_total` | numeric | Yes | Must equal `sub_total − discount_amount + tax_total + shipping_cost` |
+
+**Other fields:**
+
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
 | `shipping_address.address` | string | Yes | — |
 | `shipping_address.city` | string | No | — |
 | `shipping_address.state` | string | No | — |
 | `shipping_address.country` | string | No | — |
-| `payment_method` | string | Yes | max 100 (e.g., "Cash on Delivery", "bKash") |
-| `coupon_code` | string | No | validated at order time |
-| `shipping_cost` | numeric | No | default 0 |
-| `note` | string | No | delivery instructions |
+| `coupon_code` | string | No | Validated at order time; use `POST /coupons/validate` first |
+| `note` | string | No | Delivery instructions |
+
+> **Orders are always placed as `pending` / `due`** — no payment is collected at order time. Payment is initiated separately via `POST /orders/{id}/pay`.
 
 **Success Response `201`:**
 ```json
@@ -1252,8 +1305,8 @@ Content-Type: application/json
   "message": "Order placed successfully.",
   "order": {
     "id": 1001,
-    "invoice_number": "INV-2024-1001",
-    "net_total": 278080,
+    "invoice_number": "ORD-2024-1001",
+    "net_total": 250280,
     "payment_status": "due",
     "status": "pending",
     "created_at": "2024-12-01T14:30:00Z"
@@ -1263,11 +1316,11 @@ Content-Type: application/json
 ```
 
 **Errors:**
-- `422` — out of stock, invalid coupon, validation failure
+- `422` — out of stock, invalid coupon, or line/summary math mismatch
 
 **Use case:** Checkout form submission. Use `order.id` to initiate payment afterwards.
 
-> **Important:** Always validate coupon via `POST /coupons/validate` before placing the order to show live discount preview to the user.
+> **Important:** Always call `POST /coupons/validate` before placing the order to get `discount_amount` — use that value in `summary.discount_amount` and subtract it when computing `summary.net_total`.
 
 ---
 
@@ -2433,12 +2486,14 @@ POST /customer/returns        → initiate return
 
 5. **Use `barcode_id`, not `product_id`.** All cart and order operations use `barcode_id` — the variant-level identifier that carries price and stock.
 
-6. **Handle 422 errors gracefully.** Out-of-stock and validation failures both return 422. Check `errors` or `error` fields for user-facing messages.
+6. **Compute and submit pricing fields client-side.** The order endpoint validates all line and summary totals server-side — build `sub_total`, `net_total`, and `summary` from the formulas documented in `POST /orders`. A math mismatch returns 422.
 
-7. **Multi-language:** Always pass `?lang=<code>` on catalog endpoints if your storefront supports multiple languages. Load translations once and cache.
+7. **Handle 422 errors gracefully.** Out-of-stock, invalid coupon, and math mismatches all return 422. Check `errors` or `error` fields for user-facing messages.
 
-8. **Guest-to-customer cart merge:** Send both `X-Cart-Token` and `Authorization: Bearer` headers on the first cart call after login to transfer guest cart items to the customer account.
+8. **Multi-language:** Always pass `?lang=<code>` on catalog endpoints if your storefront supports multiple languages. Load translations once and cache.
 
-9. **Check `features` flags from `GET /store`** before rendering wishlist, loyalty, reviews, appointments, or blog sections to avoid empty pages.
+9. **Guest-to-customer cart merge:** Send both `X-Cart-Token` and `Authorization: Bearer` headers on the first cart call after login to transfer guest cart items to the customer account.
 
-10. **Polling for flash sale countdown:** Flash sales have an `ends_at` timestamp — run a `setInterval` client-side and re-fetch products only when the sale expires, not on every tick.
+10. **Check `features` flags from `GET /store`** before rendering wishlist, loyalty, reviews, appointments, or blog sections to avoid empty pages.
+
+11. **Polling for flash sale countdown:** Flash sales have an `ends_at` timestamp — run a `setInterval` client-side and re-fetch products only when the sale expires, not on every tick.

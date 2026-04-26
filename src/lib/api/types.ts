@@ -488,9 +488,12 @@ export interface Comment {
 
 export interface DeliveryCharge {
   id: number;
-  name: string | { en?: string; bn?: string; [lang: string]: string | undefined };
-  cost: number;
-  estimated_days?: number;
+  zone_name: { en?: string; bn?: string; [lang: string]: string | undefined };
+  description?: { en?: string; bn?: string; [lang: string]: string | undefined };
+  charge_type: string;
+  charge_amount: string;
+  min_order_amount: string | null;
+  free_delivery_above: string | null;
 }
 
 export interface PaymentMethod {

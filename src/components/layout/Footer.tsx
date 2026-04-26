@@ -11,7 +11,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-surface-900 text-white mt-auto">
+    <footer className="bg-brand-500 text-[var(--color-primary-text)] mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand */}
@@ -25,18 +25,18 @@ export function Footer({ store, pages = [] }: FooterProps) {
                 className="h-8 w-auto object-contain brightness-0 invert mb-4"
               />
             ) : (
-              <span className="font-display text-xl font-bold text-brand-400 block mb-4">
+              <span className="font-display text-xl font-bold text-[var(--color-primary-text)] block mb-4">
                 {store.name}
               </span>
             )}
-            <p className="text-sm text-white/60 leading-relaxed mb-4">
+            <p className="text-sm text-[var(--color-primary-text)]/70 leading-relaxed mb-4">
               {store.tagline}
             </p>
             <div className="flex gap-3">
               {store.social.facebook && (
                 <a
                   href={store.social.facebook}
-                  className="text-white/50 hover:text-brand-400 transition-colors"
+                  className="text-[var(--color-primary-text)]/60 hover:text-[var(--color-primary-text)] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
@@ -49,7 +49,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
               {store.social.instagram && (
                 <a
                   href={store.social.instagram}
-                  className="text-white/50 hover:text-brand-400 transition-colors"
+                  className="text-[var(--color-primary-text)]/60 hover:text-[var(--color-primary-text)] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -64,7 +64,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
               {store.social.youtube && (
                 <a
                   href={store.social.youtube}
-                  className="text-white/50 hover:text-brand-400 transition-colors"
+                  className="text-[var(--color-primary-text)]/60 hover:text-[var(--color-primary-text)] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="YouTube"
@@ -78,7 +78,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
               {store.social.whatsapp && (
                 <a
                   href={store.social.whatsapp}
-                  className="text-white/50 hover:text-brand-400 transition-colors"
+                  className="text-[var(--color-primary-text)]/60 hover:text-[var(--color-primary-text)] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp"
@@ -92,7 +92,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
               {store.social.tiktok && (
                 <a
                   href={store.social.tiktok}
-                  className="text-white/50 hover:text-brand-400 transition-colors"
+                  className="text-[var(--color-primary-text)]/60 hover:text-[var(--color-primary-text)] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="TikTok"
@@ -105,7 +105,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
               {store.social.pinterest && (
                 <a
                   href={store.social.pinterest}
-                  className="text-white/50 hover:text-brand-400 transition-colors"
+                  className="text-[var(--color-primary-text)]/60 hover:text-[var(--color-primary-text)] transition-colors"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Pinterest"
@@ -120,42 +120,42 @@ export function Footer({ store, pages = [] }: FooterProps) {
 
           {/* Shop */}
           <div>
-            <h3 className="font-display font-semibold mb-4">Shop</h3>
+            <h3 className="font-display font-semibold mb-4 text-[var(--color-primary-text)]">Shop</h3>
             <ul className="space-y-2">
-              <li><Link href="/products" className="text-sm text-white/60 hover:text-brand-400 transition-colors">All Products</Link></li>
-              <li><Link href="/products?featured=1" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Featured</Link></li>
-              <li><Link href="/products?sort=new" className="text-sm text-white/60 hover:text-brand-400 transition-colors">New Arrivals</Link></li>
-              <li><Link href="/search" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Search</Link></li>
+              <li><Link href="/products" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">All Products</Link></li>
+              <li><Link href="/products?featured=1" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Featured</Link></li>
+              <li><Link href="/products?sort=new" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">New Arrivals</Link></li>
+              <li><Link href="/search" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Search</Link></li>
               {store.features.blog && (
-                <li><Link href="/blog" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Blog</Link></li>
+                <li><Link href="/blog" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Blog</Link></li>
               )}
             </ul>
           </div>
 
           {/* Account */}
           <div>
-            <h3 className="font-display font-semibold mb-4">Account</h3>
+            <h3 className="font-display font-semibold mb-4 text-[var(--color-primary-text)]">Account</h3>
             <ul className="space-y-2">
-              <li><Link href="/account" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Dashboard</Link></li>
-              <li><Link href="/account/orders" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Orders</Link></li>
+              <li><Link href="/account" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Dashboard</Link></li>
+              <li><Link href="/account/orders" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Orders</Link></li>
               {store.features.wishlist && (
-                <li><Link href="/account/wishlist" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Wishlist</Link></li>
+                <li><Link href="/account/wishlist" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Wishlist</Link></li>
               )}
               {store.features.loyalty && (
-                <li><Link href="/account/loyalty" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Loyalty Points</Link></li>
+                <li><Link href="/account/loyalty" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Loyalty Points</Link></li>
               )}
-              <li><Link href="/track-order" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Track Order</Link></li>
+              <li><Link href="/track-order" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Track Order</Link></li>
             </ul>
           </div>
 
           {/* Info */}
           <div>
-            <h3 className="font-display font-semibold mb-4">Contact</h3>
+            <h3 className="font-display font-semibold mb-4 text-[var(--color-primary-text)]">Contact</h3>
             <ul className="space-y-2">
               <li>
                 <a
                   href={`tel:${store.phone}`}
-                  className="text-sm text-white/60 hover:text-brand-400 transition-colors"
+                  className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors"
                 >
                   {store.phone}
                 </a>
@@ -163,14 +163,14 @@ export function Footer({ store, pages = [] }: FooterProps) {
               <li>
                 <a
                   href={`mailto:${store.email}`}
-                  className="text-sm text-white/60 hover:text-brand-400 transition-colors"
+                  className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors"
                 >
                   {store.email}
                 </a>
               </li>
-              <li className="text-sm text-white/60">{store.address}</li>
-              <li><Link href="/contact" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Contact Us</Link></li>
-              <li><Link href="/support" className="text-sm text-white/60 hover:text-brand-400 transition-colors">Support</Link></li>
+              <li className="text-sm text-[var(--color-primary-text)]/70">{store.address}</li>
+              <li><Link href="/contact" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Contact Us</Link></li>
+              <li><Link href="/support" className="text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Support</Link></li>
             </ul>
             {pages.length > 0 && (
               <div className="mt-4 space-y-2">
@@ -178,7 +178,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
                   <Link
                     key={page.id}
                     href={`/pages/${page.slug}`}
-                    className="block text-sm text-white/60 hover:text-brand-400 transition-colors"
+                    className="block text-sm text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors"
                   >
                     {page.title}
                   </Link>
@@ -188,7 +188,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-10 pt-6 text-center text-sm text-white/40">
+        <div className="border-t border-[var(--color-primary-text)]/15 mt-10 pt-6 text-center text-sm text-[var(--color-primary-text)]/50">
           &copy; {year} {store.name}. All rights reserved.
         </div>
       </div>
