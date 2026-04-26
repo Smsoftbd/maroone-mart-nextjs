@@ -101,21 +101,15 @@ export default function TrackOrderPage() {
             </div>
           )}
 
-          {order.estimated_delivery_date && (
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              Estimated delivery: {formatDate(order.estimated_delivery_date)}
-            </p>
-          )}
-
           <div>
             <h3 className="font-semibold mb-3">Items</h3>
             <div className="space-y-2">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
+              {order.details.map((detail) => (
+                <div key={detail.id} className="flex justify-between text-sm">
                   <span className="text-[var(--color-text-secondary)]">
-                    {item.product_name} × {item.quantity}
+                    {detail.product.name} × {detail.qty}
                   </span>
-                  <span className="font-medium">{formatPrice(item.sub_total, "৳")}</span>
+                  <span className="font-medium">{formatPrice(detail.sub_total, "৳")}</span>
                 </div>
               ))}
             </div>

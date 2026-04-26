@@ -276,30 +276,72 @@ export interface ShippingAddress {
   country?: string;
 }
 
-export interface OrderItem {
+export interface OrderDetailProduct {
   id: number;
-  product_name: string;
+  name: string;
+  slug: string;
   sku: string;
-  quantity: number;
+  image: string;
+}
+
+export interface OrderDetail {
+  id: number;
+  sale_id: number;
+  product_id: number;
+  qty: number;
   price: number;
+  discount_percent: number;
+  discount_amount: number;
   sub_total: number;
+  net_total: number;
+  note: string | null;
+  product: OrderDetailProduct;
+}
+
+export interface OrderPaymentDetail {
+  id: number;
+  amount: number;
+  payment_id: number;
+  created_at: string;
+}
+
+export interface OrderCustomer {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
 }
 
 export interface Order {
   id: number;
   invoice_number: string;
+  invoice_suffix: string;
   date: string;
-  shipping_address: ShippingAddress;
-  payment_method: string;
+  tax_type: string;
   sub_total: number;
+  discount_percent: number;
+  discount_amount: number;
+  tax_total: number;
   shipping_cost: number;
+  shipping_address: ShippingAddress;
+  adjustment: number;
   net_total: number;
+  paid_amount: number;
+  coupon_code: string | null;
+  return_amount: number;
+  due_amount: number;
   payment_status: PaymentStatus;
   status: OrderStatus;
-  tracking_number?: string;
-  estimated_delivery_date?: string;
-  note?: string;
-  items: OrderItem[];
+  status_label: string;
+  sale_type: string;
+  note: string | null;
+  delivery_status: string | null;
+  tracking_number: string | null;
+  customer: OrderCustomer;
+  details: OrderDetail[];
+  paymentDetails: OrderPaymentDetail[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface OrderListItem {
@@ -352,9 +394,10 @@ export interface CreateOrderResponse {
     net_total: number;
     payment_status: PaymentStatus;
     status: OrderStatus;
+    status_label: string;
     created_at: string;
+    points_earned: number | null;
   };
-  points_earned: number;
 }
 
 // ─── Payments ────────────────────────────────────────────────────────────────

@@ -54,24 +54,21 @@ export default function OrderDetailPage() {
           {order.shipping_address.city && `, ${order.shipping_address.city}`}
           {order.shipping_address.country && `, ${order.shipping_address.country}`}
         </p>
-        <p className="mt-1 text-[var(--color-text-secondary)]">
-          Payment: {order.payment_method}
-        </p>
       </div>
 
       {/* Items */}
       <div>
         <h3 className="font-semibold mb-3">Items</h3>
         <div className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] rounded-xl overflow-hidden">
-          {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between p-4 text-sm">
+          {order.details.map((detail) => (
+            <div key={detail.id} className="flex justify-between p-4 text-sm">
               <div>
-                <p className="font-medium">{item.product_name}</p>
+                <p className="font-medium">{detail.product.name}</p>
                 <p className="text-[var(--color-text-muted)]">
-                  {item.sku} × {item.quantity}
+                  {detail.product.sku} × {detail.qty}
                 </p>
               </div>
-              <span className="font-bold">{formatPrice(item.sub_total, "৳")}</span>
+              <span className="font-bold">{formatPrice(detail.sub_total, "৳")}</span>
             </div>
           ))}
         </div>

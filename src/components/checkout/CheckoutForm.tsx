@@ -135,7 +135,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
       appToast.orderSuccess(result.order.invoice_number);
       await clearCart(token);
       router.push(
-        `/order-confirmation/${result.order.id}?invoice=${result.order.invoice_number}&total=${result.order.net_total}&points=${result.points_earned}`
+        `/order-confirmation/${result.order.id}?invoice=${result.order.invoice_number}&total=${result.order.net_total}&points=${result.order.points_earned ?? 0}`
       );
     } catch {
       appToast.apiError("Failed to place order. Please try again.");
