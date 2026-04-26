@@ -11,18 +11,29 @@ const schema = z.object({
   items: z.array(
     z.object({
       barcode_id: z.number().int().positive(),
-      quantity: z.number().int().positive(),
+      qty: z.number().int().positive(),
+      price: z.number().nonnegative(),
+      discount_percent: z.number().nonnegative(),
+      invoice_discount_percent: z.number().nonnegative(),
+      tax_percent: z.number().nonnegative(),
+      sub_total: z.number().nonnegative(),
+      net_total: z.number().nonnegative(),
     })
   ).min(1),
+  summary: z.object({
+    sub_total: z.number().nonnegative(),
+    discount_amount: z.number().nonnegative(),
+    shipping_cost: z.number().nonnegative(),
+    tax_total: z.number().nonnegative(),
+    net_total: z.number().nonnegative(),
+  }),
   shipping_address: z.object({
     address: z.string().min(1),
     city: z.string().optional(),
     state: z.string().optional(),
     country: z.string().optional(),
   }),
-  payment_method: z.string().min(1).max(100),
   coupon_code: z.string().optional(),
-  shipping_cost: z.number().optional(),
   note: z.string().optional(),
 });
 

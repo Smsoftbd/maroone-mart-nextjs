@@ -312,17 +312,35 @@ export interface OrderListItem {
   tracking_number?: string;
 }
 
+export interface CreateOrderItemPayload {
+  barcode_id: number;
+  qty: number;
+  price: number;
+  discount_percent: number;
+  invoice_discount_percent: number;
+  tax_percent: number;
+  sub_total: number;
+  net_total: number;
+}
+
+export interface CreateOrderSummary {
+  sub_total: number;
+  discount_amount: number;
+  shipping_cost: number;
+  tax_total: number;
+  net_total: number;
+}
+
 export interface CreateOrderPayload {
   customer: {
     name: string;
     email?: string;
     phone: string;
   };
-  items: { barcode_id: number; quantity: number }[];
+  items: CreateOrderItemPayload[];
+  summary: CreateOrderSummary;
   shipping_address: ShippingAddress;
-  payment_method: string;
   coupon_code?: string;
-  shipping_cost?: number;
   note?: string;
 }
 

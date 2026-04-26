@@ -87,21 +87,41 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
 
     setIsSubmitting(true);
     try {
+      const orderItems = items.map((i) => {
+        const price = i.unit_price || priceOverrides[i.barcode_id] || 0;
+        const itemSubTotal = price * i.quantity;
+        return {
+          barcode_id: i.barcode_id,
+          qty: i.quantity,
+          price,
+          discount_percent: 0,
+          invoice_discount_percent: 0,
+          tax_percent: 0,
+          sub_total: itemSubTotal,
+          net_total: itemSubTotal,
+        };
+      });
+
       const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           customer: { name: data.name, email: data.email || undefined, phone: data.phone },
-          items: items.map((i) => ({ barcode_id: i.barcode_id, quantity: i.quantity })),
+          items: orderItems,
+          summary: {
+            sub_total: subTotal,
+            discount_amount: discountAmount,
+            shipping_cost: shippingCost,
+            tax_total: 0,
+            net_total: total,
+          },
           shipping_address: {
             address: data.address,
             city: data.city,
             state: data.state,
             country: data.country,
           },
-          payment_method: resolveL10n(paymentMethod.name),
           coupon_code: couponCode || undefined,
-          shipping_cost: shippingCost,
           note: data.note,
         }),
       });
