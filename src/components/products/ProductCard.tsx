@@ -31,9 +31,9 @@ export function ProductCard({
   const { addItem, isLoading } = useCart();
   const { isInWishlist, toggle } = useWishlist();
 
-  const defaultBarcode = product.barcodes[0];
-  const price = defaultBarcode?.after_discount ?? 0;
-  const original = defaultBarcode?.selling_price ?? 0;
+  const defaultBarcode = product.barcodes.find((b) => b.is_active) ?? product.barcodes[0];
+  const price = Math.max(defaultBarcode?.effective_price ?? 0, 0);
+  const original = defaultBarcode?.price ?? 0;
   const hasDiscount = original > price && price > 0;
   const discountPct = hasDiscount ? formatDiscount(original, price) : null;
   const inStock = product.barcodes.some((b) => b.stock > 0);
@@ -42,7 +42,7 @@ export function ProductCard({
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!defaultBarcode) return;
-    await addItem(defaultBarcode.id, 1, product.name);
+    await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock);
   };
 
   return (

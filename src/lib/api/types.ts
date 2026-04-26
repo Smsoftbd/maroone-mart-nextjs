@@ -20,23 +20,34 @@ export interface PaginatedResponse<T> {
 export interface Store {
   name: string;
   logo: string;
+  footer_logo: string;
   favicon: string;
   tagline: string;
+  offer_message: string;
   email: string;
   phone: string;
   address: string;
   currency: string;
   currency_symbol: string;
+  guest_checkout: boolean;
   social: {
     facebook?: string;
     instagram?: string;
     youtube?: string;
     twitter?: string;
     linkedin?: string;
+    whatsapp?: string;
+    tiktok?: string;
+    pinterest?: string;
   };
   colors: {
     primary: string;
+    primary_text: string;
     secondary: string;
+    secondary_text: string;
+    tertiary: string;
+    tertiary_text: string;
+    default_text: string;
   };
   features: {
     wishlist: boolean;
@@ -44,6 +55,25 @@ export interface Store {
     loyalty: boolean;
     appointments: boolean;
     blog: boolean;
+  };
+  sections: {
+    featured_products: boolean;
+    flash_sale: boolean;
+    categories: boolean;
+    new_arrivals: boolean;
+    top_selling: boolean;
+    reviews: boolean;
+    newsletter: boolean;
+    banner: boolean;
+  };
+  seo: {
+    meta_title: string | null;
+    meta_description: string | null;
+    meta_keywords: string | null;
+  };
+  scripts: {
+    header: string | null;
+    footer: string | null;
   };
 }
 
@@ -94,13 +124,18 @@ export interface Attribute {
 
 export interface Barcode {
   id: number;
+  key: string;
   sku: string;
   barcode?: string;
-  selling_price: number;
-  after_discount: number;
+  price: number;
   discount: number;
+  discount_amount: number;
+  sale_price: number;
+  effective_price: number;
   whole_sale_price?: number;
   stock: number;
+  in_stock: boolean;
+  is_active: boolean;
   attributes: Attribute[];
 }
 
@@ -198,26 +233,14 @@ export interface Popup {
 
 // ─── Cart ────────────────────────────────────────────────────────────────────
 
-export interface CartItemBarcode {
-  sku: string;
-  selling_price: number;
-  after_discount: number;
-  stock: number;
-  attributes?: Attribute[];
-}
-
-export interface CartItemProduct {
-  name: string;
-  slug: string;
-  image: string;
-}
-
 export interface CartItem {
   id: number;
   barcode_id: number;
+  product_name: string;
+  product_slug: string;
+  product_image: string;
   quantity: number;
-  product: CartItemProduct;
-  barcode: CartItemBarcode;
+  unit_price: number;
   line_total: number;
 }
 

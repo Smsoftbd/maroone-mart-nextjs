@@ -11,26 +11,8 @@ function normalizeCartData(data: CartData): CartData {
     ...data,
     items: data.items.map((item) => ({
       ...item,
-      product: item.product
-        ? {
-            ...item.product,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            name: resolveL10n(item.product.name as any),
-          }
-        : item.product,
-      barcode: item.barcode
-        ? {
-            ...item.barcode,
-            attributes: Array.isArray(item.barcode.attributes)
-              ? item.barcode.attributes.map((a) => ({
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  name: resolveL10n(a.name as any),
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  value: resolveL10n(a.value as any),
-                }))
-              : [],
-          }
-        : item.barcode,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      product_name: resolveL10n(item.product_name as any),
     })),
   };
 }

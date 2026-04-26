@@ -51,7 +51,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function CheckoutForm({ currency }: CheckoutFormProps) {
   const router = useRouter();
-  const { items, subTotal, clearCart } = useCartStore();
+  const { items, subTotal, priceOverrides, clearCart } = useCartStore();
   const { customer, token } = useAuthStore();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -198,26 +198,25 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
             <h2 className="font-display text-base font-semibold mb-4">Order Summary</h2>
 
             <ul className="divide-y divide-[var(--color-border)] mb-4">
-              {items.filter((item) => item.product).map((item) => (
+              {items.map((item) => (
                 <li key={item.id} className="flex items-center gap-3 py-3">
                   <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden border border-[var(--color-border)] bg-surface-50">
-                    <Image
-                      src={item.product.image}
-                      alt={item.product.name}
-                      fill
-                      className="object-cover"
-                      sizes="56px"
-                    />
+                    {item.product_image ? (
+                      <Image
+                        src={item.product_image}
+                        alt={item.product_name}
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-surface-100" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.product.name}</p>
-                    {item.barcode.attributes && item.barcode.attributes.length > 0 && (
-                      <p className="text-xs text-[var(--color-text-muted)]">
-                        {item.barcode.attributes.map((a) => a.value).join(", ")}
-                      </p>
-                    )}
+                    <p className="text-sm font-medium truncate">{item.product_name}</p>
                     <p className="text-xs text-[var(--color-text-secondary)]">
-                      {formatPrice(item.barcode.after_discount, currency)} × {item.quantity}
+                      {formatPrice(item.unit_price || priceOverrides[item.barcode_id] || 0, currency)} × {item.quantity}
                     </p>
                   </div>
                   <span className="text-sm font-semibold shrink-0">

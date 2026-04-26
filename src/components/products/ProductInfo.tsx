@@ -19,14 +19,14 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product, currency }: ProductInfoProps) {
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
-    product.barcodes[0]
+    product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
   const [quantity, setQuantity] = useState(product.min_order_quantity || 1);
   const { addItem, isLoading } = useCart();
   const { isInWishlist, toggle } = useWishlist();
 
-  const price = selectedBarcode?.after_discount ?? 0;
-  const original = selectedBarcode?.selling_price ?? 0;
+  const price = Math.max(selectedBarcode?.effective_price ?? 0, 0);
+  const original = selectedBarcode?.price ?? 0;
   const hasDiscount = original > price;
   const inStock = (selectedBarcode?.stock ?? 0) > 0;
   const maxQty = Math.min(
@@ -37,7 +37,7 @@ export function ProductInfo({ product, currency }: ProductInfoProps) {
 
   const handleAddToCart = async () => {
     if (!selectedBarcode) return;
-    await addItem(selectedBarcode.id, quantity, product.name);
+    await addItem(selectedBarcode.id, quantity, product.name, price, selectedBarcode.stock);
   };
 
   return (

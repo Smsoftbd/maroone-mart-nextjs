@@ -25,7 +25,10 @@ export function AnnouncementBar({ message }: AnnouncementBarProps) {
 
   return (
     <div className="bg-surface-900 text-white text-sm py-2 px-4 text-center relative">
-      <p>{message}</p>
+      <div
+        dangerouslySetInnerHTML={{ __html: message }}
+        className="inline [&>p]:m-0"
+      />
       <button
         onClick={dismiss}
         className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:opacity-70 transition-opacity"

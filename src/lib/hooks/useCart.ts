@@ -11,10 +11,12 @@ export function useCart() {
   const addItem = async (
     barcodeId: number,
     quantity: number,
-    productName?: string
+    productName?: string,
+    unitPrice?: number,
+    stock?: number
   ) => {
     try {
-      await store.addItem(barcodeId, quantity, token);
+      await store.addItem(barcodeId, quantity, token, unitPrice, stock);
       if (productName) appToast.addedToCart(productName);
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

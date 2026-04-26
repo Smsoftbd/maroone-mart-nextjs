@@ -22,7 +22,7 @@ export default async function StoreLayout({
 
   return (
     <>
-      <AnnouncementBar message={store.tagline} />
+      <AnnouncementBar message={store.offer_message} />
       <Navbar store={store} categories={categories} />
       <MobileNav store={store} categories={categories} />
       <CartDrawer currency={store.currency_symbol} />
@@ -33,6 +33,9 @@ export default async function StoreLayout({
         {children}
       </main>
       <Footer store={store} pages={pages} />
+      {store.scripts.footer && (
+        <script dangerouslySetInnerHTML={{ __html: store.scripts.footer }} />
+      )}
     </>
   );
 }

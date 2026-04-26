@@ -3,6 +3,8 @@ import { Playfair_Display, DM_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AuthInitializer } from "@/components/layout/AuthInitializer";
+import { getStore } from "@/lib/api/store";
+import { buildColorStyleBlock } from "@/lib/utils/colors";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -16,24 +18,39 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Store",
-    template: "%s | Store",
-  },
-  description: "Premium ecommerce store",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const store = await getStore();
+  return {
+    title: {
+      default: store.seo.meta_title ?? store.name,
+      template: `%s | ${store.name}`,
+    },
+    description: store.seo.meta_description ?? store.tagline,
+    icons: {
+      icon: store.favicon || "/favicon.ico",
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const store = await getStore();
+  const colorStyle = buildColorStyleBlock(store.colors);
+
   return (
     <html
       lang="en"
       className={`${playfair.variable} ${dmSans.variable} h-full`}
     >
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: colorStyle }} />
+        {store.scripts.header && (
+          <script dangerouslySetInnerHTML={{ __html: store.scripts.header }} />
+        )}
+      </head>
       <body suppressHydrationWarning className="min-h-full font-body text-[var(--color-text-primary)] bg-[var(--color-surface-0)]">
         <a
           href="#main-content"

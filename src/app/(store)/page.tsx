@@ -19,9 +19,12 @@ export const revalidate = 300;
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
   return generatePageMetadata({
-    title: store.name,
-    description: store.tagline,
+    title: store.seo.meta_title ?? store.name,
+    description: store.seo.meta_description ?? store.tagline,
     image: store.logo,
+    keywords: store.seo.meta_keywords
+      ? store.seo.meta_keywords.split(",").map((k) => k.trim())
+      : undefined,
   });
 }
 
@@ -50,15 +53,21 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: websiteSchema(store) }}
       />
 
-      <HeroBanner banners={heroBanners} />
-      <CategoryGrid categories={categories} />
-      {flashSales.length > 0 && (
+      {store.sections.banner && <HeroBanner banners={heroBanners} />}
+      {store.sections.categories && <CategoryGrid categories={categories} />}
+      {store.sections.flash_sale && flashSales.length > 0 && (
         <FlashSaleBanner sales={flashSales} currency={currency} />
       )}
-      <FeaturedProducts products={featured} currency={currency} />
-      <NewArrivals products={newArrivals} currency={currency} />
-      <TopSelling products={topSelling} currency={currency} />
-      <NewsletterSection />
+      {store.sections.featured_products && (
+        <FeaturedProducts products={featured} currency={currency} />
+      )}
+      {store.sections.new_arrivals && (
+        <NewArrivals products={newArrivals} currency={currency} />
+      )}
+      {store.sections.top_selling && (
+        <TopSelling products={topSelling} currency={currency} />
+      )}
+      {store.sections.newsletter && <NewsletterSection />}
     </>
   );
 }

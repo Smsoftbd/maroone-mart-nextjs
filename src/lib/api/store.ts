@@ -16,9 +16,12 @@ type ApiStore = {
   phone: string;
   addresses: string[];
   motto: LocalizedString;
+  offer_message: LocalizedString;
   short_description: LocalizedString;
   logo: string;
+  footer_logo: string;
   favicon: string;
+  guest_checkout: boolean;
   social: {
     facebook?: string | null;
     instagram?: string | null;
@@ -34,6 +37,9 @@ type ApiStore = {
     primary_text: string;
     secondary: string;
     secondary_text: string;
+    tertiary: string;
+    tertiary_text: string;
+    default_text: string;
   };
   sections: {
     featured_products: boolean;
@@ -43,10 +49,20 @@ type ApiStore = {
     top_selling: boolean;
     reviews: boolean;
     newsletter: boolean;
+    banner: boolean;
     wishlist?: boolean;
     loyalty?: boolean;
     appointments?: boolean;
     blog?: boolean;
+  };
+  seo: {
+    meta_title: string | null;
+    meta_description: string | null;
+    meta_keywords: string | null;
+  };
+  scripts: {
+    header: string | null;
+    footer: string | null;
   };
 };
 
@@ -62,23 +78,34 @@ export async function getStore(): Promise<Store> {
   return {
     name: res.store_name?.en ?? "",
     logo: res.logo ?? "",
+    footer_logo: res.footer_logo ?? res.logo ?? "",
     favicon: res.favicon ?? "",
-    tagline: stripHtml(res.motto?.en ?? res.short_description?.en ?? ""),
+    tagline: stripHtml(res.motto?.en ?? ""),
+    offer_message: res.offer_message?.en ?? res.motto?.en ?? "",
     email: res.email ?? "",
     phone: res.phone ?? "",
     address: res.addresses?.[0] ?? "",
     currency: "BDT",
     currency_symbol: "৳",
+    guest_checkout: res.guest_checkout ?? true,
     social: {
       facebook: res.social?.facebook ?? undefined,
       instagram: res.social?.instagram ?? undefined,
       youtube: res.social?.youtube ?? undefined,
       twitter: res.social?.twitter ?? undefined,
       linkedin: res.social?.linkedin ?? undefined,
+      whatsapp: res.social?.whatsapp ?? undefined,
+      tiktok: res.social?.tiktok ?? undefined,
+      pinterest: res.social?.pinterest ?? undefined,
     },
     colors: {
       primary: res.colors?.primary ?? "#000000",
+      primary_text: res.colors?.primary_text ?? "#ffffff",
       secondary: res.colors?.secondary ?? "#000000",
+      secondary_text: res.colors?.secondary_text ?? "#000000",
+      tertiary: res.colors?.tertiary ?? "#f3f4f6",
+      tertiary_text: res.colors?.tertiary_text ?? "#111827",
+      default_text: res.colors?.default_text ?? "#111110",
     },
     features: {
       wishlist: res.sections?.wishlist ?? false,
@@ -86,6 +113,25 @@ export async function getStore(): Promise<Store> {
       loyalty: res.sections?.loyalty ?? false,
       appointments: res.sections?.appointments ?? false,
       blog: res.sections?.blog ?? false,
+    },
+    sections: {
+      featured_products: res.sections?.featured_products ?? true,
+      flash_sale: res.sections?.flash_sale ?? true,
+      categories: res.sections?.categories ?? true,
+      new_arrivals: res.sections?.new_arrivals ?? true,
+      top_selling: res.sections?.top_selling ?? true,
+      reviews: res.sections?.reviews ?? true,
+      newsletter: res.sections?.newsletter ?? true,
+      banner: res.sections?.banner ?? true,
+    },
+    seo: {
+      meta_title: res.seo?.meta_title ?? null,
+      meta_description: res.seo?.meta_description ?? null,
+      meta_keywords: res.seo?.meta_keywords ?? null,
+    },
+    scripts: {
+      header: res.scripts?.header ?? null,
+      footer: res.scripts?.footer ?? null,
     },
   };
 }
@@ -128,12 +174,24 @@ export async function getHomepageCategories(
   lang?: string
 ): Promise<HomepageCategory[]> {
   const params = lang ? `?lang=${lang}` : "";
-  const res = await apiRequest<{ data: Array<Omit<HomepageCategory, "name"> & { name: LocalizedString | string }> }>(
+  const res = await apiRequest<{
+    data: Array<{
+      id: number;
+      sort_order: number;
+      image: string | null;
+      category: { id: number; name: LocalizedString | string; slug: string; image: string | null };
+    }>;
+  }>(
     `/homepage-categories${params}`,
     {
       revalidate: REVALIDATE.CATEGORIES,
       tags: CACHE_TAGS.CATEGORIES,
     }
   );
-  return res.data.map((c) => ({ ...c, name: resolveL10n(c.name) }));
+  return res.data.map((c) => ({
+    id: c.id,
+    name: resolveL10n(c.category.name),
+    slug: c.category.slug,
+    image: c.image ?? c.category.image,
+  }));
 }

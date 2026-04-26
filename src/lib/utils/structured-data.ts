@@ -3,7 +3,7 @@ import type { Product, BlogPost, Store } from "@/lib/api/types";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
 export function productSchema(product: Product, currencySymbol: string): string {
-  const price = product.barcodes[0]?.after_discount ?? 0;
+  const price = Math.max((product.barcodes.find((b) => b.is_active) ?? product.barcodes[0])?.effective_price ?? 0, 0);
   const inStock = product.barcodes.some((b) => b.stock > 0);
 
   const schema = {

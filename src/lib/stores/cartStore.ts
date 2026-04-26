@@ -14,6 +14,8 @@ import type { CartItem } from "@/lib/api/types";
 interface CartStore {
   items: CartItem[];
   cartToken: string | null;
+  priceOverrides: Record<number, number>;
+  stockOverrides: Record<number, number>;
   totalItems: number;
   subTotal: number;
   isLoading: boolean;
@@ -26,7 +28,9 @@ interface CartStore {
   addItem: (
     barcodeId: number,
     quantity: number,
-    bearerToken?: string | null
+    bearerToken?: string | null,
+    unitPrice?: number,
+    stock?: number
   ) => Promise<void>;
   updateItem: (
     cartItemId: number,
@@ -45,6 +49,8 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       cartToken: null,
+      priceOverrides: {},
+      stockOverrides: {},
       totalItems: 0,
       subTotal: 0,
       isLoading: false,
@@ -56,22 +62,23 @@ export const useCartStore = create<CartStore>()(
       setCartToken: (token) => set({ cartToken: token }),
 
       fetchCart: async (bearerToken) => {
-        const { cartToken } = get();
+        const { cartToken, priceOverrides } = get();
         if (!cartToken && !bearerToken) return;
         try {
           const res = await getCart({ cartToken, bearerToken });
-          set({
-            items: res.data.items,
-            totalItems: res.data.total_items,
-            subTotal: res.data.sub_total,
-          });
+          const items = res.data.items;
+          const subTotal = res.data.sub_total || items.reduce((sum, i) => {
+            const p = priceOverrides[i.barcode_id] ?? 0;
+            return sum + p * i.quantity;
+          }, 0);
+          set({ items, totalItems: res.data.total_items, subTotal });
         } catch {
           // silently fail — cart may not exist yet
         }
       },
 
-      addItem: async (barcodeId, quantity, bearerToken) => {
-        const { cartToken } = get();
+      addItem: async (barcodeId, quantity, bearerToken, unitPrice, stock) => {
+        const { cartToken, priceOverrides, stockOverrides } = get();
         set({ isLoading: true });
         try {
           const res = await addToCart(barcodeId, quantity, {
@@ -81,10 +88,23 @@ export const useCartStore = create<CartStore>()(
           if (res.cart_token) {
             set({ cartToken: res.cart_token });
           }
+          const newPriceOverrides = unitPrice
+            ? { ...priceOverrides, [barcodeId]: unitPrice }
+            : priceOverrides;
+          const newStockOverrides = stock !== undefined
+            ? { ...stockOverrides, [barcodeId]: stock }
+            : stockOverrides;
+          const items = res.data.items;
+          const subTotal = res.data.sub_total || items.reduce((sum, i) => {
+            const p = newPriceOverrides[i.barcode_id] ?? 0;
+            return sum + p * i.quantity;
+          }, 0);
           set({
-            items: res.data.items,
+            items,
             totalItems: res.data.total_items,
-            subTotal: res.data.sub_total,
+            subTotal,
+            priceOverrides: newPriceOverrides,
+            stockOverrides: newStockOverrides,
             isOpen: true,
           });
         } finally {
@@ -93,39 +113,36 @@ export const useCartStore = create<CartStore>()(
       },
 
       updateItem: async (cartItemId, quantity, bearerToken) => {
-        const { cartToken } = get();
+        const { cartToken, priceOverrides } = get();
         set({ isLoading: true });
         try {
           const res = await updateCartItem(cartItemId, quantity, {
             cartToken,
             bearerToken,
           });
-          set({
-            items: res.data.items,
-            totalItems: res.data.total_items,
-            subTotal: res.data.sub_total,
-          });
+          const items = res.data.items;
+          const subTotal = res.data.sub_total || items.reduce((sum, i) => {
+            const p = priceOverrides[i.barcode_id] ?? 0;
+            return sum + p * i.quantity;
+          }, 0);
+          set({ items, totalItems: res.data.total_items, subTotal });
         } finally {
           set({ isLoading: false });
         }
       },
 
       removeItem: async (cartItemId, bearerToken) => {
-        const { cartToken, items } = get();
-        // Optimistic remove
+        const { cartToken, items, priceOverrides } = get();
         set({ items: items.filter((i) => i.id !== cartItemId) });
         try {
-          const res = await removeCartItem(cartItemId, {
-            cartToken,
-            bearerToken,
-          });
-          set({
-            items: res.data.items,
-            totalItems: res.data.total_items,
-            subTotal: res.data.sub_total,
-          });
+          const res = await removeCartItem(cartItemId, { cartToken, bearerToken });
+          const newItems = res.data.items;
+          const subTotal = res.data.sub_total || newItems.reduce((sum, i) => {
+            const p = priceOverrides[i.barcode_id] ?? 0;
+            return sum + p * i.quantity;
+          }, 0);
+          set({ items: newItems, totalItems: res.data.total_items, subTotal });
         } catch {
-          // Revert optimistic update on failure
           set({ items });
         }
       },
@@ -144,7 +161,7 @@ export const useCartStore = create<CartStore>()(
     {
       name: "cart-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ cartToken: state.cartToken }),
+      partialize: (state) => ({ cartToken: state.cartToken, priceOverrides: state.priceOverrides, stockOverrides: state.stockOverrides }),
     }
   )
 );
