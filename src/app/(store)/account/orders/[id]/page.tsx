@@ -94,10 +94,24 @@ export default function OrderDetailPage() {
                   {sku && (
                     <p className="text-[var(--color-text-muted)] text-xs">{sku}</p>
                   )}
-                  {detail.barcode?.attributes && detail.barcode.attributes.length > 0 && (
-                    <p className="text-[var(--color-text-muted)] text-xs">
-                      {detail.barcode.attributes.map((a) => `${a.name}: ${a.value}`).join(" · ")}
-                    </p>
+                  {detail.barcode?.values && detail.barcode.values.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
+                      {detail.barcode.values.map((v) => (
+                        <span key={v.id} className="flex items-center gap-1 text-[var(--color-text-muted)] text-xs">
+                          {v.code?.startsWith("#") ? (
+                            <>
+                              <span
+                                className="inline-block w-3 h-3 rounded-full border border-black/10 flex-shrink-0"
+                                style={{ backgroundColor: v.code }}
+                              />
+                              {v.value}
+                            </>
+                          ) : (
+                            <span>{v.attribute.name}: {v.value}</span>
+                          )}
+                        </span>
+                      ))}
+                    </div>
                   )}
                   <p className="text-[var(--color-text-muted)] text-xs">Qty: {detail.qty}</p>
                 </div>

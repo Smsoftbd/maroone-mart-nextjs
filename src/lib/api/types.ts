@@ -290,6 +290,18 @@ export interface OrderDetailProduct {
   image: string;
 }
 
+export interface OrderDetailBarcodeValue {
+  id: number;
+  value: string;
+  code: string;
+  attribute: {
+    id: number;
+    name: string;
+    code: string;
+    input_type: string;
+  };
+}
+
 export interface OrderDetailBarcode {
   id: number;
   sku: string;
@@ -300,7 +312,7 @@ export interface OrderDetailBarcode {
   after_discount: number;
   stock: number;
   is_active: boolean;
-  attributes?: Attribute[];
+  values?: OrderDetailBarcodeValue[];
 }
 
 export interface StatusHistoryItem {
