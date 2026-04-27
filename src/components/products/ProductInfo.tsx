@@ -37,7 +37,7 @@ export function ProductInfo({ product, currency }: ProductInfoProps) {
 
   const handleAddToCart = async () => {
     if (!selectedBarcode) return;
-    await addItem(selectedBarcode.id, quantity, product.name, price, selectedBarcode.stock);
+    await addItem(selectedBarcode.id, quantity, product.name, price, selectedBarcode.stock, selectedBarcode.attributes);
   };
 
   return (

@@ -9,13 +9,14 @@ import {
   removeCartItem,
   clearCart,
 } from "@/lib/api/cart";
-import type { CartItem } from "@/lib/api/types";
+import type { CartItem, Attribute } from "@/lib/api/types";
 
 interface CartStore {
   items: CartItem[];
   cartToken: string | null;
   priceOverrides: Record<number, number>;
   stockOverrides: Record<number, number>;
+  attributeOverrides: Record<number, Attribute[]>;
   totalItems: number;
   subTotal: number;
   isLoading: boolean;
@@ -30,7 +31,8 @@ interface CartStore {
     quantity: number,
     bearerToken?: string | null,
     unitPrice?: number,
-    stock?: number
+    stock?: number,
+    attributes?: Attribute[]
   ) => Promise<void>;
   updateItem: (
     cartItemId: number,
@@ -51,6 +53,7 @@ export const useCartStore = create<CartStore>()(
       cartToken: null,
       priceOverrides: {},
       stockOverrides: {},
+      attributeOverrides: {},
       totalItems: 0,
       subTotal: 0,
       isLoading: false,
@@ -77,8 +80,8 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      addItem: async (barcodeId, quantity, bearerToken, unitPrice, stock) => {
-        const { cartToken, priceOverrides, stockOverrides } = get();
+      addItem: async (barcodeId, quantity, bearerToken, unitPrice, stock, attributes) => {
+        const { cartToken, priceOverrides, stockOverrides, attributeOverrides } = get();
         set({ isLoading: true });
         try {
           const res = await addToCart(barcodeId, quantity, {
@@ -94,6 +97,9 @@ export const useCartStore = create<CartStore>()(
           const newStockOverrides = stock !== undefined
             ? { ...stockOverrides, [barcodeId]: stock }
             : stockOverrides;
+          const newAttributeOverrides = attributes?.length
+            ? { ...attributeOverrides, [barcodeId]: attributes }
+            : attributeOverrides;
           const items = res.data.items;
           const subTotal = res.data.sub_total || items.reduce((sum, i) => {
             const p = newPriceOverrides[i.barcode_id] ?? 0;
@@ -105,6 +111,7 @@ export const useCartStore = create<CartStore>()(
             subTotal,
             priceOverrides: newPriceOverrides,
             stockOverrides: newStockOverrides,
+            attributeOverrides: newAttributeOverrides,
             isOpen: true,
           });
         } finally {
@@ -161,7 +168,7 @@ export const useCartStore = create<CartStore>()(
     {
       name: "cart-storage",
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ cartToken: state.cartToken, priceOverrides: state.priceOverrides, stockOverrides: state.stockOverrides }),
+      partialize: (state) => ({ cartToken: state.cartToken, priceOverrides: state.priceOverrides, stockOverrides: state.stockOverrides, attributeOverrides: state.attributeOverrides }),
     }
   )
 );

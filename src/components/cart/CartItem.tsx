@@ -17,6 +17,8 @@ export function CartItem({ item, currency }: CartItemProps) {
   const { updateItem, removeItem } = useCart();
   const priceOverrides = useCartStore((s) => s.priceOverrides);
   const stockOverrides = useCartStore((s) => s.stockOverrides);
+  const attributeOverrides = useCartStore((s) => s.attributeOverrides);
+  const attributes = attributeOverrides[item.barcode_id] ?? [];
 
   const productName = item.product_name;
   const productSlug = item.product_slug;
@@ -62,6 +64,25 @@ export function CartItem({ item, currency }: CartItemProps) {
         >
           {productName}
         </Link>
+        {attributes.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+            {attributes.map((attr) => {
+              const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
+              return isColor ? (
+                <span
+                  key={attr.name}
+                  title={`${attr.name}: ${attr.value_code}`}
+                  style={{ backgroundColor: attr.value_code }}
+                  className="inline-block w-3 h-3 rounded-full border border-black/10"
+                />
+              ) : (
+                <span key={attr.name} className="text-xs text-[var(--color-text-muted)] bg-surface-100 px-1.5 py-0.5 rounded">
+                  {attr.value}
+                </span>
+              );
+            })}
+          </div>
+        )}
         <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
           {formatPrice(unitPrice, currency)} each
         </p>

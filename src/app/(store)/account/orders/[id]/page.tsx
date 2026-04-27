@@ -94,6 +94,11 @@ export default function OrderDetailPage() {
                   {sku && (
                     <p className="text-[var(--color-text-muted)] text-xs">{sku}</p>
                   )}
+                  {detail.barcode?.attributes && detail.barcode.attributes.length > 0 && (
+                    <p className="text-[var(--color-text-muted)] text-xs">
+                      {detail.barcode.attributes.map((a) => `${a.name}: ${a.value}`).join(" · ")}
+                    </p>
+                  )}
                   <p className="text-[var(--color-text-muted)] text-xs">Qty: {detail.qty}</p>
                 </div>
                 <div className="text-right flex-shrink-0">

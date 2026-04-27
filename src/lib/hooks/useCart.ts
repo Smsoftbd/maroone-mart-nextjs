@@ -3,6 +3,7 @@
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { appToast } from "@/lib/utils/toast";
+import type { Attribute } from "@/lib/api/types";
 
 export function useCart() {
   const store = useCartStore();
@@ -13,10 +14,11 @@ export function useCart() {
     quantity: number,
     productName?: string,
     unitPrice?: number,
-    stock?: number
+    stock?: number,
+    attributes?: Attribute[]
   ) => {
     try {
-      await store.addItem(barcodeId, quantity, token, unitPrice, stock);
+      await store.addItem(barcodeId, quantity, token, unitPrice, stock, attributes);
       if (productName) appToast.addedToCart(productName);
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

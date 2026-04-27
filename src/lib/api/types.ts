@@ -300,6 +300,7 @@ export interface OrderDetailBarcode {
   after_discount: number;
   stock: number;
   is_active: boolean;
+  attributes?: Attribute[];
 }
 
 export interface StatusHistoryItem {

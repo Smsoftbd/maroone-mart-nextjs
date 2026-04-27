@@ -51,7 +51,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function CheckoutForm({ currency }: CheckoutFormProps) {
   const router = useRouter();
-  const { items, subTotal, priceOverrides, clearCart } = useCartStore();
+  const { items, subTotal, priceOverrides, attributeOverrides, clearCart } = useCartStore();
   const { customer, token } = useAuthStore();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
@@ -235,6 +235,25 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{item.product_name}</p>
+                    {(attributeOverrides[item.barcode_id] ?? []).length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                        {(attributeOverrides[item.barcode_id] ?? []).map((attr) => {
+                          const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
+                          return isColor ? (
+                            <span
+                              key={attr.name}
+                              title={`${attr.name}: ${attr.value_code}`}
+                              style={{ backgroundColor: attr.value_code }}
+                              className="inline-block w-3 h-3 rounded-full border border-black/10"
+                            />
+                          ) : (
+                            <span key={attr.name} className="text-xs text-[var(--color-text-muted)] bg-surface-100 px-1.5 py-0.5 rounded">
+                              {attr.value}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                     <p className="text-xs text-[var(--color-text-secondary)]">
                       {formatPrice(item.unit_price || priceOverrides[item.barcode_id] || 0, currency)} × {item.quantity}
                     </p>
