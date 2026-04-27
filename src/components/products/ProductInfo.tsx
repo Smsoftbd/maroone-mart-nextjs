@@ -96,7 +96,7 @@ export function ProductInfo({ product, currency }: ProductInfoProps) {
       </Badge>
 
       {/* Variants */}
-      {product.type === "complex" && product.barcodes.length > 1 && (
+      {(product.type === "variable" || product.type === "complex") && product.barcodes.length > 1 && (
         <ProductVariantSelector
           barcodes={product.barcodes}
           onChange={setSelectedBarcode}

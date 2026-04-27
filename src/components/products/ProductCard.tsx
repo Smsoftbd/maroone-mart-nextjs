@@ -31,6 +31,7 @@ export function ProductCard({
   const { addItem, isLoading } = useCart();
   const { isInWishlist, toggle } = useWishlist();
 
+  const isVariable = product.type === "variable";
   const defaultBarcode = product.barcodes.find((b) => b.is_active) ?? product.barcodes[0];
   const price = Math.max(defaultBarcode?.effective_price ?? 0, 0);
   const original = defaultBarcode?.price ?? 0;
@@ -84,8 +85,8 @@ export function ProductCard({
           </button>
         )}
 
-        {/* Add to cart overlay */}
-        {inStock && (
+        {/* Add to cart overlay — simple products only */}
+        {inStock && !isVariable && (
           <button
             className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-brand-500 text-[var(--color-primary-text)] text-sm font-medium py-3 text-center flex items-center justify-center gap-2 z-10"
             onClick={handleAddToCart}
@@ -95,6 +96,14 @@ export function ProductCard({
             <ShoppingBag className="h-4 w-4" />
             Add to Cart
           </button>
+        )}
+
+        {/* Variable products: redirect to details page to select options */}
+        {isVariable && (
+          <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-brand-500 text-[var(--color-primary-text)] text-sm font-medium py-3 text-center flex items-center justify-center gap-2 z-10 pointer-events-none">
+            <ShoppingBag className="h-4 w-4" />
+            View Options
+          </div>
         )}
 
         {!inStock && (

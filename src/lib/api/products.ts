@@ -5,6 +5,7 @@ import type { LocalizedString } from "./client";
 import type {
   Category,
   Brand,
+  Barcode,
   Product,
   ProductListParams,
   PaginatedResponse,
@@ -20,12 +21,25 @@ type ApiCategory = Omit<Category, "name" | "children"> & {
   children: ApiCategory[];
 };
 
+interface ApiVariant {
+  attribute_id: number;
+  attribute_name: string;
+  value_id: number;
+  value: string | null;
+  value_code: string;
+}
+
+interface ApiBarcode extends Omit<Barcode, "attributes"> {
+  variants?: ApiVariant[];
+  attributes?: Barcode["attributes"];
+}
+
 type ApiProduct = Omit<Product, "name" | "short_description" | "description" | "category" | "barcodes" | "brand" | "unit"> & {
   name: L;
   short_description: L;
   description: L;
   category: { id: number; name: L; slug: string };
-  barcodes: Product["barcodes"];
+  barcodes: ApiBarcode[];
   brand?: { id: number; name: L } | null;
   unit?: { id: number; name: L };
 };
@@ -61,7 +75,20 @@ function resolveProduct(p: ApiProduct): Product {
     specifications: Array.isArray(p.specifications) ? p.specifications.map((s: any) => ({ label: resolveL10n(s.label), value: resolveL10n(s.value) })) : [],
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tags: Array.isArray(p.tags) ? p.tags.map((t: any) => resolveL10n(t)) : [],
-    barcodes: Array.isArray(p.barcodes) ? p.barcodes.map((b) => ({ ...b, attributes: Array.isArray(b.attributes) ? b.attributes.map(resolveAttr) : [] })) : [],
+    barcodes: Array.isArray(p.barcodes)
+      ? p.barcodes.map((b: ApiBarcode) => ({
+          ...b,
+          attributes: Array.isArray(b.variants)
+            ? b.variants.map((v) => ({
+                name: v.attribute_name,
+                value: v.value ?? v.value_code,
+                value_code: v.value_code,
+              }))
+            : Array.isArray(b.attributes)
+            ? b.attributes.map(resolveAttr)
+            : [],
+        }))
+      : [],
   };
 }
 

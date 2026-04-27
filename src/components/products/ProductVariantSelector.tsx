@@ -9,24 +9,25 @@ interface ProductVariantSelectorProps {
   onChange: (barcode: Barcode) => void;
 }
 
+const isHexColor = (code: string) => /^#[0-9a-fA-F]{3,6}$/.test(code);
+
 export function ProductVariantSelector({
   barcodes,
   onChange,
 }: ProductVariantSelectorProps) {
   const [selected, setSelected] = useState<Record<string, string>>({});
 
-  // Collect all unique attribute types and their values
   const attributeGroups = useMemo(() => {
-    const groups: Record<string, Set<string>> = {};
+    const groups: Record<string, Map<string, string>> = {};
     barcodes.forEach((b) => {
-      b.attributes.forEach(({ name, value }) => {
-        if (!groups[name]) groups[name] = new Set();
-        groups[name].add(value);
+      b.attributes.forEach(({ name, value, value_code }) => {
+        if (!groups[name]) groups[name] = new Map();
+        groups[name].set(value, value_code ?? value);
       });
     });
-    return Object.entries(groups).map(([name, values]) => ({
+    return Object.entries(groups).map(([name, map]) => ({
       name,
-      values: [...values],
+      entries: [...map.entries()].map(([value, code]) => ({ value, code })),
     }));
   }, [barcodes]);
 
@@ -36,7 +37,6 @@ export function ProductVariantSelector({
     const next = { ...selected, [attrName]: value };
     setSelected(next);
 
-    // Find barcode matching all selected attributes
     const match = barcodes.find((b) =>
       Object.entries(next).every(([k, v]) =>
         b.attributes.some((a) => a.name === k && a.value === v)
@@ -58,7 +58,7 @@ export function ProductVariantSelector({
 
   return (
     <div className="space-y-4">
-      {attributeGroups.map(({ name, values }) => (
+      {attributeGroups.map(({ name, entries }) => (
         <div key={name}>
           <p className="text-sm font-medium mb-2">
             {name}:{" "}
@@ -67,9 +67,31 @@ export function ProductVariantSelector({
             </span>
           </p>
           <div className="flex flex-wrap gap-2">
-            {values.map((value) => {
+            {entries.map(({ value, code }) => {
               const oos = isOutOfStock(name, value);
               const active = selected[name] === value;
+
+              if (isHexColor(code)) {
+                return (
+                  <button
+                    key={value}
+                    title={value}
+                    onClick={() => !oos && handleSelect(name, value)}
+                    disabled={oos}
+                    style={{ backgroundColor: code }}
+                    className={cn(
+                      "w-8 h-8 rounded-full border-2 transition-all",
+                      active
+                        ? "border-brand-500 scale-110 ring-2 ring-brand-200"
+                        : "border-transparent hover:border-brand-300",
+                      oos && "opacity-40 cursor-not-allowed"
+                    )}
+                    aria-pressed={active}
+                    aria-label={value}
+                  />
+                );
+              }
+
               return (
                 <button
                   key={value}

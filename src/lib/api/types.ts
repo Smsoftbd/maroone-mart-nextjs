@@ -120,6 +120,7 @@ export interface Specification {
 export interface Attribute {
   name: string;
   value: string;
+  value_code?: string;
 }
 
 export interface Barcode {
@@ -160,7 +161,7 @@ export interface Product {
   short_description: string;
   description: string;
   model_number?: string;
-  type: "simple" | "complex";
+  type: "simple" | "complex" | "variable";
   is_featured: boolean;
   rating_avg: number;
   rating_count: number;
