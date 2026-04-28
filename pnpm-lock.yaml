@@ -11,6 +11,9 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.73.1(react@19.2.4))
+      '@tailwindcss/oxide-linux-x64-gnu':
+        specifier: ^4.2.4
+        version: 4.2.4
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -525,7 +528,6 @@ packages:
     engines: {node: '>= 20'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
 
   '@tailwindcss/oxide-linux-x64-musl@4.2.4':
     resolution: {integrity: sha512-2wwJRF7nyhOR0hhHoChc04xngV3iS+akccHTGtz965FwF0up4b2lOdo6kI1EbDaEXKgvcrFBYcYQQ/rrnWFVfA==}
@@ -2459,8 +2461,7 @@ snapshots:
   '@tailwindcss/oxide-linux-arm64-musl@4.2.4':
     optional: true
 
-  '@tailwindcss/oxide-linux-x64-gnu@4.2.4':
-    optional: true
+  '@tailwindcss/oxide-linux-x64-gnu@4.2.4': {}
 
   '@tailwindcss/oxide-linux-x64-musl@4.2.4':
     optional: true
