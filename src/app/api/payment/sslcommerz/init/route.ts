@@ -12,6 +12,7 @@ const schema = z.object({
   order_id: z.number(),
   amount: z.number(),
   currency: z.string().default("BDT"),
+  payment_method_id: z.number().int().positive(),
   customer: z.object({
     name: z.string(),
     email: z.string().optional(),
@@ -34,7 +35,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 422 });
     }
 
-    const { order_id, amount, customer, shipping_address } = parsed.data;
+    const { order_id, amount, payment_method_id, customer, shipping_address } = parsed.data;
     const currency = parsed.data.currency === "৳" ? "BDT" : parsed.data.currency;
 
     const sslcz = new SSLCommerzPayment(STORE_ID, STORE_PASSWORD, IS_LIVE);
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
       ship_country: shipping_address.country ?? "Bangladesh",
       ship_postcode: shipping_address.postcode ?? "1000",
       value_a: String(order_id),
+      value_b: String(payment_method_id),
     };
 
     const response = await sslcz.init(paymentData);

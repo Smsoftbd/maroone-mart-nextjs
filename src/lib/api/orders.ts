@@ -7,6 +7,7 @@ import type {
   Order,
   InitiatePaymentResponse,
   VerifyPaymentResponse,
+  ConfirmPaymentResponse,
   CouponValidationResponse,
 } from "./types";
 
@@ -55,6 +56,23 @@ export async function verifyPayment(
   data: Record<string, string>
 ): Promise<VerifyPaymentResponse> {
   return apiRequest<VerifyPaymentResponse>(`/payment/${gateway}/verify`, {
+    keyType: "secret",
+    method: "POST",
+    body: data,
+    cache: "no-store",
+  });
+}
+
+export async function confirmPayment(
+  orderId: number,
+  data: {
+    transaction_id: string;
+    payment_method_id: number;
+    amount: number;
+    payment_status: "paid" | "partial" | "due";
+  }
+): Promise<ConfirmPaymentResponse> {
+  return apiRequest<ConfirmPaymentResponse>(`/orders/${orderId}/confirm-payment`, {
     keyType: "secret",
     method: "POST",
     body: data,

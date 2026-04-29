@@ -142,6 +142,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
             order_id: result.order.id,
             amount: result.order.net_total,
             currency: currency,
+            payment_method_id: paymentMethod.id,
             customer: { name: data.name, email: data.email || undefined, phone: data.phone },
             shipping_address: {
               address: data.address,

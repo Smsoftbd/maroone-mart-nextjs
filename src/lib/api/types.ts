@@ -461,6 +461,15 @@ export interface VerifyPaymentResponse {
   order_id?: number;
 }
 
+export interface ConfirmPaymentResponse {
+  success: boolean;
+  message: string;
+  order_id: number;
+  payment_status: string;
+  paid_amount: number;
+  due_amount: number;
+}
+
 // ─── Coupons ─────────────────────────────────────────────────────────────────
 
 export interface CouponValidationResponse {

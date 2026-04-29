@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyPayment } from "@/lib/api/orders";
+import { confirmPayment, verifyPayment } from "@/lib/api/orders";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SSLCommerzPayment = require("sslcommerz-lts");
 
@@ -11,6 +11,7 @@ export async function POST(req: NextRequest) {
   const body = await req.formData();
   const data = Object.fromEntries(body.entries()) as Record<string, string>;
   const orderId = data.value_a;
+  const paymentMethodId = data.value_b ? Number(data.value_b) : null;
 
   try {
     const sslcz = new SSLCommerzPayment(STORE_ID, STORE_PASSWORD, IS_LIVE);
@@ -18,6 +19,16 @@ export async function POST(req: NextRequest) {
 
     if (validation?.status === "VALID" || validation?.status === "VALIDATED") {
       await verifyPayment("sslcommerz", { val_id: data.val_id, value_a: orderId }).catch(() => null);
+
+      if (orderId && paymentMethodId && data.amount) {
+        await confirmPayment(Number(orderId), {
+          transaction_id: data.tran_id,
+          payment_method_id: paymentMethodId,
+          amount: Number(data.amount),
+          payment_status: "paid",
+        }).catch(() => null);
+      }
+
       const params = new URLSearchParams({
         status: "success",
         ...(orderId ? { order_id: orderId } : {}),
