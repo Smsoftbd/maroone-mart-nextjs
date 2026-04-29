@@ -22,6 +22,7 @@ const schema = z.object({
     city: z.string().optional(),
     state: z.string().optional(),
     country: z.string().optional(),
+    postcode: z.string().optional(),
   }),
 });
 
@@ -33,7 +34,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid payload" }, { status: 422 });
     }
 
-    const { order_id, amount, currency, customer, shipping_address } = parsed.data;
+    const { order_id, amount, customer, shipping_address } = parsed.data;
+    const currency = parsed.data.currency === "৳" ? "BDT" : parsed.data.currency;
 
     const sslcz = new SSLCommerzPayment(STORE_ID, STORE_PASSWORD, IS_LIVE);
 
@@ -52,7 +54,7 @@ export async function POST(req: NextRequest) {
       cus_city: shipping_address.city ?? "",
       cus_state: shipping_address.state ?? "",
       cus_country: shipping_address.country ?? "Bangladesh",
-      cus_postcode: "",
+      cus_postcode: shipping_address.postcode ?? "1000",
       shipping_method: "courier",
       num_of_item: 1,
       product_name: `Order #${order_id}`,
@@ -63,13 +65,13 @@ export async function POST(req: NextRequest) {
       ship_city: shipping_address.city ?? "",
       ship_state: shipping_address.state ?? "",
       ship_country: shipping_address.country ?? "Bangladesh",
-      ship_postcode: "",
+      ship_postcode: shipping_address.postcode ?? "1000",
       value_a: String(order_id),
     };
 
     const response = await sslcz.init(paymentData);
 
-    if (response?.status !== "success" || !response?.GatewayPageURL) {
+    if (response?.status?.toUpperCase() !== "SUCCESS" || !response?.GatewayPageURL) {
       return NextResponse.json(
         { error: response?.failedreason ?? "SSLCommerz session failed" },
         { status: 502 }

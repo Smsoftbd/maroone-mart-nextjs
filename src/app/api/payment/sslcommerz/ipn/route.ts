@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { verifyPayment } from "@/lib/api/orders";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SSLCommerzPayment = require("sslcommerz-lts");
 
@@ -15,8 +16,7 @@ export async function POST(req: NextRequest) {
     const validation = await sslcz.validate({ val_id: data.val_id });
 
     if (validation?.status === "VALID" || validation?.status === "VALIDATED") {
-      // Payment confirmed server-to-server.
-      // Add any backend order status update here if needed.
+      await verifyPayment("sslcommerz", { val_id: data.val_id, value_a: data.value_a }).catch(() => null);
       return NextResponse.json({ status: "ok" });
     }
 
