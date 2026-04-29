@@ -162,6 +162,27 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
         return;
       }
 
+      if (gateway === "bkash") {
+        const payRes = await fetch("/api/payment/bkash/init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            order_id: result.order.id,
+            amount: result.order.net_total,
+            payment_method_id: paymentMethod.id,
+            customer: { name: data.name, phone: data.phone },
+          }),
+        });
+        const payData = await payRes.json();
+        if (payData.bkash_url) {
+          await clearCart(token);
+          window.location.href = payData.bkash_url;
+          return;
+        }
+        appToast.apiError(payData.error || "Could not initiate bKash payment.");
+        return;
+      }
+
       appToast.orderSuccess(result.order.invoice_number);
       await clearCart(token);
       router.push(
