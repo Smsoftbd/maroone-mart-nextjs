@@ -5,6 +5,10 @@ import { initiatePayment } from "@/lib/api/orders";
 const schema = z.object({
   gateway: z.enum(["sslcommerz", "stripe"]),
   currency: z.string().optional(),
+  success_url: z.string().url().optional(),
+  fail_url: z.string().url().optional(),
+  cancel_url: z.string().url().optional(),
+  value_a: z.union([z.string(), z.number()]).optional(),
 });
 
 export async function POST(
@@ -18,11 +22,8 @@ export async function POST(
     if (!parsed.success) {
       return NextResponse.json({ error: "Invalid gateway" }, { status: 422 });
     }
-    const result = await initiatePayment(
-      Number(id),
-      parsed.data.gateway,
-      parsed.data.currency
-    );
+    const { gateway, ...options } = parsed.data;
+    const result = await initiatePayment(Number(id), gateway, options);
     return NextResponse.json(result);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Payment initiation failed";

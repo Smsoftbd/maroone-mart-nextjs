@@ -34,12 +34,18 @@ export async function getOrder(
 export async function initiatePayment(
   orderId: number,
   gateway: "sslcommerz" | "stripe",
-  currency?: string
+  options?: {
+    currency?: string;
+    success_url?: string;
+    fail_url?: string;
+    cancel_url?: string;
+    value_a?: string | number;
+  }
 ): Promise<InitiatePaymentResponse> {
   return apiRequest<InitiatePaymentResponse>(`/orders/${orderId}/pay`, {
     keyType: "secret",
     method: "POST",
-    body: { gateway, currency },
+    body: { gateway, ...options },
     cache: "no-store",
   });
 }

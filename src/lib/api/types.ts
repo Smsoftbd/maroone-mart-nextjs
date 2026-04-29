@@ -608,6 +608,7 @@ export interface PaymentMethod {
   id: number;
   name: string | { en?: string; bn?: string; [lang: string]: string | undefined };
   icon?: string;
+  code?: string;
 }
 
 // ─── Blog ────────────────────────────────────────────────────────────────────

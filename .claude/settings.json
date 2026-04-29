@@ -1,10 +1,11 @@
 {
   "permissions": {
+    "allow": [
+      "Bash(command -v nvm)",
+      "WebFetch(domain:api.github.com)"
+    ],
     "additionalDirectories": [
       "/var/www/newtest-next/src/app/(store)/products"
-    ],
-    "allow": [
-      "Bash(command -v nvm)"
     ]
   }
 }

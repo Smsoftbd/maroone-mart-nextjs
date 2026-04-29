@@ -132,6 +132,35 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
         return;
       }
 
+      const gateway = paymentMethod.code;
+
+      if (gateway === "sslcommerz") {
+        const payRes = await fetch("/api/payment/sslcommerz/init", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            order_id: result.order.id,
+            amount: result.order.net_total,
+            currency: currency,
+            customer: { name: data.name, email: data.email || undefined, phone: data.phone },
+            shipping_address: {
+              address: data.address,
+              city: data.city,
+              state: data.state,
+              country: data.country,
+            },
+          }),
+        });
+        const payData = await payRes.json();
+        if (payData.gateway_url) {
+          await clearCart(token);
+          window.location.href = payData.gateway_url;
+          return;
+        }
+        appToast.apiError(payData.error || "Could not initiate payment. Please try again.");
+        return;
+      }
+
       appToast.orderSuccess(result.order.invoice_number);
       await clearCart(token);
       router.push(
