@@ -16,15 +16,23 @@ import { organizationSchema, websiteSchema } from "@/lib/utils/structured-data";
 
 export const revalidate = 300;
 
+function normalizeKeywords(value: unknown): string[] | undefined {
+  if (Array.isArray(value)) {
+    return value.map((k) => String(k).trim()).filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value.split(",").map((k) => k.trim()).filter(Boolean);
+  }
+  return undefined;
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
   return generatePageMetadata({
     title: store.seo.meta_title ?? store.name,
     description: store.seo.meta_description ?? store.tagline,
     image: store.logo,
-    keywords: store.seo.meta_keywords
-      ? store.seo.meta_keywords.split(",").map((k) => k.trim())
-      : undefined,
+    keywords: normalizeKeywords(store.seo.meta_keywords),
   });
 }
 

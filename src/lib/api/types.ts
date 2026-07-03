@@ -69,7 +69,7 @@ export interface Store {
   seo: {
     meta_title: string | null;
     meta_description: string | null;
-    meta_keywords: string | null;
+    meta_keywords: string | string[] | null;
   };
   scripts: {
     header: string | null;
