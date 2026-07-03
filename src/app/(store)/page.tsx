@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { HeroBanner } from "@/components/home/HeroBanner";
+import { Slider } from "@/components/home/Slider";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FlashSaleBanner } from "@/components/home/FlashSaleBanner";
 import { FeaturedProducts, NewArrivals, TopSelling } from "@/components/home/FeaturedProducts";
 import { NewsletterSection } from "@/components/home/NewsletterSection";
-import { getStore, getHeroBanners, getHomepageCategories } from "@/lib/api/store";
+import { getStore, getSliders, getHomepageCategories } from "@/lib/api/store";
 import {
   getFeaturedProducts,
   getFlashSales,
@@ -37,10 +37,10 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [store, heroBanners, categories, featured, flashSales, newArrivals, topSelling] =
+  const [store, sliders, categories, featured, flashSales, newArrivals, topSelling] =
     await Promise.all([
       getStore(),
-      getHeroBanners(),
+      getSliders(),
       getHomepageCategories(),
       getFeaturedProducts(),
       getFlashSales(),
@@ -61,7 +61,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: websiteSchema(store) }}
       />
 
-      {store.sections.banner && <HeroBanner banners={heroBanners} />}
+      {store.sections.banner && <Slider sliders={sliders} />}
       {store.sections.categories && <CategoryGrid categories={categories} />}
       {store.sections.flash_sale && flashSales.length > 0 && (
         <FlashSaleBanner sales={flashSales} currency={currency} />
