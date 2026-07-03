@@ -172,9 +172,10 @@ export function ProductInfo({ product, currency }: ProductInfoProps) {
 
       {/* Short description */}
       {product.short_description && (
-        <p className="text-sm text-[var(--color-text-secondary)] leading-relaxed">
-          {product.short_description}
-        </p>
+        <div
+          className="prose-content text-sm text-[var(--color-text-secondary)] max-w-none leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: product.short_description }}
+        />
       )}
     </div>
   );

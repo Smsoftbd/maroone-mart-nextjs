@@ -9,12 +9,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Heart, ShoppingBag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
-import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
-import { cn } from "@/lib/utils/cn";
-import { Rating } from "@/components/ui/Rating";
 import type { Product } from "@/lib/api/types";
 
 interface ProductCardProps {
@@ -23,13 +21,9 @@ interface ProductCardProps {
   showWishlist?: boolean;
 }
 
-export function ProductCard({
-  product,
-  currency,
-  showWishlist = true,
-}: ProductCardProps) {
+export function ProductCard({ product, currency }: ProductCardProps) {
+  const router = useRouter();
   const { addItem, isLoading } = useCart();
-  const { isInWishlist, toggle } = useWishlist();
 
   const isVariable = product.type === "variable";
   const defaultBarcode = product.barcodes.find((b) => b.is_active) ?? product.barcodes[0];
@@ -38,111 +32,91 @@ export function ProductCard({
   const hasDiscount = original > price && price > 0;
   const discountPct = hasDiscount ? formatDiscount(original, price) : null;
   const inStock = product.barcodes.some((b) => b.stock > 0);
-  const inWishlist = isInWishlist(product.id);
+  const href = `/products/${product.slug}`;
 
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!defaultBarcode) return;
+    if (isVariable) {
+      router.push(href);
+      return;
+    }
     await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock);
   };
 
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!defaultBarcode) return;
+    if (isVariable) {
+      router.push(href);
+      return;
+    }
+    await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock);
+    router.push("/checkout");
+  };
+
   return (
-    <Link
-      href={`/products/${product.slug}`}
-      className="group relative bg-white rounded-xl border border-surface-100 overflow-hidden transition-shadow hover:shadow-md block"
-    >
-      {/* Image */}
-      <div className="relative aspect-square overflow-hidden bg-surface-50">
-        <Image
-          src={product.image}
-          alt={product.name}
-          fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-contain w-full h-full transition-transform duration-500 group-hover:scale-105"
-        />
-
-        {/* Discount badge */}
-        {discountPct && (
-          <span className="absolute top-2 left-2 bg-[var(--color-secondary-text)] text-[var(--color-primary-text)] text-xs font-bold px-2 py-1 rounded-full z-10">
-            -{discountPct}%
-          </span>
-        )}
-
-        {/* Wishlist */}
-        {showWishlist && (
-          <button
-            className={cn(
-              "absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-sm z-10 transition-colors",
-              inWishlist ? "text-brand-500" : "text-[var(--color-text-muted)] hover:text-brand-500"
-            )}
-            onClick={(e) => {
-              e.preventDefault();
-              toggle(product.slug, product.id);
-            }}
-            aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
-          >
-            <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
-          </button>
-        )}
-
-        {/* Add to cart overlay — simple products only */}
-        {inStock && !isVariable && (
-          <button
-            className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-brand-500 text-[var(--color-primary-text)] text-sm font-medium py-3 text-center flex items-center justify-center gap-2 z-10"
-            onClick={handleAddToCart}
-            disabled={isLoading}
-            aria-label={`Add ${product.name} to cart`}
-          >
-            <ShoppingBag className="h-4 w-4" />
-            Add to Cart
-          </button>
-        )}
-
-        {/* Variable products: redirect to details page to select options */}
-        {isVariable && (
-          <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-brand-500 text-[var(--color-primary-text)] text-sm font-medium py-3 text-center flex items-center justify-center gap-2 z-10 pointer-events-none">
-            <ShoppingBag className="h-4 w-4" />
-            View Options
-          </div>
-        )}
-
-        {!inStock && (
-          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
-            <span className="text-xs font-medium text-[var(--color-text-muted)] bg-white px-3 py-1.5 rounded-full border">
-              Out of Stock
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Info */}
-      <div className="p-3">
-        {product.brand && (
-          <p className="text-xs text-[var(--color-text-muted)] uppercase tracking-widest mb-1 font-body">
-            {product.brand.name}
-          </p>
-        )}
-        <h3 className="font-display text-sm font-medium line-clamp-2 mb-1.5 leading-snug">
-          {product.name}
-        </h3>
-        {product.rating_count > 0 && (
-          <Rating
-            value={product.rating_avg}
-            count={product.rating_count}
-            className="mb-1.5"
-          />
-        )}
-        <div className="flex items-baseline gap-2 flex-wrap">
-          <span className="font-body font-bold text-base text-surface-900">
-            {formatPrice(price, currency)}
-          </span>
-          {hasDiscount && (
-            <span className="line-through text-[var(--color-text-muted)] text-sm">
-              {formatPrice(original, currency)}
-            </span>
-          )}
+    <div className="relative product-card-wrap bg-white rounded shadow p-3">
+      <div className="product-img-action-wrap relative @container">
+        <div className="product-img overflow-hidden aspect-[4/5] rounded-t">
+          <Link href={href}>
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={226}
+              height={400}
+              loading="lazy"
+              className="default-img h-full w-full object-cover object-top hover:scale-125 transition-transform duration-300 ease-in-out rounded-t"
+            />
+          </Link>
         </div>
       </div>
-    </Link>
+
+      <div className="product-content-wrap @container">
+        <h2>
+          <Link
+            href={href}
+            className="product-title text-base text-slate-900 font-body line-clamp-1"
+          >
+            {product.name}
+          </Link>
+        </h2>
+
+        <div className="product-price mb-3 flex flex-row font-title items-center gap-2">
+          <span className="font-semibold">{formatPrice(price, currency)}</span>
+          {hasDiscount && (
+            <div className="flex items-center gap-2">
+              <del className="old-price text-sm font-normal text-slate-400">
+                {formatPrice(original, currency)}
+              </del>
+              <span className="absolute md:static bottom-28 left-2 z-20 discount-badge rounded text-white bg-red-500 px-1 ml-1 !text-[12px]">
+                {discountPct}% OFF
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="product-actions flex justify-between items-center gap-1 sm:gap-2">
+          <button
+            aria-label="Add To Cart"
+            onClick={handleAddToCart}
+            disabled={isLoading || !inStock}
+            className="action-btn p-1 lg:px-2 text-sm lg:text-lg rounded border border-black bg-transparent text-black disabled:opacity-40"
+          >
+            <ShoppingCart className="active:scale-90" height={20} width={20} strokeWidth={1.5} />
+          </button>
+          <button
+            onClick={handleBuyNow}
+            disabled={isLoading || !inStock}
+            className="action-btn p-1 text-sm lg:text-lg lg:px-4 py-1 w-full rounded border border-black bg-transparent text-black disabled:opacity-40 flex items-center justify-center gap-1"
+          >
+            {inStock ? "Buy Now" : "Out of Stock"}
+            {inStock && (
+              <ArrowRight className="hidden @[150px]:inline-block" height={20} width={20} />
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
