@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import {
   Menu,
   Search,
@@ -20,6 +19,7 @@ import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
+import { SearchBox } from "./SearchBox";
 import type { Category, Store } from "@/lib/api/types";
 
 interface NavbarProps {
@@ -28,9 +28,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ store, categories }: NavbarProps) {
-  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const totalItems = useCartStore((s) => s.totalItems);
   const openCart = useCartStore((s) => s.openCart);
   const { customer, isAuthenticated, logout } = useAuthStore();
@@ -43,15 +41,6 @@ export function Navbar({ store, categories }: NavbarProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      closeSearch();
-      setSearchQuery("");
-    }
-  };
 
   const navCategories = categories.slice(0, 8);
 
@@ -94,22 +83,11 @@ export function Navbar({ store, categories }: NavbarProps) {
 
           {/* Desktop: search + call us */}
           <div className="hidden lg:flex items-center gap-8 flex-1 justify-end">
-            <form onSubmit={handleSearch} className="relative w-full max-w-sm">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search"
-                className="w-full rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"
-              />
-              <button
-                type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full text-brand-500 hover:bg-brand-50 transition-colors"
-                aria-label="Search"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-            </form>
+            <SearchBox
+              categories={categories}
+              currency={store.currency_symbol}
+              className="max-w-sm"
+            />
 
             {store.phone && (
               <a
@@ -234,25 +212,14 @@ export function Navbar({ store, categories }: NavbarProps) {
 
         {/* Mobile: collapsible search */}
         {isSearchOpen && (
-          <form onSubmit={handleSearch} className="lg:hidden pb-2.5">
-            <div className="relative">
-              <input
-                autoFocus
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search"
-                className="w-full rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"
-              />
-              <button
-                type="submit"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full text-brand-500"
-                aria-label="Search"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-            </div>
-          </form>
+          <div className="lg:hidden pb-2.5">
+            <SearchBox
+              categories={categories}
+              currency={store.currency_symbol}
+              autoFocus
+              onNavigate={closeSearch}
+            />
+          </div>
         )}
       </div>
 
