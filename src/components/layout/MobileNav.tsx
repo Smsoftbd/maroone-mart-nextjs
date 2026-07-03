@@ -67,7 +67,7 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                 <div key={cat.id}>
                   <div className="flex items-center">
                     <Link
-                      href={`/categories/${cat.slug}`}
+                      href={`/products?category=${cat.slug}`}
                       className="flex-1 px-5 py-3 text-sm font-medium hover:bg-surface-50"
                       onClick={closeMobileNav}
                     >
@@ -100,7 +100,7 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                         {cat.children.map((child) => (
                           <div key={child.id}>
                             <Link
-                              href={`/categories/${child.slug}`}
+                              href={`/products?category=${child.slug}`}
                               className="block pl-8 pr-5 py-2.5 text-sm text-[var(--color-text-secondary)] hover:bg-surface-50"
                               onClick={closeMobileNav}
                             >
@@ -109,7 +109,7 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                             {child.children?.map((gc) => (
                               <Link
                                 key={gc.id}
-                                href={`/categories/${gc.slug}`}
+                                href={`/products?category=${gc.slug}`}
                                 className="block pl-12 pr-5 py-2 text-xs text-[var(--color-text-muted)] hover:bg-surface-50"
                                 onClick={closeMobileNav}
                               >

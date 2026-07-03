@@ -114,7 +114,7 @@ export function websiteSchema(store: Store): string {
     url: SITE_URL,
     potentialAction: {
       "@type": "SearchAction",
-      target: `${SITE_URL}/search?q={search_term_string}`,
+      target: `${SITE_URL}/products?search={search_term_string}`,
       "query-input": "required name=search_term_string",
     },
   };

@@ -237,7 +237,7 @@ export function Navbar({ store, categories }: NavbarProps) {
                 return (
                   <Link
                     key={cat.id}
-                    href={`/categories/${cat.slug}`}
+                    href={`/products?category=${cat.slug}`}
                     title={cat.name}
                     onMouseEnter={() => setActiveCat(hasChildren ? cat.id : null)}
                     className={cn(
@@ -274,7 +274,7 @@ export function Navbar({ store, categories }: NavbarProps) {
                       <div key={child.id} className="mb-2 min-w-0">
                         <div className="transform hover:translate-x-1 transition-transform ease-in-out duration-300">
                           <Link
-                            href={`/categories/${child.slug}`}
+                            href={`/products?category=${child.slug}`}
                             onClick={() => setActiveCat(null)}
                             className="block font-medium text-xs uppercase truncate"
                           >
@@ -287,7 +287,7 @@ export function Navbar({ store, categories }: NavbarProps) {
                             className="transform hover:translate-x-1 transition-transform ease-in-out duration-300"
                           >
                             <Link
-                              href={`/categories/${gc.slug}`}
+                              href={`/products?category=${gc.slug}`}
                               onClick={() => setActiveCat(null)}
                               className="block mt-2 font-light text-xs opacity-90 uppercase truncate"
                             >
@@ -301,7 +301,7 @@ export function Navbar({ store, categories }: NavbarProps) {
 
                   <div className="mt-4 pt-4 border-t border-[var(--color-primary-text)]/10">
                     <Link
-                      href={`/categories/${cat.slug}`}
+                      href={`/products?category=${cat.slug}`}
                       onClick={() => setActiveCat(null)}
                       className="inline-flex items-center gap-1 text-xs font-semibold uppercase opacity-90 hover:opacity-100 hover:gap-2 transition-all"
                     >

@@ -31,7 +31,7 @@ export function CategoryProductSections({
               {category.name}
             </h2>
             <Link
-              href={`/categories/${category.slug}`}
+              href={`/products?category=${category.slug}`}
               className="text-sm text-brand-500 hover:text-brand-600 font-medium transition-colors"
             >
               See All →

@@ -18,7 +18,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            href={`/categories/${cat.slug}`}
+            href={`/products?category=${cat.slug}`}
             className="group flex flex-col items-center gap-3 p-4 rounded-xl border border-[var(--color-border)] hover:border-brand-400 hover:shadow-md transition-all bg-white"
           >
             <div className="relative w-16 h-16 rounded-full overflow-hidden bg-surface-50">

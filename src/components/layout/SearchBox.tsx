@@ -128,7 +128,7 @@ export function SearchBox({
     setQuery("");
     setOpen(false);
     onNavigate?.();
-    router.push(`/search?q=${encodeURIComponent(t)}`);
+    router.push(`/products?search=${encodeURIComponent(t)}`);
   };
 
   const goToProduct = (slug: string, term: string) => {

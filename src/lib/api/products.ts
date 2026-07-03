@@ -9,6 +9,7 @@ import type {
   Product,
   ProductListParams,
   PaginatedResponse,
+  ProductFiltersData,
   FlashSale,
   Review,
   Question,
@@ -141,10 +142,19 @@ export async function getBrands(): Promise<Brand[]> {
 export async function getProducts(
   params: ProductListParams = {}
 ): Promise<PaginatedResponse<Product>> {
+  const joinList = (v?: (number | string)[]) =>
+    v && v.length ? v.join(",") : undefined;
+
   const q = buildQuery({
     search: params.search,
-    category: params.category,
+    // `categories` (multi) takes precedence over the single `category`.
+    category: joinList(params.categories) ?? params.category,
     brand: params.brand,
+    brands: joinList(params.brands),
+    attribute_values: joinList(params.attribute_values),
+    price_min: params.price_min,
+    price_max: params.price_max,
+    sort: params.sort,
     featured: params.featured,
     lang: params.lang,
     per_page: params.per_page ?? 20,
@@ -155,6 +165,19 @@ export async function getProducts(
     tags: CACHE_TAGS.PRODUCTS,
   });
   return { ...res, data: res.data.map(resolveProduct) };
+}
+
+export async function getProductFilters(lang?: string): Promise<ProductFiltersData> {
+  const q = lang ? `?lang=${lang}` : "";
+  try {
+    const res = await apiRequest<{ data: ProductFiltersData }>(`/product-filters${q}`, {
+      revalidate: REVALIDATE.CATEGORIES,
+      tags: CACHE_TAGS.CATEGORIES,
+    });
+    return res.data;
+  } catch {
+    return { attributes: [], price_range: { min: 0, max: 0 } };
+  }
 }
 
 export async function getProduct(slug: string, lang?: string): Promise<Product> {

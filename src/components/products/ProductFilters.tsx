@@ -5,36 +5,62 @@ import { useState } from "react";
 import { SlidersHorizontal, X } from "lucide-react";
 import { Drawer } from "@/components/ui/Drawer";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils/cn";
-import type { Category, Brand } from "@/lib/api/types";
+import { Checkbox } from "@/components/ui/Checkbox";
+import { FilterSection } from "@/components/ui/FilterSection";
+import { RangeSlider } from "@/components/ui/RangeSlider";
+import type { Category, Brand, FilterAttribute } from "@/lib/api/types";
 
 interface ProductFiltersProps {
   categories: Category[];
   brands: Brand[];
-  activeCategory?: string;
-  activeBrand?: string;
+  filterAttributes: FilterAttribute[];
+  priceRange: { min: number; max: number };
+  currency: string;
 }
 
 function FilterContent({
   categories,
   brands,
-  activeCategory,
-  activeBrand,
+  filterAttributes,
+  priceRange,
+  currency,
   onApply,
 }: ProductFiltersProps & { onApply?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const setFilter = (key: string, value: string | undefined) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
+  const activeCategories = searchParams.getAll("category");
+  const activeBrands = searchParams.getAll("brands");
+  const activeValues = searchParams.getAll("attribute_values");
+  const priceMin = searchParams.get("price_min");
+  const priceMax = searchParams.get("price_max");
+
+  const push = (params: URLSearchParams) => {
     params.delete("page");
-    router.push(`/products?${params.toString()}`);
+    const qs = params.toString();
+    router.push(qs ? `/products?${qs}` : "/products");
     onApply?.();
+  };
+
+  // Add/remove a single value from a repeatable param.
+  const toggle = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const existing = params.getAll(key);
+    params.delete(key);
+    const next = existing.includes(value)
+      ? existing.filter((v) => v !== value)
+      : [...existing, value];
+    next.forEach((v) => params.append(key, v));
+    push(params);
+  };
+
+  const setPrice = (min: number | undefined, max: number | undefined) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (min != null) params.set("price_min", String(min));
+    else params.delete("price_min");
+    if (max != null) params.set("price_max", String(max));
+    else params.delete("price_max");
+    push(params);
   };
 
   const clearAll = () => {
@@ -42,100 +68,90 @@ function FilterContent({
     onApply?.();
   };
 
-  const hasFilters = activeCategory || activeBrand;
+  const activeCount =
+    activeCategories.length +
+    activeBrands.length +
+    activeValues.length +
+    (priceMin || priceMax ? 1 : 0);
 
-  const renderCategory = (cat: Category, depth: number) => (
-    <li key={cat.id}>
-      <button
-        onClick={() => setFilter("category", cat.slug)}
-        style={{ paddingLeft: `${0.5 + depth}rem` }}
-        className={cn(
-          "w-full text-left text-sm py-1.5 pr-2 rounded-lg transition-colors",
-          activeCategory === cat.slug
-            ? "bg-brand-50 text-brand-600 font-medium"
-            : "text-[var(--color-text-secondary)] hover:bg-surface-100"
-        )}
-      >
-        {cat.name}
-      </button>
-      {cat.children?.length ? (
-        <ul className="space-y-1 mt-1">
-          {cat.children.map((child) => renderCategory(child, depth + 1))}
-        </ul>
-      ) : null}
-    </li>
+  const renderCategory = (cat: Category, depth: number): React.ReactNode => (
+    <div key={cat.id} style={{ paddingLeft: depth ? `${depth * 0.75}rem` : undefined }}>
+      <Checkbox
+        checked={activeCategories.includes(cat.slug)}
+        onChange={() => toggle("category", cat.slug)}
+        label={cat.name}
+      />
+      {cat.children?.length
+        ? cat.children.map((child) => renderCategory(child, depth + 1))
+        : null}
+    </div>
   );
 
   return (
-    <div className="space-y-6">
-      {hasFilters && (
-        <button
-          onClick={clearAll}
-          className="flex items-center gap-1.5 text-sm text-brand-500 hover:text-brand-600 transition-colors"
-        >
-          <X className="h-3.5 w-3.5" /> Clear all filters
-        </button>
-      )}
-
-      <div>
-        <h3 className="font-display font-semibold mb-3 text-sm uppercase tracking-wide">
-          Categories
-        </h3>
-        <ul className="space-y-1">
-          <li>
-            <button
-              onClick={() => setFilter("category", undefined)}
-              className={cn(
-                "w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors",
-                !activeCategory
-                  ? "bg-brand-50 text-brand-600 font-medium"
-                  : "text-[var(--color-text-secondary)] hover:bg-surface-100"
-              )}
-            >
-              All Categories
-            </button>
-          </li>
-          {categories.map((cat) => renderCategory(cat, 0))}
-        </ul>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-display text-base font-bold">Filters</h2>
+        {activeCount > 0 && (
+          <button
+            onClick={clearAll}
+            className="flex items-center gap-1 text-xs font-medium text-brand-500 hover:text-brand-600 transition-colors"
+          >
+            <X className="h-3.5 w-3.5" /> Clear all
+          </button>
+        )}
       </div>
 
-      {brands.length > 0 && (
-        <div>
-          <h3 className="font-display font-semibold mb-3 text-sm uppercase tracking-wide">
-            Brands
-          </h3>
-          <ul className="space-y-1">
-            <li>
-              <button
-                onClick={() => setFilter("brand", undefined)}
-                className={cn(
-                  "w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors",
-                  !activeBrand
-                    ? "bg-brand-50 text-brand-600 font-medium"
-                    : "text-[var(--color-text-secondary)] hover:bg-surface-100"
-                )}
-              >
-                All Brands
-              </button>
-            </li>
-            {brands.map((brand) => (
-              <li key={brand.id}>
-                <button
-                  onClick={() => setFilter("brand", brand.name)}
-                  className={cn(
-                    "w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors",
-                    activeBrand === brand.name
-                      ? "bg-brand-50 text-brand-600 font-medium"
-                      : "text-[var(--color-text-secondary)] hover:bg-surface-100"
-                  )}
-                >
-                  {brand.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+      <FilterSection title="Categories" activeCount={activeCategories.length}>
+        <div>{categories.map((cat) => renderCategory(cat, 0))}</div>
+      </FilterSection>
+
+      {priceRange.max > priceRange.min && (
+        <FilterSection title="Price" activeCount={priceMin || priceMax ? 1 : 0}>
+          <RangeSlider
+            min={priceRange.min}
+            max={priceRange.max}
+            valueMin={priceMin ? Number(priceMin) : undefined}
+            valueMax={priceMax ? Number(priceMax) : undefined}
+            currency={currency}
+            onCommit={setPrice}
+          />
+        </FilterSection>
       )}
+
+      {brands.length > 0 && (
+        <FilterSection title="Brands" activeCount={activeBrands.length}>
+          <div>
+            {brands.map((brand) => (
+              <Checkbox
+                key={brand.id}
+                checked={activeBrands.includes(String(brand.id))}
+                onChange={() => toggle("brands", String(brand.id))}
+                label={brand.name}
+              />
+            ))}
+          </div>
+        </FilterSection>
+      )}
+
+      {filterAttributes.map((attr) => (
+        <FilterSection
+          key={attr.id}
+          title={attr.name}
+          activeCount={attr.values.filter((v) => activeValues.includes(String(v.id))).length}
+        >
+          <div>
+            {attr.values.map((v) => (
+              <Checkbox
+                key={v.id}
+                checked={activeValues.includes(String(v.id))}
+                onChange={() => toggle("attribute_values", String(v.id))}
+                label={v.value}
+                swatch={attr.code === "color" ? v.code : undefined}
+              />
+            ))}
+          </div>
+        </FilterSection>
+      ))}
     </div>
   );
 }
@@ -169,7 +185,7 @@ export function ProductFilters(props: ProductFiltersProps) {
       </div>
 
       {/* Desktop: sticky sidebar */}
-      <aside className="hidden lg:block w-52 shrink-0 sticky top-24 self-start">
+      <aside className="hidden lg:block w-64 shrink-0 sticky top-24 self-start max-h-[calc(100vh-7rem)] overflow-y-auto pr-1">
         <FilterContent {...props} />
       </aside>
     </>

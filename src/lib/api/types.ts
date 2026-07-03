@@ -204,12 +204,38 @@ export interface Product {
 
 export interface ProductListParams {
   search?: string;
+  /** Single category slug (back-compat) or comma-joined via `categories`. */
   category?: string;
+  categories?: string[];
   brand?: string;
+  /** Multi-select brand ids. */
+  brands?: (number | string)[];
+  attribute_values?: (number | string)[];
+  price_min?: number;
+  price_max?: number;
+  sort?: string;
   featured?: 1;
   lang?: string;
   per_page?: number;
   page?: number;
+}
+
+export interface FilterAttributeValue {
+  id: number;
+  value: string;
+  code?: string | null;
+}
+
+export interface FilterAttribute {
+  id: number;
+  name: string;
+  code?: string | null;
+  values: FilterAttributeValue[];
+}
+
+export interface ProductFiltersData {
+  attributes: FilterAttribute[];
+  price_range: { min: number; max: number };
 }
 
 // ─── Flash Sales ─────────────────────────────────────────────────────────────
