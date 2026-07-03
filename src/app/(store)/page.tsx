@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Slider } from "@/components/home/Slider";
-import { CategoryGrid } from "@/components/home/CategoryGrid";
+// import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FlashSaleBanner } from "@/components/home/FlashSaleBanner";
 import { FeaturedProducts, NewArrivals, TopSelling } from "@/components/home/FeaturedProducts";
+import { CategoryProductSections } from "@/components/home/CategoryProductSections";
 import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { getStore, getSliders, getHomepageCategories } from "@/lib/api/store";
 import {
@@ -10,6 +11,7 @@ import {
   getFlashSales,
   getNewArrivals,
   getTopSelling,
+  getProducts,
 } from "@/lib/api/products";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { organizationSchema, websiteSchema } from "@/lib/utils/structured-data";
@@ -50,6 +52,20 @@ export default async function HomePage() {
 
   const currency = store.currency_symbol;
 
+  const categoryProducts = await Promise.all(
+    categories.map(async (category) => {
+      try {
+        const { data } = await getProducts({
+          category: category.slug,
+          per_page: 8,
+        });
+        return { category, products: data };
+      } catch {
+        return { category, products: [] };
+      }
+    })
+  );
+
   return (
     <>
       <script
@@ -62,7 +78,7 @@ export default async function HomePage() {
       />
 
       {store.sections.banner && <Slider sliders={sliders} />}
-      {store.sections.categories && <CategoryGrid categories={categories} />}
+      {/* {store.sections.categories && <CategoryGrid categories={categories} />} */}
       {store.sections.flash_sale && flashSales.length > 0 && (
         <FlashSaleBanner sales={flashSales} currency={currency} />
       )}
@@ -71,6 +87,9 @@ export default async function HomePage() {
       )}
       {store.sections.new_arrivals && (
         <NewArrivals products={newArrivals} currency={currency} />
+      )}
+      {store.sections.categories && (
+        <CategoryProductSections sections={categoryProducts} currency={currency} />
       )}
       {store.sections.top_selling && (
         <TopSelling products={topSelling} currency={currency} />
