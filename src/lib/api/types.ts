@@ -121,6 +121,7 @@ export interface Attribute {
   name: string;
   value: string;
   value_code?: string;
+  value_id?: number;
 }
 
 export interface Barcode {
@@ -144,6 +145,13 @@ export interface ProductMeta {
   title?: string;
   description?: string;
   keywords?: string[];
+  canonical_url?: string | null;
+}
+
+export interface ProductCategoryRef {
+  id: number;
+  name: string;
+  slug: string;
 }
 
 export interface ProductUnit {
@@ -175,16 +183,21 @@ export interface Product {
   tax_type?: "exclusive" | "inclusive";
   hsn_code?: string;
   manage_stock: boolean;
-  min_order_quantity: number;
-  max_order_quantity: number;
+  /** Newer API key; older API used min_order_quantity. */
+  min_order_qty?: number;
+  max_order_qty?: number | null;
+  min_order_quantity?: number;
+  max_order_quantity?: number;
   is_returnable: boolean;
   is_refundable: boolean;
   unit?: ProductUnit;
-  category: { id: number; name: string; slug: string };
-  brand?: { id: number; name: string } | null;
+  category: ProductCategoryRef;
+  sub_category?: ProductCategoryRef | null;
+  child_category?: ProductCategoryRef | null;
+  brand?: { id: number; name: string; image?: string | null } | null;
   barcodes: Barcode[];
   meta?: ProductMeta;
-  translations?: Record<string, { name: string; description: string }>;
+  translations?: unknown[] | Record<string, { name: string; description: string }>;
 }
 
 export interface ProductListParams {

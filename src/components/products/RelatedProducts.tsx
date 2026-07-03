@@ -47,9 +47,9 @@ export function RelatedProducts({
   if (!isLoading && products.length === 0) return null;
 
   return (
-    <section className="mt-16">
-      <h2 className="font-display text-2xl font-semibold mb-6">
-        Related Products
+    <section id="same-category-products" className="mt-16 lg:pt-6">
+      <h2 className="font-display text-2xl font-semibold text-center mb-8">
+        Similar Products
       </h2>
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">

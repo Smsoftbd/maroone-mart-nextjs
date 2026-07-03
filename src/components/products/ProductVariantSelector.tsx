@@ -18,16 +18,19 @@ export function ProductVariantSelector({
   const [selected, setSelected] = useState<Record<string, string>>({});
 
   const attributeGroups = useMemo(() => {
-    const groups: Record<string, Map<string, string>> = {};
+    const groups: Record<string, Map<string, { code: string; label: string }>> = {};
     barcodes.forEach((b) => {
       b.attributes.forEach(({ name, value, value_code }) => {
         if (!groups[name]) groups[name] = new Map();
-        groups[name].set(value, value_code ?? value);
+        // `value` is the stable identity (may be a numeric id fallback);
+        // prefer a human label when one exists.
+        const label = value_code && !isHexColor(value_code) ? value_code : value;
+        groups[name].set(value, { code: value_code ?? value, label });
       });
     });
     return Object.entries(groups).map(([name, map]) => ({
       name,
-      entries: [...map.entries()].map(([value, code]) => ({ value, code })),
+      entries: [...map.entries()].map(([value, { code, label }]) => ({ value, code, label })),
     }));
   }, [barcodes]);
 
@@ -57,17 +60,14 @@ export function ProductVariantSelector({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="product-size space-y-4">
       {attributeGroups.map(({ name, entries }) => (
         <div key={name}>
-          <p className="text-sm font-medium mb-2">
-            {name}:{" "}
-            <span className="text-[var(--color-text-muted)] font-normal">
-              {selected[name] || "Select"}
-            </span>
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {entries.map(({ value, code }) => {
+          <h4 className="text-slate-900 text-sm lg:text-base font-normal">
+            Select {name}:
+          </h4>
+          <div className="flex gap-2 lg:gap-3 flex-wrap mt-2 lg:mt-3">
+            {entries.map(({ value, code, label }) => {
               const oos = isOutOfStock(name, value);
               const active = selected[name] === value;
 
@@ -75,19 +75,19 @@ export function ProductVariantSelector({
                 return (
                   <button
                     key={value}
-                    title={value}
+                    title={label}
                     onClick={() => !oos && handleSelect(name, value)}
                     disabled={oos}
                     style={{ backgroundColor: code }}
                     className={cn(
-                      "w-8 h-8 rounded-full border-2 transition-all",
+                      "w-9 h-9 rounded-full border-2 transition-all",
                       active
                         ? "border-brand-500 scale-110 ring-2 ring-brand-200"
                         : "border-transparent hover:border-brand-300",
                       oos && "opacity-40 cursor-not-allowed"
                     )}
                     aria-pressed={active}
-                    aria-label={value}
+                    aria-label={label}
                   />
                 );
               }
@@ -98,17 +98,17 @@ export function ProductVariantSelector({
                   onClick={() => !oos && handleSelect(name, value)}
                   disabled={oos}
                   className={cn(
-                    "px-4 py-2 text-sm rounded-lg border-2 transition-colors",
+                    "py-2 lg:py-3 px-4 rounded-lg border text-sm lg:text-base cursor-pointer transition-colors",
                     active
                       ? "border-brand-500 bg-brand-50 text-brand-600 font-medium"
-                      : "border-[var(--color-border)] hover:border-brand-300",
+                      : "border-slate-300 text-slate-700 hover:border-brand-300",
                     oos &&
                       "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)]"
                   )}
                   aria-pressed={active}
                   aria-disabled={oos}
                 >
-                  {value}
+                  {label}
                 </button>
               );
             })}

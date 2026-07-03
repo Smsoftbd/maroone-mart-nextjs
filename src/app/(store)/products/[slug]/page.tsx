@@ -3,13 +3,16 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { ProductImageGallery } from "@/components/products/ProductImageGallery";
 import { ProductInfo } from "@/components/products/ProductInfo";
-import { ProductTabs } from "@/components/products/ProductTabs";
+import { ProductDetailsSections } from "@/components/products/ProductDetailsSections";
 import { RelatedProducts } from "@/components/products/RelatedProducts";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { getProduct, getProductReviews, getProductQuestions, getProducts } from "@/lib/api/products";
+import { getProduct, getProducts } from "@/lib/api/products";
 import { getStore } from "@/lib/api/store";
+import { getDeliveryCharges } from "@/lib/api/content";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { productSchema, breadcrumbSchema } from "@/lib/utils/structured-data";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -33,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       image: product.image,
       url: `/products/${slug}`,
       type: "product",
-      keywords: product.tags,
+      keywords: product.meta?.keywords,
     });
   } catch {
     return {};
@@ -43,13 +46,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
 
-  let product, reviews, questions, store;
+  let product, store, deliveryCharges;
   try {
-    [product, reviews, questions, store] = await Promise.all([
+    [product, store, deliveryCharges] = await Promise.all([
       getProduct(slug),
-      getProductReviews(slug),
-      getProductQuestions(slug),
       getStore(),
+      getDeliveryCharges().catch(() => []),
     ]);
   } catch {
     notFound();
@@ -62,16 +64,18 @@ export default async function ProductPage({ params }: PageProps) {
 
   const breadcrumbItems = [
     { name: "Home", url: "/" },
-    { name: product.category.name, url: `/categories/${product.category.slug}` },
+    { name: "Products", url: "/products" },
     { name: product.name, url: `/products/${product.slug}` },
   ];
 
+  const shareUrl = `${SITE_URL}/products/${product.slug}`;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: productSchema(product, store.currency_symbol),
+          __html: productSchema(product, store.currency),
         }}
       />
       <script
@@ -83,12 +87,24 @@ export default async function ProductPage({ params }: PageProps) {
         items={breadcrumbItems.map((i) => ({ label: i.name, href: i.url }))}
       />
 
-      <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-        <ProductImageGallery images={galleryImages} productName={product.name} />
-        <ProductInfo product={product} currency={store.currency_symbol} />
+      <div className="mt-4 flex flex-col lg:flex-row gap-6 lg:gap-10">
+        <div className="lg:w-[33rem] lg:shrink-0">
+          <ProductImageGallery images={galleryImages} productName={product.name} />
+        </div>
+        <div className="lg:flex-1">
+          <ProductInfo
+            product={product}
+            currency={store.currency_symbol}
+            shareUrl={shareUrl}
+          />
+          <ProductDetailsSections
+            product={product}
+            store={store}
+            deliveryCharges={deliveryCharges}
+            currency={store.currency_symbol}
+          />
+        </div>
       </div>
-
-      <ProductTabs product={product} reviews={reviews} questions={questions} />
 
       <Suspense fallback={null}>
         <RelatedProducts

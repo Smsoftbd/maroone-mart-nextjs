@@ -26,7 +26,7 @@ interface ApiVariant {
   attribute_name: string;
   value_id: number;
   value: string | null;
-  value_code: string;
+  value_code: string | null;
 }
 
 interface ApiBarcode extends Omit<Barcode, "attributes"> {
@@ -34,13 +34,17 @@ interface ApiBarcode extends Omit<Barcode, "attributes"> {
   attributes?: Barcode["attributes"];
 }
 
-type ApiProduct = Omit<Product, "name" | "short_description" | "description" | "category" | "barcodes" | "brand" | "unit"> & {
+type ApiCategoryRef = { id: number; name: L; slug: string };
+
+type ApiProduct = Omit<Product, "name" | "short_description" | "description" | "category" | "sub_category" | "child_category" | "barcodes" | "brand" | "unit"> & {
   name: L;
   short_description: L;
   description: L;
-  category: { id: number; name: L; slug: string };
+  category: ApiCategoryRef;
+  sub_category?: ApiCategoryRef | null;
+  child_category?: ApiCategoryRef | null;
   barcodes: ApiBarcode[];
-  brand?: { id: number; name: L } | null;
+  brand?: { id: number; name: L; image?: string | null } | null;
   unit?: { id: number; name: L };
 };
 
@@ -62,6 +66,10 @@ function resolveAttr(a: any) {
   return { ...a, name: resolveL10n(a.name), value: resolveL10n(a.value) };
 }
 
+function resolveCatRef(c: ApiCategoryRef | null | undefined) {
+  return c ? { ...c, name: resolveL10n(c.name) } : c ?? null;
+}
+
 function resolveProduct(p: ApiProduct): Product {
   return {
     ...p,
@@ -69,6 +77,8 @@ function resolveProduct(p: ApiProduct): Product {
     short_description: resolveL10n(p.short_description),
     description: resolveL10n(p.description),
     category: { ...p.category, name: resolveL10n(p.category.name) },
+    sub_category: resolveCatRef(p.sub_category),
+    child_category: resolveCatRef(p.child_category),
     brand: p.brand ? { ...p.brand, name: resolveL10n(p.brand.name) } : p.brand,
     unit: p.unit ? { ...p.unit, name: resolveL10n(p.unit.name) } : undefined,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,8 +91,11 @@ function resolveProduct(p: ApiProduct): Product {
           attributes: Array.isArray(b.variants)
             ? b.variants.map((v) => ({
                 name: v.attribute_name,
-                value: v.value ?? v.value_code,
-                value_code: v.value_code,
+                // API may omit value/value_code; fall back to value_id so
+                // each option stays uniquely identifiable & selectable.
+                value: v.value ?? v.value_code ?? String(v.value_id),
+                value_code: v.value_code ?? undefined,
+                value_id: v.value_id,
               }))
             : Array.isArray(b.attributes)
             ? b.attributes.map(resolveAttr)

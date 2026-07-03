@@ -2,9 +2,10 @@ import type { Product, BlogPost, Store } from "@/lib/api/types";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
-export function productSchema(product: Product, currencySymbol: string): string {
+export function productSchema(product: Product, currencyCode: string): string {
   const price = Math.max((product.barcodes.find((b) => b.is_active) ?? product.barcodes[0])?.effective_price ?? 0, 0);
   const inStock = product.barcodes.some((b) => b.stock > 0);
+  const priceValidUntil = `${new Date().getFullYear()}-12-31`;
 
   const schema = {
     "@context": "https://schema.org",
@@ -27,7 +28,9 @@ export function productSchema(product: Product, currencySymbol: string): string 
     offers: {
       "@type": "Offer",
       price,
-      priceCurrency: currencySymbol,
+      priceCurrency: currencyCode,
+      priceValidUntil,
+      itemCondition: "https://schema.org/NewCondition",
       availability: inStock
         ? "https://schema.org/InStock"
         : "https://schema.org/OutOfStock",

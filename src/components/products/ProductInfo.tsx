@@ -1,182 +1,159 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Heart, Minus, Plus, ShoppingBag, Truck, RotateCcw } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
-import { Rating } from "@/components/ui/Rating";
+import { useRouter } from "next/navigation";
+import { Heart, ShoppingCart, Zap } from "lucide-react";
 import { ProductVariantSelector } from "./ProductVariantSelector";
+import { ShareButtons } from "./ShareButtons";
 import { useCart } from "@/lib/hooks/useCart";
 import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
+import { cn } from "@/lib/utils/cn";
 import type { Product, Barcode } from "@/lib/api/types";
 
 interface ProductInfoProps {
   product: Product;
   currency: string;
+  shareUrl: string;
 }
 
-export function ProductInfo({ product, currency }: ProductInfoProps) {
+export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
+  const router = useRouter();
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
     product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
-  const [quantity, setQuantity] = useState(product.min_order_quantity || 1);
   const { addItem, isLoading } = useCart();
   const { isInWishlist, toggle } = useWishlist();
 
+  const minQty = product.min_order_qty ?? product.min_order_quantity ?? 1;
   const price = Math.max(selectedBarcode?.effective_price ?? 0, 0);
   const original = selectedBarcode?.price ?? 0;
-  const hasDiscount = original > price;
+  const hasDiscount = original > price && price > 0;
+  const discountPct = hasDiscount ? formatDiscount(original, price) : null;
   const inStock = (selectedBarcode?.stock ?? 0) > 0;
-  const maxQty = Math.min(
-    product.max_order_quantity || 999,
-    selectedBarcode?.stock ?? 999
-  );
+  const sku = selectedBarcode?.sku ?? product.sku;
   const inWishlist = isInWishlist(product.id);
 
-  const handleAddToCart = async () => {
-    if (!selectedBarcode) return;
-    await addItem(selectedBarcode.id, quantity, product.name, price, selectedBarcode.stock, selectedBarcode.attributes);
+  const addSelected = async () => {
+    if (!selectedBarcode) return false;
+    await addItem(
+      selectedBarcode.id,
+      minQty,
+      product.name,
+      price,
+      selectedBarcode.stock,
+      selectedBarcode.attributes
+    );
+    return true;
+  };
+
+  const handleBuyNow = async () => {
+    if (await addSelected()) router.push("/checkout");
   };
 
   return (
-    <div className="space-y-6">
-      {/* Brand + Category */}
-      <div className="flex items-center gap-2 flex-wrap">
-        {product.brand && (
-          <span className="text-xs uppercase tracking-widest text-[var(--color-text-muted)] font-body">
-            {product.brand.name}
-          </span>
-        )}
-        <Link
-          href={`/categories/${product.category.slug}`}
-          className="text-xs text-brand-500 hover:text-brand-600 transition-colors"
-        >
-          {product.category.name}
-        </Link>
-      </div>
+    <div className="product-content-wrap">
+      {/* Brand */}
+      {product.brand && (
+        <p className="text-sm font-bold text-brand-500 capitalize mb-1 lg:mb-2">
+          {product.brand.name}
+        </p>
+      )}
 
       {/* Title */}
-      <h1 className="font-display text-2xl md:text-3xl font-bold leading-tight">
+      <h1 className="font-display text-2xl font-bold text-surface-900 leading-tight">
         {product.name}
       </h1>
 
-      {/* Rating */}
-      {product.rating_count > 0 && (
-        <Rating
-          value={product.rating_avg}
-          count={product.rating_count}
-          size="md"
-        />
-      )}
-
       {/* Price */}
-      <div className="flex items-baseline gap-3 flex-wrap">
-        <span className="font-body font-bold text-3xl text-surface-900">
+      <div className="product-price flex items-center gap-4 lg:border-b border-[var(--color-border)] py-3 lg:py-5">
+        <span className="text-2xl lg:text-3xl font-bold text-surface-900">
           {formatPrice(price, currency)}
         </span>
         {hasDiscount && (
           <>
-            <span className="line-through text-[var(--color-text-muted)] text-xl">
+            <del className="text-base lg:text-lg font-normal text-[var(--color-text-muted)]">
               {formatPrice(original, currency)}
+            </del>
+            <span className="inline-block text-base font-semibold text-white bg-red-500 rounded-md py-1 px-2">
+              {discountPct}% OFF
             </span>
-            <Badge variant="brand">
-              -{formatDiscount(original, price)}% OFF
-            </Badge>
           </>
         )}
       </div>
 
-      {/* Stock */}
-      <Badge variant={inStock ? "success" : "error"}>
-        {inStock
-          ? `In Stock (${selectedBarcode?.stock})`
-          : "Out of Stock"}
-      </Badge>
-
-      {/* Variants */}
-      {(product.type === "variable" || product.type === "complex") && product.barcodes.length > 1 && (
-        <ProductVariantSelector
-          barcodes={product.barcodes}
-          onChange={setSelectedBarcode}
-        />
+      {/* SKU */}
+      {sku && (
+        <div className="flex items-center gap-2 lg:py-3 text-lg">
+          <span className="text-surface-900">SKU:</span>
+          <span>{sku}</span>
+        </div>
       )}
-
-      {/* Quantity */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium">Quantity:</span>
-        <div className="flex items-center border border-[var(--color-border)] rounded-lg overflow-hidden">
-          <button
-            className="px-3 py-2 hover:bg-surface-100 transition-colors disabled:opacity-40"
-            onClick={() => setQuantity((q) => Math.max(product.min_order_quantity || 1, q - 1))}
-            disabled={quantity <= (product.min_order_quantity || 1)}
-            aria-label="Decrease"
-          >
-            <Minus className="h-4 w-4" />
-          </button>
-          <span className="px-4 py-2 font-medium tabular-nums min-w-[3rem] text-center">
-            {quantity}
-          </span>
-          <button
-            className="px-3 py-2 hover:bg-surface-100 transition-colors disabled:opacity-40"
-            onClick={() => setQuantity((q) => Math.min(maxQty, q + 1))}
-            disabled={quantity >= maxQty}
-            aria-label="Increase"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* CTA buttons */}
-      <div className="flex gap-3">
-        <Button
-          variant="primary"
-          size="lg"
-          fullWidth
-          loading={isLoading}
-          disabled={!inStock}
-          onClick={handleAddToCart}
-          className="flex-1"
-        >
-          <ShoppingBag className="h-5 w-5" />
-          Add to Cart
-        </Button>
-        <button
-          onClick={() => toggle(product.slug, product.id)}
-          className={`p-3 rounded-lg border-2 transition-colors ${
-            inWishlist
-              ? "border-brand-500 text-brand-500"
-              : "border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-brand-300 hover:text-brand-500"
-          }`}
-          aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
-        >
-          <Heart className={`h-5 w-5 ${inWishlist ? "fill-current" : ""}`} />
-        </button>
-      </div>
-
-      {/* Trust signals */}
-      <div className="border-t border-[var(--color-border)] pt-4 space-y-2">
-        {product.is_returnable && (
-          <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
-            <RotateCcw className="h-4 w-4 shrink-0" />
-            <span>Easy returns available</span>
-          </div>
-        )}
-        <div className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
-          <Truck className="h-4 w-4 shrink-0" />
-          <span>Check delivery options at checkout</span>
-        </div>
-      </div>
 
       {/* Short description */}
       {product.short_description && (
         <div
-          className="prose-content text-sm text-[var(--color-text-secondary)] max-w-none leading-relaxed"
+          className="prose-content max-w-none text-sm mt-2"
           dangerouslySetInnerHTML={{ __html: product.short_description }}
         />
       )}
+
+      {/* Variants */}
+      {product.barcodes.length > 1 && (
+        <div className="mt-4">
+          <ProductVariantSelector
+            barcodes={product.barcodes}
+            onChange={setSelectedBarcode}
+          />
+        </div>
+      )}
+
+      {/* Stock note */}
+      <p
+        className={cn(
+          "mt-4 text-sm font-medium",
+          inStock ? "text-[var(--color-success)]" : "text-[var(--color-error)]"
+        )}
+      >
+        {inStock ? `In Stock (${selectedBarcode?.stock})` : "Out of Stock"}
+      </p>
+
+      {/* CTA buttons */}
+      <div className="py-2 pt-6 lg:pt-8 lg:pb-4">
+        <div className="product-actions flex gap-4 justify-between items-center">
+          <button
+            onClick={addSelected}
+            disabled={isLoading || !inStock}
+            className="bg-brand-500 py-3 w-full px-2 lg:px-6 text-white text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
+            <span>Add to Cart</span>
+          </button>
+          <button
+            onClick={handleBuyNow}
+            disabled={isLoading || !inStock}
+            className="bg-surface-900 py-3 w-full px-2 lg:px-6 text-white text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <Zap className="h-5 w-5" />
+            <span>Buy Now</span>
+          </button>
+          <button
+            onClick={() => toggle(product.slug, product.id)}
+            aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+            className={cn(
+              "shrink-0 p-3 rounded-lg border transition-colors",
+              inWishlist
+                ? "border-brand-500 text-brand-500"
+                : "border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-brand-300 hover:text-brand-500"
+            )}
+          >
+            <Heart className={cn("h-5 w-5", inWishlist && "fill-current")} />
+          </button>
+        </div>
+      </div>
+
+      {/* Share */}
+      <ShareButtons url={shareUrl} title={product.name} />
     </div>
   );
 }
