@@ -212,6 +212,27 @@ export async function getTopSelling(
   return res.data.map(resolveProduct);
 }
 
+/**
+ * Best-selling products = /top-selling, ordered by sales. When the store has no
+ * sales history yet the endpoint returns nothing, so fall back to a random slice
+ * of the catalog to keep the homepage section populated.
+ */
+export async function getBestSelling(
+  limit = 20,
+  lang?: string
+): Promise<Product[]> {
+  const top = await getTopSelling(limit, lang);
+  if (top.length > 0) return top;
+
+  const { data } = await getProducts({ per_page: Math.max(limit * 2, 24), lang });
+  // Fisher–Yates shuffle so the fallback isn't always the same first products.
+  for (let i = data.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [data[i], data[j]] = [data[j], data[i]];
+  }
+  return data.slice(0, limit);
+}
+
 export async function getProductReviews(slug: string): Promise<Review[]> {
   const res = await apiRequest<{ data: Review[] }>(
     `/products/${slug}/reviews`,

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Slider } from "@/components/home/Slider";
 // import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FlashSaleBanner } from "@/components/home/FlashSaleBanner";
-import { FeaturedProducts, NewArrivals, TopSelling } from "@/components/home/FeaturedProducts";
+import { FeaturedProducts, NewArrivals, BestSelling } from "@/components/home/FeaturedProducts";
 import { CategoryProductSections } from "@/components/home/CategoryProductSections";
 import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { getStore, getSliders, getHomepageCategories } from "@/lib/api/store";
@@ -10,7 +10,7 @@ import {
   getFeaturedProducts,
   getFlashSales,
   getNewArrivals,
-  getTopSelling,
+  getBestSelling,
   getProducts,
 } from "@/lib/api/products";
 import { generatePageMetadata } from "@/lib/utils/metadata";
@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [store, sliders, categories, featured, flashSales, newArrivals, topSelling] =
+  const [store, sliders, categories, featured, flashSales, newArrivals, bestSelling] =
     await Promise.all([
       getStore(),
       getSliders(),
@@ -47,7 +47,7 @@ export default async function HomePage() {
       getFeaturedProducts(),
       getFlashSales(),
       getNewArrivals(12),
-      getTopSelling(12),
+      getBestSelling(12),
     ]);
 
   const currency = store.currency_symbol;
@@ -82,17 +82,17 @@ export default async function HomePage() {
       {store.sections.flash_sale && flashSales.length > 0 && (
         <FlashSaleBanner sales={flashSales} currency={currency} />
       )}
-      {store.sections.featured_products && (
-        <FeaturedProducts products={featured} currency={currency} />
+      {store.sections.top_selling && (
+        <BestSelling products={bestSelling} currency={currency} />
       )}
       {store.sections.new_arrivals && (
         <NewArrivals products={newArrivals} currency={currency} />
       )}
+      {store.sections.featured_products && (
+        <FeaturedProducts products={featured} currency={currency} />
+      )}
       {store.sections.categories && (
         <CategoryProductSections sections={categoryProducts} currency={currency} />
-      )}
-      {store.sections.top_selling && (
-        <TopSelling products={topSelling} currency={currency} />
       )}
       {store.sections.newsletter && <NewsletterSection />}
     </>

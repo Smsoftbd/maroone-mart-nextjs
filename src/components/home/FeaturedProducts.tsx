@@ -49,10 +49,10 @@ export function NewArrivals({ products, currency }: { products: Product[]; curre
   );
 }
 
-export function TopSelling({ products, currency }: { products: Product[]; currency: string }) {
+export function BestSelling({ products, currency }: { products: Product[]; currency: string }) {
   return (
     <ProductSection
-      title="Top Selling"
+      title="Best Selling"
       viewAllHref="/products?sort=sales"
       products={products}
       currency={currency}
