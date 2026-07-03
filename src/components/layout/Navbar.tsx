@@ -12,12 +12,15 @@ import {
   User,
   LogOut,
   Package,
-  X,
+  Phone,
+  ChevronDown,
+  Globe,
 } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
+import { resolveL10n } from "@/lib/utils/l10n";
 import type { Category, Store } from "@/lib/api/types";
 
 interface NavbarProps {
@@ -32,8 +35,41 @@ export function Navbar({ store, categories }: NavbarProps) {
   const totalItems = useCartStore((s) => s.totalItems);
   const openCart = useCartStore((s) => s.openCart);
   const { customer, isAuthenticated, logout } = useAuthStore();
-  const { isSearchOpen, openSearch, closeSearch, toggleMobileNav } = useUiStore();
+  const { isSearchOpen, toggleSearch, closeSearch, toggleMobileNav } = useUiStore();
   const [accountOpen, setAccountOpen] = useState(false);
+  const [activeCat, setActiveCat] = useState<number | null>(null);
+  // Lazy-loaded full subtree (list endpoint only returns 2 levels)
+  const [subtrees, setSubtrees] = useState<Record<number, Category[]>>({});
+
+  const openMenu = (cat: Category) => {
+    const hasChildren = (cat.children?.length ?? 0) > 0;
+    setActiveCat(hasChildren ? cat.id : null);
+    if (hasChildren && subtrees[cat.id] === undefined) {
+      setSubtrees((prev) => ({ ...prev, [cat.id]: cat.children }));
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL!;
+      const key = process.env.NEXT_PUBLIC_API_KEY!;
+      fetch(`${base}/categories/${cat.slug}`, {
+        headers: { "X-Api-Key": key, Accept: "application/json" },
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((json) => {
+          const raw = json?.data?.children as
+            | Array<Record<string, unknown>>
+            | undefined;
+          if (raw?.length) {
+            const resolve = (c: Record<string, unknown>): Category => ({
+              ...(c as unknown as Category),
+              name: resolveL10n(c.name as Parameters<typeof resolveL10n>[0]),
+              children: Array.isArray(c.children)
+                ? (c.children as Array<Record<string, unknown>>).map(resolve)
+                : [],
+            });
+            setSubtrees((prev) => ({ ...prev, [cat.id]: raw.map(resolve) }));
+          }
+        })
+        .catch(() => {});
+    }
+  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -50,22 +86,25 @@ export function Navbar({ store, categories }: NavbarProps) {
     }
   };
 
+  const navCategories = categories.slice(0, 8);
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 transition-all duration-300 bg-brand-500",
-        scrolled ? "shadow-md" : "shadow-sm"
+        "sticky top-0 z-40 bg-brand-500 text-[var(--color-primary-text)] transition-shadow duration-300",
+        scrolled ? "shadow-md" : "shadow-sm md:shadow-none"
       )}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center h-16 gap-4">
+      {/* ── Top row ──────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-x-3 py-2 lg:py-2.5">
           {/* Mobile: hamburger */}
           <button
-            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
+            className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-white/15 transition-colors"
             onClick={toggleMobileNav}
             aria-label="Open menu"
           >
-            <Menu className="h-5 w-5" />
+            <Menu className="h-6 w-6" />
           </button>
 
           {/* Logo */}
@@ -74,145 +113,274 @@ export function Navbar({ store, categories }: NavbarProps) {
               <Image
                 src={store.logo}
                 alt={store.name}
-                width={120}
-                height={40}
-                className="h-8 w-auto object-contain brightness-0 invert"
+                width={200}
+                height={68}
+                className="h-9 lg:h-14 w-auto max-w-[140px] lg:max-w-[220px] object-contain"
                 priority
               />
             ) : (
-              <span className="font-display text-xl font-bold text-[var(--color-primary-text)]">
+              <span className="font-display text-xl lg:text-2xl font-bold">
                 {store.name}
               </span>
             )}
           </Link>
 
-          {/* Desktop: category nav */}
-          <div className="hidden lg:flex items-center gap-6 ml-8">
-            {categories.slice(0, 6).map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/categories/${cat.slug}`}
-                className="text-sm font-medium text-[var(--color-primary-text)]/80 hover:text-[var(--color-primary-text)] transition-colors whitespace-nowrap"
-              >
-                {cat.name}
-              </Link>
-            ))}
-          </div>
-
-          <div className="flex-1" />
-
-          {/* Search expand */}
-          {isSearchOpen ? (
-            <form onSubmit={handleSearch} className="flex items-center gap-2 flex-1 max-w-xs">
+          {/* Desktop: search + call us */}
+          <div className="hidden lg:flex items-center gap-8 flex-1 justify-end">
+            <form onSubmit={handleSearch} className="relative w-full max-w-sm">
               <input
-                autoFocus
-                type="search"
+                type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search products..."
-                className="flex-1 border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder="Search"
+                className="w-full rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"
               />
-              <button type="button" onClick={closeSearch} aria-label="Close search">
-                <X className="h-4 w-4" />
-              </button>
-            </form>
-          ) : (
-            <div className="flex items-center gap-1">
               <button
-                onClick={openSearch}
-                className="p-2 rounded-full hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full text-brand-500 hover:bg-brand-50 transition-colors"
                 aria-label="Search"
               >
                 <Search className="h-5 w-5" />
               </button>
+            </form>
 
-              {store.features.wishlist && (
-                <Link
-                  href="/account/wishlist"
-                  className="p-2 rounded-full hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
-                  aria-label="Wishlist"
-                >
-                  <Heart className="h-5 w-5" />
-                </Link>
-              )}
-
-              {/* Account dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setAccountOpen((o) => !o)}
-                  className="p-2 rounded-full hover:bg-white/15 transition-colors text-[var(--color-primary-text)]"
-                  aria-label="Account"
-                >
-                  <User className="h-5 w-5" />
-                </button>
-                {accountOpen && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-[var(--color-border)] rounded-xl shadow-lg py-2 z-50">
-                    {isAuthenticated ? (
-                      <>
-                        <p className="px-4 py-2 text-xs font-medium text-[var(--color-text-muted)] truncate">
-                          {customer?.name}
-                        </p>
-                        <Link
-                          href="/account"
-                          className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-100"
-                          onClick={() => setAccountOpen(false)}
-                        >
-                          <User className="h-4 w-4" /> Dashboard
-                        </Link>
-                        <Link
-                          href="/account/orders"
-                          className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-100"
-                          onClick={() => setAccountOpen(false)}
-                        >
-                          <Package className="h-4 w-4" /> Orders
-                        </Link>
-                        <button
-                          onClick={() => { logout(); setAccountOpen(false); }}
-                          className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-surface-100 text-red-600"
-                        >
-                          <LogOut className="h-4 w-4" /> Logout
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <Link
-                          href="/login"
-                          className="block px-4 py-2 text-sm hover:bg-surface-100"
-                          onClick={() => setAccountOpen(false)}
-                        >
-                          Login
-                        </Link>
-                        <Link
-                          href="/register"
-                          className="block px-4 py-2 text-sm hover:bg-surface-100"
-                          onClick={() => setAccountOpen(false)}
-                        >
-                          Create Account
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Cart */}
-              <button
-                onClick={openCart}
-                className="relative flex items-center gap-2 ml-1 px-4 py-2 bg-[var(--color-primary-text)] text-brand-500 rounded-lg hover:bg-white/90 transition-colors text-sm font-medium"
-                aria-label={`Cart, ${totalItems} items`}
+            {store.phone && (
+              <a
+                href={`tel:${store.phone.replace(/\s+/g, "")}`}
+                className="flex items-center gap-2 shrink-0 hover:opacity-80 transition-opacity"
               >
-                <ShoppingBag className="h-4 w-4" />
-                <span className="hidden sm:inline">Cart</span>
-                {totalItems > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-[var(--color-secondary-text)] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
-                    {totalItems > 99 ? "99+" : totalItems}
-                  </span>
-                )}
+                <Phone className="h-6 w-6" />
+                <div className="text-xs capitalize leading-tight">
+                  <p>Call us now</p>
+                  <p className="font-semibold">{store.phone}</p>
+                </div>
+              </a>
+            )}
+          </div>
+
+          {/* Right actions */}
+          <div className="flex items-center gap-1 lg:gap-3">
+            {/* Mobile: search toggle */}
+            <button
+              className="lg:hidden p-2 rounded-full hover:bg-white/15 transition-colors"
+              onClick={toggleSearch}
+              aria-label="Search"
+            >
+              <Search className="h-6 w-6" />
+            </button>
+
+            {store.features.wishlist && (
+              <Link
+                href="/account/wishlist"
+                className="hidden lg:flex p-2 rounded-full hover:bg-white/15 transition-colors"
+                aria-label="Wishlist"
+              >
+                <Heart className="h-6 w-6" />
+              </Link>
+            )}
+
+            {/* Account dropdown */}
+            <div className="relative hidden lg:block">
+              <button
+                onClick={() => setAccountOpen((o) => !o)}
+                className="p-2 rounded-full hover:bg-white/15 transition-colors"
+                aria-label="Account"
+              >
+                <User className="h-6 w-6" />
+              </button>
+              {accountOpen && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white text-gray-900 border border-[var(--color-border)] rounded-xl shadow-lg py-2 z-50">
+                  {isAuthenticated ? (
+                    <>
+                      <p className="px-4 py-2 text-xs font-medium text-[var(--color-text-muted)] truncate">
+                        {customer?.name}
+                      </p>
+                      <Link
+                        href="/account"
+                        className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-100"
+                        onClick={() => setAccountOpen(false)}
+                      >
+                        <User className="h-4 w-4" /> Dashboard
+                      </Link>
+                      <Link
+                        href="/account/orders"
+                        className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-surface-100"
+                        onClick={() => setAccountOpen(false)}
+                      >
+                        <Package className="h-4 w-4" /> Orders
+                      </Link>
+                      <button
+                        onClick={() => { logout(); setAccountOpen(false); }}
+                        className="flex items-center gap-2 w-full px-4 py-2 text-sm hover:bg-surface-100 text-red-600"
+                      >
+                        <LogOut className="h-4 w-4" /> Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="block px-4 py-2 text-sm hover:bg-surface-100"
+                        onClick={() => setAccountOpen(false)}
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/register"
+                        className="block px-4 py-2 text-sm hover:bg-surface-100"
+                        onClick={() => setAccountOpen(false)}
+                      >
+                        Create Account
+                      </Link>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Cart */}
+            <button
+              onClick={openCart}
+              className="relative p-2 rounded-full hover:bg-white/15 transition-colors"
+              aria-label={`Cart, ${totalItems} items`}
+            >
+              <ShoppingBag className="h-6 w-6" />
+              {totalItems > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 bg-white text-brand-500 text-[10px] rounded-full h-4 min-w-4 px-1 flex items-center justify-center font-bold">
+                  {totalItems > 99 ? "99+" : totalItems}
+                </span>
+              )}
+            </button>
+
+            {/* Language (static) */}
+            <button
+              type="button"
+              className="hidden md:inline-flex items-center gap-1 px-1.5 py-1 rounded-md text-sm font-medium hover:bg-white/15 transition-colors"
+              aria-label="Language"
+            >
+              <Globe className="h-5 w-5" />
+              <span className="font-normal">EN</span>
+              <ChevronDown className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile: collapsible search */}
+        {isSearchOpen && (
+          <form onSubmit={handleSearch} className="lg:hidden pb-2.5">
+            <div className="relative">
+              <input
+                autoFocus
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search"
+                className="w-full rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"
+              />
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full text-brand-500"
+                aria-label="Search"
+              >
+                <Search className="h-5 w-5" />
               </button>
             </div>
-          )}
+          </form>
+        )}
+      </div>
+
+      {/* ── Category bar + megamenu (desktop) ────────────────── */}
+      {navCategories.length > 0 && (
+        <div
+          className="hidden lg:block relative"
+          onMouseLeave={() => setActiveCat(null)}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="border-t border-[var(--color-primary-text)]/10" />
+            <div className="flex items-center gap-5 py-3 text-sm font-semibold overflow-hidden whitespace-nowrap">
+              {navCategories.map((cat) => {
+                const hasChildren = (cat.children?.length ?? 0) > 0;
+                return (
+                  <Link
+                    key={cat.id}
+                    href={`/categories/${cat.slug}`}
+                    title={cat.name}
+                    onMouseEnter={() => openMenu(cat)}
+                    className={cn(
+                      "shrink-0 uppercase flex items-center gap-1.5 transition-opacity",
+                      activeCat === cat.id ? "opacity-100" : "opacity-90 hover:opacity-100"
+                    )}
+                  >
+                    {cat.name}
+                    {hasChildren && (
+                      <ChevronDown
+                        className={cn(
+                          "h-3.5 w-3.5 transition-transform",
+                          activeCat === cat.id && "rotate-180"
+                        )}
+                      />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Megamenu panel */}
+          {navCategories.map((cat) => {
+            if (activeCat !== cat.id || !(cat.children?.length ?? 0)) return null;
+            return (
+              <div
+                key={cat.id}
+                className="absolute left-0 right-0 top-full bg-brand-500 text-[var(--color-primary-text)] shadow-lg border-t border-[var(--color-primary-text)]/10 animate-fade-up"
+              >
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {(subtrees[cat.id] ?? cat.children).map((child) => (
+                      <div key={child.id} className="mb-2 min-w-0">
+                        <div className="transform hover:translate-x-1 transition-transform ease-in-out duration-300">
+                          <Link
+                            href={`/categories/${child.slug}`}
+                            onClick={() => setActiveCat(null)}
+                            className="block font-medium text-xs uppercase truncate"
+                          >
+                            {child.name}
+                          </Link>
+                        </div>
+                        {child.children?.map((gc) => (
+                          <div
+                            key={gc.id}
+                            className="transform hover:translate-x-1 transition-transform ease-in-out duration-300"
+                          >
+                            <Link
+                              href={`/categories/${gc.slug}`}
+                              onClick={() => setActiveCat(null)}
+                              className="block mt-2 font-light text-xs opacity-90 uppercase truncate"
+                            >
+                              {gc.name}
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-[var(--color-primary-text)]/10">
+                    <Link
+                      href={`/categories/${cat.slug}`}
+                      onClick={() => setActiveCat(null)}
+                      className="inline-flex items-center gap-1 text-xs font-semibold uppercase opacity-90 hover:opacity-100 hover:gap-2 transition-all"
+                    >
+                      View all {cat.name}
+                      <ChevronDown className="h-4 w-4 -rotate-90" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      </nav>
+      )}
     </header>
   );
 }
