@@ -31,7 +31,11 @@ export function ProductCard({ product, currency }: ProductCardProps) {
   const original = defaultBarcode?.price ?? 0;
   const hasDiscount = original > price && price > 0;
   const discountPct = hasDiscount ? formatDiscount(original, price) : null;
-  const inStock = product.barcodes.some((b) => b.stock > 0);
+  // List endpoint can return per-barcode stock=0 even when the product has
+  // stock; fall back to the product-level stock_qty so cards don't wrongly
+  // show "Out of Stock". Per-variant stock stays authoritative on the detail page.
+  const inStock =
+    product.barcodes.some((b) => b.stock > 0) || (product.stock_qty ?? 0) > 0;
   const href = `/products/${product.slug}`;
 
   const handleAddToCart = async (e: React.MouseEvent) => {

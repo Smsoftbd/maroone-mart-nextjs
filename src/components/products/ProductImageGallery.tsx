@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
+
+const ZOOM = 2.2;
 
 interface GalleryImage {
   url: string;
@@ -19,7 +21,18 @@ export function ProductImageGallery({
   productName,
 }: ProductImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
   const activeImage = images[activeIndex];
+
+  const handleMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = mainRef.current?.getBoundingClientRect();
+    if (!rect) return;
+    setOrigin({
+      x: ((e.clientX - rect.left) / rect.width) * 100,
+      y: ((e.clientY - rect.top) / rect.height) * 100,
+    });
+  }, []);
 
   if (!activeImage) return null;
 
@@ -54,17 +67,31 @@ export function ProductImageGallery({
           </div>
         )}
 
-        {/* Main image */}
-        <div className="order-1 lg:order-2 relative w-full aspect-[4/5] lg:aspect-auto lg:h-[41rem] rounded-xl overflow-hidden border border-[var(--color-border)] bg-surface-50">
+        {/* Main image — hover to zoom */}
+        <div
+          ref={mainRef}
+          onMouseMove={handleMove}
+          onMouseLeave={() => setOrigin(null)}
+          className="group order-1 lg:order-2 relative w-full aspect-[4/5] lg:aspect-auto lg:h-[41rem] rounded-xl overflow-hidden border border-[var(--color-border)] bg-surface-50 cursor-zoom-in"
+        >
           <Image
             key={activeImage.url}
             src={activeImage.url}
             alt={`${productName} — image ${activeIndex + 1}`}
             fill
             sizes="(max-width: 1024px) 100vw, 525px"
-            className="object-cover object-top"
+            className="object-cover object-top transition-transform duration-200 ease-out"
+            style={{
+              transform: origin ? `scale(${ZOOM})` : "scale(1)",
+              transformOrigin: origin ? `${origin.x}% ${origin.y}%` : "center",
+            }}
             priority
           />
+          {!origin && (
+            <span className="absolute bottom-3 left-1/2 -translate-x-1/2 text-xs text-slate-600 bg-white/80 px-2 py-1 rounded-full pointer-events-none select-none lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+              Hover to zoom
+            </span>
+          )}
         </div>
       </div>
     </div>

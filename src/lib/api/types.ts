@@ -175,6 +175,8 @@ export interface Product {
   rating_count: number;
   view_count: number;
   sale_count: number;
+  /** Product-level total stock; present on the list endpoint. */
+  stock_qty?: number;
   weight?: string;
   dimensions?: string;
   specifications: Specification[];

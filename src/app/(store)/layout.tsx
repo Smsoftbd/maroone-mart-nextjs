@@ -4,6 +4,7 @@ import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { FloatingCart } from "@/components/cart/FloatingCart";
 import { PopupManager } from "@/components/home/PopupManager";
 import { getStore } from "@/lib/api/store";
 import { getCategories } from "@/lib/api/products";
@@ -26,6 +27,7 @@ export default async function StoreLayout({
       <Navbar store={store} categories={categories} />
       <MobileNav store={store} categories={categories} />
       <CartDrawer currency={store.currency_symbol} />
+      <FloatingCart currency={store.currency_symbol} />
       <Suspense fallback={null}>
         <PopupManager />
       </Suspense>

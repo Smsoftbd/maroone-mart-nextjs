@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { formatPrice } from "@/lib/utils/format";
+import { cn } from "@/lib/utils/cn";
 import type { CartItem as CartItemType } from "@/lib/api/types";
 
 interface CartItemProps {
@@ -24,101 +25,106 @@ export function CartItem({ item, currency }: CartItemProps) {
   const productSlug = item.product_slug;
   const productImage = item.product_image || null;
   const unitPrice = item.unit_price || priceOverrides[item.barcode_id] || 0;
-  const lineTotal = item.line_total || unitPrice * item.quantity;
   const maxQty = stockOverrides[item.barcode_id] ?? Infinity;
-
-  const handleDecrease = () => {
-    if (item.quantity <= 1) {
-      removeItem(item.id);
-    } else {
-      updateItem(item.id, item.quantity - 1);
-    }
-  };
-
-  const handleIncrease = () => {
-    if (item.quantity >= maxQty) return;
-    updateItem(item.id, item.quantity + 1);
-  };
+  const atMin = item.quantity <= 1;
+  const atMax = item.quantity >= maxQty;
 
   return (
-    <div className="flex gap-3 py-4">
-      <Link href={`/products/${productSlug}`} className="shrink-0">
-        {productImage ? (
-          <Image
-            src={productImage}
-            alt={productName}
-            width={72}
-            height={72}
-            className="rounded-lg object-cover border border-[var(--color-border)]"
-          />
-        ) : (
-          <div className="w-[72px] h-[72px] rounded-lg border border-[var(--color-border)] bg-surface-100 flex items-center justify-center text-xs text-[var(--color-text-muted)]">
-            No image
-          </div>
-        )}
-      </Link>
-      <div className="flex-1 min-w-0">
-        <Link
-          href={`/products/${productSlug}`}
-          className="font-body text-sm font-medium line-clamp-2 hover:text-brand-500 transition-colors"
-        >
-          {productName}
-        </Link>
-        {attributes.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            {attributes.map((attr) => {
-              const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
-              return isColor ? (
-                <span
-                  key={attr.name}
-                  title={`${attr.name}: ${attr.value_code}`}
-                  style={{ backgroundColor: attr.value_code }}
-                  className="inline-block w-3 h-3 rounded-full border border-black/10"
-                />
-              ) : (
-                <span key={attr.name} className="text-xs text-[var(--color-text-muted)] bg-surface-100 px-1.5 py-0.5 rounded">
-                  {attr.value}
-                </span>
-              );
-            })}
-          </div>
-        )}
-        <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-          {formatPrice(unitPrice, currency)} each
-        </p>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center border border-[var(--color-border)] rounded-lg overflow-hidden">
-            <button
-              className="px-2 py-1 hover:bg-surface-100 transition-colors disabled:opacity-40"
-              onClick={handleDecrease}
-              aria-label="Decrease quantity"
-            >
-              <Minus className="h-3 w-3" />
-            </button>
-            <span className="px-3 py-1 text-sm font-medium tabular-nums">
-              {item.quantity}
-            </span>
-            <button
-              className="px-2 py-1 hover:bg-surface-100 transition-colors disabled:opacity-40"
-              onClick={handleIncrease}
-              disabled={item.quantity >= maxQty}
-              aria-label="Increase quantity"
-            >
-              <Plus className="h-3 w-3" />
-            </button>
-          </div>
-          <span className="font-bold text-sm">
-            {formatPrice(lineTotal, currency)}
-          </span>
-        </div>
-      </div>
+    <div className="relative cart-card p-4 border-b border-[var(--color-border)] mb-3">
+      {/* Remove */}
       <button
         onClick={() => removeItem(item.id)}
-        className="shrink-0 self-start p-1.5 text-[var(--color-text-muted)] hover:text-red-500 transition-colors"
         aria-label="Remove item"
+        className="absolute right-2 top-2 p-1 text-brand-500 hover:opacity-70 transition-opacity"
       >
-        <Trash2 className="h-4 w-4" />
+        <X className="h-5 w-5" />
       </button>
+
+      <div className="flex gap-3">
+        <Link href={`/products/${productSlug}`} className="shrink-0">
+          {productImage ? (
+            <Image
+              src={productImage}
+              alt={productName}
+              width={80}
+              height={80}
+              className="h-20 w-20 object-cover rounded"
+            />
+          ) : (
+            <div className="h-20 w-20 rounded border border-[var(--color-border)] bg-surface-100 flex items-center justify-center text-xs text-[var(--color-text-muted)]">
+              No image
+            </div>
+          )}
+        </Link>
+
+        <div className="flex flex-col justify-between min-w-0 pr-6">
+          <Link
+            href={`/products/${productSlug}`}
+            className="product-title text-base font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-500 transition-colors"
+          >
+            {productName}
+          </Link>
+          <div className="flex gap-3 items-center mt-1">
+            <h3 className="text-xl text-[var(--color-text-primary)]">
+              {formatPrice(unitPrice, currency)}
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      {/* Variant pills + quantity */}
+      <div className="flex items-center justify-between text-sm mt-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          {attributes.map((attr) => {
+            const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
+            return isColor ? (
+              <span
+                key={attr.name}
+                title={`${attr.name}: ${attr.value_code}`}
+                style={{ backgroundColor: attr.value_code }}
+                className="inline-block w-6 h-6 rounded-full border border-black/10"
+              />
+            ) : (
+              <span
+                key={attr.name}
+                className="px-2 py-[1px] text-sm h-6 inline-flex items-center border border-[var(--color-border)] rounded-md text-[var(--color-text-primary)]"
+              >
+                {attr.value}
+              </span>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-3 text-[var(--color-text-primary)]">
+          <button
+            onClick={() => (atMin ? removeItem(item.id) : updateItem(item.id, item.quantity - 1))}
+            disabled={atMin}
+            aria-label="Decrease quantity"
+            className={cn(
+              "bg-transparent border rounded w-7 h-7 flex items-center justify-center transition-colors",
+              atMin
+                ? "border-[var(--color-border)] text-[var(--color-text-muted)] cursor-not-allowed"
+                : "border-brand-500 hover:bg-brand-50"
+            )}
+          >
+            <Minus className="h-4 w-4" strokeWidth={2} />
+          </button>
+          <div className="mx-1 font-bold tabular-nums">{item.quantity}</div>
+          <button
+            onClick={() => !atMax && updateItem(item.id, item.quantity + 1)}
+            disabled={atMax}
+            aria-label="Increase quantity"
+            className={cn(
+              "bg-transparent border rounded w-7 h-7 flex items-center justify-center transition-colors",
+              atMax
+                ? "border-[var(--color-border)] text-[var(--color-text-muted)] cursor-not-allowed"
+                : "border-brand-500 hover:bg-brand-50"
+            )}
+          >
+            <Plus className="h-4 w-4" strokeWidth={2} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

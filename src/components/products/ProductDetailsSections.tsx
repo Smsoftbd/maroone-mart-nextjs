@@ -26,7 +26,7 @@ export function ProductDetailsSections({
       {/* Description */}
       {product.description && (
         <div className="description">
-          <h4 className="text-2xl font-bold font-display text-surface-900 mb-3">
+          <h4 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3">
             Product Description
           </h4>
           <div
@@ -39,7 +39,7 @@ export function ProductDetailsSections({
       {/* Specifications */}
       {specs.length > 0 && (
         <div id="product-specifications">
-          <h4 className="text-2xl font-bold font-display text-surface-900 mb-3">
+          <h4 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3">
             Specifications
           </h4>
           <div className="overflow-x-auto">
@@ -62,13 +62,13 @@ export function ProductDetailsSections({
       {/* Delivery charges */}
       {deliveryCharges.length > 0 && (
         <div>
-          <h4 className="text-2xl font-bold font-display text-surface-900 mb-3 flex items-center gap-2">
+          <h4 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
             <Truck className="h-6 w-6" /> Delivery Charges
           </h4>
           <ul className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] rounded-lg overflow-hidden">
             {deliveryCharges.map((d) => (
               <li key={d.id} className="flex items-center justify-between px-4 py-3">
-                <span className="font-medium text-surface-900">
+                <span className="font-medium text-[var(--color-text-primary)]">
                   {pickL10n(d.zone_name)}
                 </span>
                 <span className="font-semibold text-brand-500">
@@ -87,11 +87,11 @@ export function ProductDetailsSections({
       {/* Contact */}
       {store.phone && (
         <div className="contact bg-amber-100 border border-amber-200 rounded-lg p-4 text-center">
-          <h5 className="text-2xl font-bold font-display text-surface-900 mb-3">
+          <h5 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3">
             Contact for more details
           </h5>
           <p className="flex justify-center items-center gap-3">
-            <span className="text-base text-surface-900">Call now:</span>
+            <span className="text-base text-[var(--color-text-primary)]">Call now:</span>
             <a
               href={`tel:${store.phone}`}
               className="inline-flex items-center gap-2 text-2xl font-bold font-display text-brand-500"

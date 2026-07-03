@@ -61,13 +61,13 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       )}
 
       {/* Title */}
-      <h1 className="font-display text-2xl font-bold text-surface-900 leading-tight">
+      <h1 className="font-display text-2xl font-bold text-[var(--color-text-primary)] leading-tight">
         {product.name}
       </h1>
 
       {/* Price */}
       <div className="product-price flex items-center gap-4 lg:border-b border-[var(--color-border)] py-3 lg:py-5">
-        <span className="text-2xl lg:text-3xl font-bold text-surface-900">
+        <span className="text-2xl lg:text-3xl font-bold text-[var(--color-text-primary)]">
           {formatPrice(price, currency)}
         </span>
         {hasDiscount && (
@@ -85,7 +85,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       {/* SKU */}
       {sku && (
         <div className="flex items-center gap-2 lg:py-3 text-lg">
-          <span className="text-surface-900">SKU:</span>
+          <span className="text-[var(--color-text-primary)]">SKU:</span>
           <span>{sku}</span>
         </div>
       )}
@@ -124,7 +124,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
           <button
             onClick={addSelected}
             disabled={isLoading || !inStock}
-            className="bg-brand-500 py-3 w-full px-2 lg:px-6 text-white text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-brand-500 py-3 w-full px-2 lg:px-6 text-[var(--color-primary-text)] text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
             <span>Add to Cart</span>
@@ -132,7 +132,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
           <button
             onClick={handleBuyNow}
             disabled={isLoading || !inStock}
-            className="bg-surface-900 py-3 w-full px-2 lg:px-6 text-white text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-brand-600 py-3 w-full px-2 lg:px-6 text-[var(--color-primary-text)] text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Zap className="h-5 w-5" />
             <span>Buy Now</span>
