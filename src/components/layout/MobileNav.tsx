@@ -98,14 +98,25 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                         className="overflow-hidden"
                       >
                         {cat.children.map((child) => (
-                          <Link
-                            key={child.id}
-                            href={`/categories/${child.slug}`}
-                            className="block pl-8 pr-5 py-2.5 text-sm text-[var(--color-text-secondary)] hover:bg-surface-50"
-                            onClick={closeMobileNav}
-                          >
-                            {child.name}
-                          </Link>
+                          <div key={child.id}>
+                            <Link
+                              href={`/categories/${child.slug}`}
+                              className="block pl-8 pr-5 py-2.5 text-sm text-[var(--color-text-secondary)] hover:bg-surface-50"
+                              onClick={closeMobileNav}
+                            >
+                              {child.name}
+                            </Link>
+                            {child.children?.map((gc) => (
+                              <Link
+                                key={gc.id}
+                                href={`/categories/${gc.slug}`}
+                                className="block pl-12 pr-5 py-2 text-xs text-[var(--color-text-muted)] hover:bg-surface-50"
+                                onClick={closeMobileNav}
+                              >
+                                {gc.name}
+                              </Link>
+                            ))}
+                          </div>
                         ))}
                       </motion.div>
                     )}

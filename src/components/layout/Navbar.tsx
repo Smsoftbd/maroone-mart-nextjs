@@ -20,7 +20,6 @@ import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
-import { resolveL10n } from "@/lib/utils/l10n";
 import type { Category, Store } from "@/lib/api/types";
 
 interface NavbarProps {
@@ -38,38 +37,6 @@ export function Navbar({ store, categories }: NavbarProps) {
   const { isSearchOpen, toggleSearch, closeSearch, toggleMobileNav } = useUiStore();
   const [accountOpen, setAccountOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<number | null>(null);
-  // Lazy-loaded full subtree (list endpoint only returns 2 levels)
-  const [subtrees, setSubtrees] = useState<Record<number, Category[]>>({});
-
-  const openMenu = (cat: Category) => {
-    const hasChildren = (cat.children?.length ?? 0) > 0;
-    setActiveCat(hasChildren ? cat.id : null);
-    if (hasChildren && subtrees[cat.id] === undefined) {
-      setSubtrees((prev) => ({ ...prev, [cat.id]: cat.children }));
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL!;
-      const key = process.env.NEXT_PUBLIC_API_KEY!;
-      fetch(`${base}/categories/${cat.slug}`, {
-        headers: { "X-Api-Key": key, Accept: "application/json" },
-      })
-        .then((r) => (r.ok ? r.json() : null))
-        .then((json) => {
-          const raw = json?.data?.children as
-            | Array<Record<string, unknown>>
-            | undefined;
-          if (raw?.length) {
-            const resolve = (c: Record<string, unknown>): Category => ({
-              ...(c as unknown as Category),
-              name: resolveL10n(c.name as Parameters<typeof resolveL10n>[0]),
-              children: Array.isArray(c.children)
-                ? (c.children as Array<Record<string, unknown>>).map(resolve)
-                : [],
-            });
-            setSubtrees((prev) => ({ ...prev, [cat.id]: raw.map(resolve) }));
-          }
-        })
-        .catch(() => {});
-    }
-  };
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -305,7 +272,7 @@ export function Navbar({ store, categories }: NavbarProps) {
                     key={cat.id}
                     href={`/categories/${cat.slug}`}
                     title={cat.name}
-                    onMouseEnter={() => openMenu(cat)}
+                    onMouseEnter={() => setActiveCat(hasChildren ? cat.id : null)}
                     className={cn(
                       "shrink-0 uppercase flex items-center gap-1.5 transition-opacity",
                       activeCat === cat.id ? "opacity-100" : "opacity-90 hover:opacity-100"
@@ -336,7 +303,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {(subtrees[cat.id] ?? cat.children).map((child) => (
+                    {cat.children.map((child) => (
                       <div key={child.id} className="mb-2 min-w-0">
                         <div className="transform hover:translate-x-1 transition-transform ease-in-out duration-300">
                           <Link

@@ -44,6 +44,28 @@ function FilterContent({
 
   const hasFilters = activeCategory || activeBrand;
 
+  const renderCategory = (cat: Category, depth: number) => (
+    <li key={cat.id}>
+      <button
+        onClick={() => setFilter("category", cat.slug)}
+        style={{ paddingLeft: `${0.5 + depth}rem` }}
+        className={cn(
+          "w-full text-left text-sm py-1.5 pr-2 rounded-lg transition-colors",
+          activeCategory === cat.slug
+            ? "bg-brand-50 text-brand-600 font-medium"
+            : "text-[var(--color-text-secondary)] hover:bg-surface-100"
+        )}
+      >
+        {cat.name}
+      </button>
+      {cat.children?.length ? (
+        <ul className="space-y-1 mt-1">
+          {cat.children.map((child) => renderCategory(child, depth + 1))}
+        </ul>
+      ) : null}
+    </li>
+  );
+
   return (
     <div className="space-y-6">
       {hasFilters && (
@@ -73,21 +95,7 @@ function FilterContent({
               All Categories
             </button>
           </li>
-          {categories.map((cat) => (
-            <li key={cat.id}>
-              <button
-                onClick={() => setFilter("category", cat.slug)}
-                className={cn(
-                  "w-full text-left text-sm py-1.5 px-2 rounded-lg transition-colors",
-                  activeCategory === cat.slug
-                    ? "bg-brand-50 text-brand-600 font-medium"
-                    : "text-[var(--color-text-secondary)] hover:bg-surface-100"
-                )}
-              >
-                {cat.name}
-              </button>
-            </li>
-          ))}
+          {categories.map((cat) => renderCategory(cat, 0))}
         </ul>
       </div>
 
