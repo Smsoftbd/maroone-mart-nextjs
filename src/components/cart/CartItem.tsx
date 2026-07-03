@@ -80,7 +80,7 @@ export function CartItem({ item, currency }: CartItemProps) {
             return isColor ? (
               <span
                 key={attr.name}
-                title={`${attr.name}: ${attr.value_code}`}
+                title={`${attr.name}: ${attr.value}`}
                 style={{ backgroundColor: attr.value_code }}
                 className="inline-block w-6 h-6 rounded-full border border-black/10"
               />
@@ -89,7 +89,7 @@ export function CartItem({ item, currency }: CartItemProps) {
                 key={attr.name}
                 className="px-2 py-[1px] text-sm h-6 inline-flex items-center border border-[var(--color-border)] rounded-md text-[var(--color-text-primary)]"
               >
-                {attr.value}
+                {attr.name}: {attr.value}
               </span>
             );
           })}

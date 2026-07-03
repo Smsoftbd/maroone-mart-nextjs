@@ -21,7 +21,7 @@ export function CartSummary({
   const disabled = totalItems === 0;
 
   return (
-    <div className="sticky bottom-0 left-0 w-full p-4 bg-surface-50 border-t border-[var(--color-border)] flex gap-6 justify-between items-center">
+    <div className="w-full p-4 bg-surface-50 border-t border-[var(--color-border)] flex gap-6 justify-between items-center">
       <div className="text-center shrink-0">
         <p className="text-[var(--color-text-secondary)]">Total:</p>
         <h3 className="text-[var(--color-text-primary)] font-bold text-lg">

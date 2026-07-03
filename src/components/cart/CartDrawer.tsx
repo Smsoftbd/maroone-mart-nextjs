@@ -28,8 +28,8 @@ export function CartDrawer({ currency }: CartDrawerProps) {
           className="py-20"
         />
       ) : (
-        <>
-          <div className="p-4">
+        <div className="flex flex-col h-full">
+          <div className="flex-1 overflow-y-auto p-4">
             {items.map((item) => (
               <CartItem key={item.id} item={item} currency={currency} />
             ))}
@@ -40,7 +40,7 @@ export function CartDrawer({ currency }: CartDrawerProps) {
             totalItems={totalItems}
             onClose={closeCart}
           />
-        </>
+        </div>
       )}
     </Drawer>
   );

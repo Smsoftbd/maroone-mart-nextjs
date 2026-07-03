@@ -293,13 +293,13 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
                           return isColor ? (
                             <span
                               key={attr.name}
-                              title={`${attr.name}: ${attr.value_code}`}
+                              title={`${attr.name}: ${attr.value}`}
                               style={{ backgroundColor: attr.value_code }}
                               className="inline-block w-3 h-3 rounded-full border border-black/10"
                             />
                           ) : (
                             <span key={attr.name} className="text-xs text-[var(--color-text-muted)] bg-surface-100 px-1.5 py-0.5 rounded">
-                              {attr.value}
+                              {attr.name}: {attr.value}
                             </span>
                           );
                         })}
