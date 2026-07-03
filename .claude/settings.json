@@ -5,7 +5,8 @@
       "WebFetch(domain:api.github.com)",
       "Bash(npx tsc *)",
       "Bash(curl -s -H \"X-API-KEY: pk_2c1a6806438627c1a5c726f29e9f10cd08f06e16\" \"http://elevenpos.test/api/v1/ecommerce/categories\")",
-      "Bash(python3 -c ' *)"
+      "Bash(python3 -c ' *)",
+      "Bash(git push *)"
     ],
     "additionalDirectories": [
       "/var/www/newtest-next/src/app/(store)/products"
