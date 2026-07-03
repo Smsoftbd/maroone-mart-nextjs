@@ -23,7 +23,7 @@ const socialIcons: Record<string, ReactElement> = {
   youtube: (
     <>
       <path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-1.96C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58A2.78 2.78 0 0 0 3.4 19.54C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
-      <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="#fff" />
+      <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" />
     </>
   ),
   tiktok: (
@@ -56,7 +56,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
                   alt={store.name}
                   width={200}
                   height={48}
-                  className="h-auto max-h-12 w-auto object-contain brightness-0 invert"
+                  className="h-auto max-h-12 w-auto object-contain"
                 />
               ) : (
                 <span className="font-display text-xl font-bold">{store.name}</span>
