@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Heart, ShoppingCart, Zap } from "lucide-react";
 import { ProductVariantSelector } from "./ProductVariantSelector";
@@ -55,9 +56,12 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
     <div className="product-content-wrap">
       {/* Brand */}
       {product.brand && (
-        <p className="text-sm font-bold text-brand-500 capitalize mb-1 lg:mb-2">
+        <Link
+          href={`/products?brands=${product.brand.id}`}
+          className="inline-block text-sm font-bold text-brand-500 capitalize mb-1 lg:mb-2 hover:text-brand-600 transition-colors"
+        >
           {product.brand.name}
-        </p>
+        </Link>
       )}
 
       {/* Title */}
@@ -86,7 +90,20 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       {product.brand && (
         <div className="flex items-center gap-2 lg:pt-3 text-lg">
           <span className="text-[var(--color-text-primary)]">Brand:</span>
-          <span className="capitalize">{product.brand.name}</span>
+          <Link
+            href={`/products?brands=${product.brand.id}`}
+            className="capitalize text-brand-500 hover:text-brand-600 transition-colors"
+          >
+            {product.brand.name}
+          </Link>
+        </div>
+      )}
+
+      {/* Unit */}
+      {product.unit?.name && (
+        <div className="flex items-center gap-2 lg:pt-3 text-lg">
+          <span className="text-[var(--color-text-primary)]">Unit:</span>
+          <span className="capitalize">{product.unit.name}</span>
         </div>
       )}
 
