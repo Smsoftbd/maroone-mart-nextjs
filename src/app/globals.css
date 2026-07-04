@@ -193,3 +193,24 @@ body {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   cursor: pointer;
 }
+
+/* Pre-init sizing for the product carousel so slides don't flash at
+   width:100% (Swiper's default CSS) before JS applies per-view widths. */
+.product-carousel .swiper-wrapper {
+  display: flex;
+}
+.product-carousel .swiper-slide {
+  flex-shrink: 0;
+  width: 46%;
+  margin-right: 20px;
+}
+@media (min-width: 640px) {
+  .product-carousel .swiper-slide {
+    width: calc((100% - 40px) / 3);
+  }
+}
+@media (min-width: 1024px) {
+  .product-carousel .swiper-slide {
+    width: calc((100% - 60px) / 4);
+  }
+}

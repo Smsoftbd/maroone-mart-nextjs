@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ProductGrid } from "@/components/products/ProductGrid";
+import { ProductCarousel } from "@/components/products/ProductCarousel";
 import type { Product } from "@/lib/api/types";
 
 interface SectionProps {
@@ -22,7 +22,7 @@ function ProductSection({ title, viewAllHref, products, currency }: SectionProps
           View All →
         </Link>
       </div>
-      <ProductGrid products={products.slice(0, 8)} currency={currency} />
+      <ProductCarousel products={products.slice(0, 12)} currency={currency} />
     </section>
   );
 }

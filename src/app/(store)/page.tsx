@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Slider } from "@/components/home/Slider";
-// import { CategoryGrid } from "@/components/home/CategoryGrid";
+import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { FlashSaleBanner } from "@/components/home/FlashSaleBanner";
 import { FeaturedProducts, NewArrivals, BestSelling } from "@/components/home/FeaturedProducts";
 import { CategoryProductSections } from "@/components/home/CategoryProductSections";
@@ -78,7 +78,7 @@ export default async function HomePage() {
       />
 
       {store.sections.banner && <Slider sliders={sliders} />}
-      {/* {store.sections.categories && <CategoryGrid categories={categories} />} */}
+      {store.sections.categories && <CategoryGrid categories={categories} />}
       {store.sections.flash_sale && flashSales.length > 0 && (
         <FlashSaleBanner sales={flashSales} currency={currency} />
       )}
