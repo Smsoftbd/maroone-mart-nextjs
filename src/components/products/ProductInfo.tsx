@@ -82,6 +82,14 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
         )}
       </div>
 
+      {/* Brand */}
+      {product.brand && (
+        <div className="flex items-center gap-2 lg:pt-3 text-lg">
+          <span className="text-[var(--color-text-primary)]">Brand:</span>
+          <span className="capitalize">{product.brand.name}</span>
+        </div>
+      )}
+
       {/* SKU */}
       {sku && (
         <div className="flex items-center gap-2 lg:py-3 text-lg">

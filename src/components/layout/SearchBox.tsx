@@ -80,8 +80,18 @@ export function SearchBox({
   // Popular terms shown when empty; fall back to top category names for first-time
   // visitors so the panel is never blank.
   const popularTerms = useMemo(() => {
-    if (popular.length > 0) return popular;
-    return categories.slice(0, 6).map((c) => c.name);
+    const terms = popular.length > 0 ? popular : categories.map((c) => c.name);
+    // Dedupe (case-insensitive) so repeated category/history names don't
+    // collide as React keys; keep first occurrence, cap at 6.
+    const seen = new Set<string>();
+    const unique: string[] = [];
+    for (const t of terms) {
+      const k = t.toLowerCase();
+      if (seen.has(k)) continue;
+      seen.add(k);
+      unique.push(t);
+    }
+    return unique.slice(0, 6);
   }, [popular, categories]);
 
   // Fetch product suggestions (aborting stale requests) while typing.

@@ -74,7 +74,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="font-display text-3xl font-bold mb-6">{heading}</h1>
-      <div className="flex gap-8">
+      <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
         <Suspense fallback={null}>
           <ProductFilters
             categories={categoryTree}
