@@ -65,6 +65,12 @@ export default async function ProductPage({ params }: PageProps) {
   const breadcrumbItems = [
     { name: "Home", url: "/" },
     { name: "Products", url: "/products" },
+    ...[product.category, product.sub_category, product.child_category]
+      .filter((c): c is NonNullable<typeof c> => Boolean(c))
+      .map((c) => ({
+        name: c.name,
+        url: `/products?category=${encodeURIComponent(c.slug)}`,
+      })),
     { name: product.name, url: `/products/${product.slug}` },
   ];
 
