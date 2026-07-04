@@ -53,6 +53,8 @@ interface CheckoutFormProps {
   currency: string;
   /** Org's country — fixed, non-editable at checkout. */
   country: string;
+  /** Render the Coupon Code section only when the org has a usable coupon. */
+  showCoupon: boolean;
 }
 
 function SectionCard({ children }: { children: React.ReactNode }) {
@@ -69,7 +71,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function CheckoutForm({ currency, country }: CheckoutFormProps) {
+export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProps) {
   const router = useRouter();
   const { items, subTotal, priceOverrides, attributeOverrides, clearCart } = useCartStore();
   const { customer, token } = useAuthStore();
@@ -134,7 +136,7 @@ export function CheckoutForm({ currency, country }: CheckoutFormProps) {
           summary: {
             sub_total: subTotal,
             discount_amount: discountAmount,
-            shipping_cost: shippingCost,
+            customer_delivery_charge: shippingCost,
             tax_total: 0,
             net_total: total,
           },
@@ -278,17 +280,19 @@ export function CheckoutForm({ currency, country }: CheckoutFormProps) {
             />
           </SectionCard>
 
-          <SectionCard>
-            <SectionLabel>Coupon Code</SectionLabel>
-            <CouponInput
-              orderTotal={subTotal}
-              currency={currency}
-              onApply={(code, amount) => {
-                setCouponCode(code);
-                setDiscountAmount(amount);
-              }}
-            />
-          </SectionCard>
+          {showCoupon && (
+            <SectionCard>
+              <SectionLabel>Coupon Code</SectionLabel>
+              <CouponInput
+                orderTotal={subTotal}
+                currency={currency}
+                onApply={(code, amount) => {
+                  setCouponCode(code);
+                  setDiscountAmount(amount);
+                }}
+              />
+            </SectionCard>
+          )}
 
           <SectionCard>
             <SectionLabel>Order Notes</SectionLabel>

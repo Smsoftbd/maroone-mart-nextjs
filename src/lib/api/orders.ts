@@ -22,6 +22,17 @@ export async function createOrder(
   });
 }
 
+export async function getCouponAvailability(): Promise<boolean> {
+  try {
+    const res = await apiRequest<{ available: boolean }>("/coupons/available", {
+      revalidate: 300,
+    });
+    return res.available;
+  } catch {
+    return false; // no coupons / transient error → hide the section
+  }
+}
+
 export async function getOrder(
   id: number,
   phone: string

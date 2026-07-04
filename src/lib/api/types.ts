@@ -413,7 +413,7 @@ export interface Order {
   discount_percent: number;
   discount_amount: number;
   tax_total: number;
-  shipping_cost: number;
+  customer_delivery_charge: number;
   shipping_address: ShippingAddress;
   adjustment: number;
   net_total: number;
@@ -459,7 +459,7 @@ export interface CreateOrderItemPayload {
 export interface CreateOrderSummary {
   sub_total: number;
   discount_amount: number;
-  shipping_cost: number;
+  customer_delivery_charge: number;
   tax_total: number;
   net_total: number;
 }

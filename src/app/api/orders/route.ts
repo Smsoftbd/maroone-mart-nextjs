@@ -24,7 +24,7 @@ const schema = z.object({
   summary: z.object({
     sub_total: z.number().nonnegative(),
     discount_amount: z.number().nonnegative(),
-    shipping_cost: z.number().nonnegative(),
+    customer_delivery_charge: z.number().nonnegative(),
     tax_total: z.number().nonnegative(),
     net_total: z.number().nonnegative(),
   }),

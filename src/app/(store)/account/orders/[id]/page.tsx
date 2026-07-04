@@ -147,10 +147,10 @@ export default function OrderDetailPage() {
             <span>{formatPrice(order.tax_total, "৳")}</span>
           </div>
         )}
-        {order.shipping_cost > 0 && (
+        {order.customer_delivery_charge > 0 && (
           <div className="flex justify-between text-[var(--color-text-secondary)]">
             <span>Shipping</span>
-            <span>{formatPrice(order.shipping_cost, "৳")}</span>
+            <span>{formatPrice(order.customer_delivery_charge, "৳")}</span>
           </div>
         )}
         {order.adjustment !== 0 && (
