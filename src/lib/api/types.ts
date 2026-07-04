@@ -482,6 +482,7 @@ export interface CreateOrderResponse {
   order: {
     id: number;
     invoice_number: string;
+    invoice_url: string | null;
     net_total: number;
     payment_status: PaymentStatus;
     status: OrderStatus;

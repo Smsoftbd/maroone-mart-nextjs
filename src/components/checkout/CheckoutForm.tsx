@@ -220,9 +220,13 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
 
       appToast.orderSuccess(result.order.invoice_number);
       await clearCart(token);
-      router.push(
-        `/order-confirmation/${result.order.id}?invoice=${result.order.invoice_number}&total=${result.order.net_total}&points=${result.order.points_earned ?? 0}`
-      );
+      const confirmParams = new URLSearchParams({
+        invoice: result.order.invoice_number,
+        total: String(result.order.net_total),
+        points: String(result.order.points_earned ?? 0),
+      });
+      if (result.order.invoice_url) confirmParams.set("invoice_url", result.order.invoice_url);
+      router.push(`/order-confirmation/${result.order.id}?${confirmParams}`);
     } catch {
       appToast.apiError("Failed to place order. Please try again.");
     } finally {
