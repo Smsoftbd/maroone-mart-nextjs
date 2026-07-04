@@ -169,6 +169,8 @@ export interface Product {
   short_description: string;
   description: string;
   model_number?: string;
+  video_id?: string | null;
+  video_provider?: "youtube" | "vimeo" | "facebook" | "twitter" | null;
   type: "simple" | "complex" | "variable";
   is_featured: boolean;
   rating_avg: number;

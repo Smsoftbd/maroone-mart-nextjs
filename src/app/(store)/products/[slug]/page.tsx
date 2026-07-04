@@ -60,6 +60,17 @@ export default async function ProductPage({ params }: PageProps) {
   const galleryImages = [
     { url: product.image, id: 0 },
     ...product.images,
+    ...(product.video_id && product.video_provider
+      ? [
+          {
+            url: product.image, // poster
+            id: -1,
+            kind: "video" as const,
+            provider: product.video_provider,
+            videoId: product.video_id,
+          },
+        ]
+      : []),
   ];
 
   const breadcrumbItems = [
