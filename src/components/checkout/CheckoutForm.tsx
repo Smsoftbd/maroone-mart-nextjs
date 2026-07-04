@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useMemo, useState } from "react";
+import { useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
@@ -17,22 +17,42 @@ import { formatPrice } from "@/lib/utils/format";
 import { appToast } from "@/lib/utils/toast";
 import type { DeliveryCharge, PaymentMethod } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
+import { isBdPhone, isBangladesh } from "@/lib/utils/phone";
 
-const schema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().min(5, "Phone is required").max(50),
-  address: z.string().min(1, "Address is required"),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().optional(),
-  note: z.string().optional(),
-});
+function makeSchema(country: string) {
+  const phone = isBangladesh(country)
+    ? z
+        .string()
+        .min(1, "Phone is required")
+        .refine(isBdPhone, "Enter a valid Bangladeshi number, e.g. 01712345678")
+    : z.string().min(5, "Phone is required").max(50);
 
-type FormData = z.infer<typeof schema>;
+  return z.object({
+    name: z.string().min(1, "Name is required").max(255),
+    email: z.string().email("Invalid email").optional().or(z.literal("")),
+    phone,
+    address: z.string().min(10, "Address must be at least 10 characters"),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    country: z.string().optional(),
+    note: z.string().optional(),
+  });
+}
+
+type FormData = z.infer<ReturnType<typeof makeSchema>>;
+
+// Laravel validation keys → form field names.
+const SERVER_FIELD_MAP: Record<string, Path<FormData>> = {
+  "customer.name": "name",
+  "customer.email": "email",
+  "customer.phone": "phone",
+  "shipping_address.address": "address",
+};
 
 interface CheckoutFormProps {
   currency: string;
+  /** Org's country — fixed, non-editable at checkout. */
+  country: string;
 }
 
 function SectionCard({ children }: { children: React.ReactNode }) {
@@ -49,7 +69,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function CheckoutForm({ currency }: CheckoutFormProps) {
+export function CheckoutForm({ currency, country }: CheckoutFormProps) {
   const router = useRouter();
   const { items, subTotal, priceOverrides, attributeOverrides, clearCart } = useCartStore();
   const { customer, token } = useAuthStore();
@@ -59,9 +79,12 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const schema = useMemo(() => makeSchema(country), [country]);
+
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -72,7 +95,7 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
       address: customer?.address ?? "",
       city: customer?.city ?? "",
       state: customer?.state ?? "",
-      country: customer?.country ?? "",
+      country,
     },
   });
 
@@ -128,7 +151,17 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
 
       const result = await res.json();
       if (!res.ok) {
-        appToast.apiError(result.error || "Order failed.");
+        const fieldErrors = result.errors as Record<string, string[]> | undefined;
+        let firstMsg: string | undefined;
+        if (fieldErrors) {
+          for (const [key, msgs] of Object.entries(fieldErrors)) {
+            const field = SERVER_FIELD_MAP[key];
+            if (!msgs?.length) continue;
+            firstMsg ??= msgs[0];
+            if (field) setError(field, { type: "server", message: msgs[0] });
+          }
+        }
+        appToast.apiError(firstMsg || result.error || result.message || "Order failed. Please review the form.");
         return;
       }
 
@@ -218,7 +251,12 @@ export function CheckoutForm({ currency }: CheckoutFormProps) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Input label="City" {...register("city")} />
                 <Input label="State" {...register("state")} />
-                <Input label="Country" {...register("country")} />
+                <Input
+                  label="Country"
+                  {...register("country")}
+                  readOnly
+                  className="bg-[var(--color-surface-50,#f8fafc)] cursor-not-allowed"
+                />
               </div>
             </div>
           </SectionCard>

@@ -13,7 +13,7 @@ export default async function CheckoutPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="font-display text-2xl font-bold mb-6">Checkout</h1>
-      <CheckoutForm currency={store.currency_symbol} />
+      <CheckoutForm currency={store.currency_symbol} country={store.country} />
     </div>
   );
 }

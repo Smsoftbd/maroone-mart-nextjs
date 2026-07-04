@@ -15,6 +15,7 @@ type ApiStore = {
   email: string;
   phone: string;
   addresses: string[];
+  country?: string | null;
   motto: LocalizedString;
   offer_message: LocalizedString;
   short_description: LocalizedString;
@@ -85,6 +86,7 @@ export async function getStore(): Promise<Store> {
     email: res.email ?? "",
     phone: res.phone ?? "",
     address: res.addresses?.[0] ?? "",
+    country: res.country ?? "",
     currency: "BDT",
     currency_symbol: "৳",
     guest_checkout: res.guest_checkout ?? true,

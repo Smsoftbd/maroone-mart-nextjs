@@ -27,6 +27,7 @@ export interface Store {
   email: string;
   phone: string;
   address: string;
+  country: string;
   currency: string;
   currency_symbol: string;
   guest_checkout: boolean;

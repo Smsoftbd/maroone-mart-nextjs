@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createOrder } from "@/lib/api/orders";
+import { ApiError } from "@/lib/api/client";
 
 const schema = z.object({
   customer: z.object({
@@ -28,7 +29,7 @@ const schema = z.object({
     net_total: z.number().nonnegative(),
   }),
   shipping_address: z.object({
-    address: z.string().min(1),
+    address: z.string().min(10),
     city: z.string().optional(),
     state: z.string().optional(),
     country: z.string().optional(),
@@ -50,6 +51,13 @@ export async function POST(req: NextRequest) {
     const result = await createOrder(parsed.data);
     return NextResponse.json(result, { status: 201 });
   } catch (e) {
+    if (e instanceof ApiError) {
+      // Propagate backend validation (422) with field errors intact.
+      return NextResponse.json(
+        { error: e.message, errors: e.errors },
+        { status: e.status }
+      );
+    }
     const msg = e instanceof Error ? e.message : "Order creation failed";
     return NextResponse.json({ error: msg }, { status: 500 });
   }
