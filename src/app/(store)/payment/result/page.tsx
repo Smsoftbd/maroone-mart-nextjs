@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { getServerT } from "@/lib/i18n/server";
 
 export const metadata: Metadata = {
   title: "Payment Result",
@@ -17,6 +18,7 @@ interface PageProps {
 
 export default async function PaymentResultPage({ searchParams }: PageProps) {
   const { status, order_id, tran_id } = await searchParams;
+  const t = await getServerT();
 
   const isSuccess = status === "success";
   const isCancelled = status === "cancelled";
@@ -40,28 +42,28 @@ export default async function PaymentResultPage({ searchParams }: PageProps) {
       </div>
 
       <h1 className="font-display text-3xl font-bold mb-2">
-        {isSuccess ? "Payment Successful" : isCancelled ? "Payment Cancelled" : "Payment Failed"}
+        {isSuccess ? t("payment_successful", "Payment Successful") : isCancelled ? t("payment_cancelled", "Payment Cancelled") : t("payment_failed", "Payment Failed")}
       </h1>
 
       <p className="text-[var(--color-text-secondary)] mb-8">
         {isSuccess
-          ? "Your order has been confirmed and will be processed shortly."
+          ? t("payment_success_desc", "Your order has been confirmed and will be processed shortly.")
           : isCancelled
-          ? "You cancelled the payment. Your order has not been charged."
-          : "Something went wrong during payment. Please try again or choose a different method."}
+          ? t("payment_cancel_desc", "You cancelled the payment. Your order has not been charged.")
+          : t("payment_fail_desc", "Something went wrong during payment. Please try again or choose a different method.")}
       </p>
 
       {(order_id || tran_id) && (
         <div className="bg-surface-50 rounded-2xl p-6 text-left space-y-3 mb-8">
           {order_id && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">Order ID</span>
+              <span className="text-[var(--color-text-secondary)]">{t("order_id", "Order ID")}</span>
               <span className="font-mono font-medium">#{order_id}</span>
             </div>
           )}
           {tran_id && (
             <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--color-text-secondary)]">Transaction ID</span>
+              <span className="text-[var(--color-text-secondary)]">{t("transaction_id", "Transaction ID")}</span>
               <span className="font-mono font-medium">{tran_id}</span>
             </div>
           )}
@@ -75,13 +77,13 @@ export default async function PaymentResultPage({ searchParams }: PageProps) {
               href="/account/orders"
               className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              View My Orders
+              {t("view_my_orders", "View My Orders")}
             </Link>
             <Link
               href="/products"
               className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center border border-surface-900 text-surface-900 hover:bg-surface-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              Continue Shopping
+              {t("continue_shopping", "Continue Shopping")}
             </Link>
           </>
         ) : (
@@ -90,13 +92,13 @@ export default async function PaymentResultPage({ searchParams }: PageProps) {
               href="/checkout"
               className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              {isCancelled ? "Return to Checkout" : "Try Again"}
+              {isCancelled ? t("return_to_checkout", "Return to Checkout") : t("try_again", "Try Again")}
             </Link>
             <Link
               href="/products"
               className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center border border-surface-900 text-surface-900 hover:bg-surface-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
-              Continue Shopping
+              {t("continue_shopping", "Continue Shopping")}
             </Link>
           </>
         )}

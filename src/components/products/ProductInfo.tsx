@@ -10,6 +10,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { Product, Barcode } from "@/lib/api/types";
 
 interface ProductInfoProps {
@@ -20,6 +21,7 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
   const router = useRouter();
+  const t = useT();
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
     product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
@@ -89,7 +91,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       {/* Brand */}
       {product.brand && (
         <div className="flex items-center gap-2 lg:pt-3 text-lg">
-          <span className="text-[var(--color-text-primary)]">Brand:</span>
+          <span className="text-[var(--color-text-primary)]">{t("brand", "Brand")}:</span>
           <Link
             href={`/products?brands=${product.brand.id}`}
             className="capitalize text-brand-500 hover:text-brand-600 transition-colors"
@@ -102,7 +104,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       {/* Unit */}
       {product.unit?.name && (
         <div className="flex items-center gap-2 lg:pt-3 text-lg">
-          <span className="text-[var(--color-text-primary)]">Unit:</span>
+          <span className="text-[var(--color-text-primary)]">{t("unit", "Unit")}:</span>
           <span className="capitalize">{product.unit.name}</span>
         </div>
       )}
@@ -110,7 +112,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       {/* SKU */}
       {sku && (
         <div className="flex items-center gap-2 lg:py-3 text-lg">
-          <span className="text-[var(--color-text-primary)]">SKU:</span>
+          <span className="text-[var(--color-text-primary)]">{t("sku", "SKU")}:</span>
           <span>{sku}</span>
         </div>
       )}
@@ -140,7 +142,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
           inStock ? "text-[var(--color-success)]" : "text-[var(--color-error)]"
         )}
       >
-        {inStock ? `In Stock (${selectedBarcode?.stock})` : "Out of Stock"}
+        {inStock ? `${t("in_stock", "In Stock")} (${selectedBarcode?.stock})` : t("out_of_stock", "Out of Stock")}
       </p>
 
       {/* CTA buttons */}
@@ -152,7 +154,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
             className="bg-brand-500 py-3 w-full px-2 lg:px-6 text-[var(--color-primary-text)] text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ShoppingCart className="h-5 w-5" strokeWidth={1.5} />
-            <span>Add to Cart</span>
+            <span>{t("add_to_cart", "Add to Cart")}</span>
           </button>
           <button
             onClick={handleBuyNow}
@@ -160,11 +162,11 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
             className="bg-brand-600 py-3 w-full px-2 lg:px-6 text-[var(--color-primary-text)] text-center active:scale-95 rounded-lg flex items-center justify-center gap-2 hover:bg-brand-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Zap className="h-5 w-5" />
-            <span>Buy Now</span>
+            <span>{t("buy_now", "Buy Now")}</span>
           </button>
           <button
             onClick={() => toggle(product.slug, product.id)}
-            aria-label={inWishlist ? "Remove from wishlist" : "Add to wishlist"}
+            aria-label={inWishlist ? t("remove_from_wishlist", "Remove from wishlist") : t("add_to_wishlist", "Add to wishlist")}
             className={cn(
               "shrink-0 p-3 rounded-lg border transition-colors",
               inWishlist

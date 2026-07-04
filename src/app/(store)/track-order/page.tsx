@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
 import { formatPrice, formatDate } from "@/lib/utils/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Order } from "@/lib/api/types";
 
 const schema = z.object({
@@ -19,6 +20,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>;
 
 export default function TrackOrderPage() {
+  const { t, locale } = useI18n();
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,27 +52,27 @@ export default function TrackOrderPage() {
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
       <div className="text-center mb-10">
         <Package className="h-12 w-12 text-brand-500 mx-auto mb-4" />
-        <h1 className="font-display text-3xl font-bold mb-2">Track Your Order</h1>
+        <h1 className="font-display text-3xl font-bold mb-2">{t("track_your_order", "Track Your Order")}</h1>
         <p className="text-[var(--color-text-secondary)]">
-          Enter your order ID and phone number to track your order.
+          {t("track_order_hint", "Enter your order ID and phone number to track your order.")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-8">
         <Input
-          label="Order ID"
-          placeholder="e.g. 12345"
+          label={t("order_id", "Order ID")}
+          placeholder={t("order_id_ph", "e.g. 12345")}
           {...register("orderId")}
           error={errors.orderId?.message}
         />
         <Input
-          label="Phone Number"
+          label={t("phone_number", "Phone Number")}
           type="tel"
           {...register("phone")}
           error={errors.phone?.message}
         />
         <Button type="submit" variant="primary" fullWidth loading={isLoading}>
-          Track Order
+          {t("track_order", "Track Order")}
         </Button>
       </form>
 
@@ -86,7 +88,7 @@ export default function TrackOrderPage() {
             <div>
               <p className="font-display text-xl font-semibold">{order.invoice_number}</p>
               <p className="text-sm text-[var(--color-text-muted)]">
-                {formatDate(order.date)}
+                {formatDate(order.date, locale)}
               </p>
             </div>
             <p className="font-bold text-2xl">{formatPrice(order.net_total, "৳")}</p>
@@ -96,13 +98,13 @@ export default function TrackOrderPage() {
 
           {order.tracking_number && (
             <div className="bg-surface-50 rounded-xl p-4 text-sm">
-              <span className="font-medium">Tracking: </span>
+              <span className="font-medium">{t("tracking", "Tracking")}: </span>
               <span className="text-brand-500">{order.tracking_number}</span>
             </div>
           )}
 
           <div>
-            <h3 className="font-semibold mb-3">Items</h3>
+            <h3 className="font-semibold mb-3">{t("items_heading", "Items")}</h3>
             <div className="space-y-2">
               {order.details.map((detail) => (
                 <div key={detail.id} className="flex justify-between text-sm">

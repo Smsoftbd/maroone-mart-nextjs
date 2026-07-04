@@ -5,6 +5,7 @@ import { CheckCircle, Tag } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { formatPrice } from "@/lib/utils/format";
+import { useT } from "@/lib/i18n/I18nProvider";
 
 interface CouponInputProps {
   orderTotal: number;
@@ -13,6 +14,7 @@ interface CouponInputProps {
 }
 
 export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps) {
+  const t = useT();
   const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [applied, setApplied] = useState<{
@@ -78,7 +80,7 @@ export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps)
           <Input
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder="Enter coupon code"
+            placeholder={t("enter_coupon", "Enter coupon code")}
             onKeyDown={(e) => e.key === "Enter" && handleApply()}
           />
         </div>
@@ -89,7 +91,7 @@ export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps)
           className="shrink-0 flex items-center gap-1.5"
         >
           <Tag className="h-4 w-4" />
-          Apply
+          {t("apply", "Apply")}
         </Button>
       </div>
       {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}

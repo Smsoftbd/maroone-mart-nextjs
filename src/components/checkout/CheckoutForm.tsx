@@ -15,6 +15,7 @@ import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { formatPrice } from "@/lib/utils/format";
 import { appToast } from "@/lib/utils/toast";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { DeliveryCharge, PaymentMethod } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
 import { isBdPhone, isBangladesh } from "@/lib/utils/phone";
@@ -73,6 +74,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProps) {
   const router = useRouter();
+  const t = useT();
   const { items, subTotal, priceOverrides, attributeOverrides, clearCart } = useCartStore();
   const { customer, token } = useAuthStore();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
@@ -240,25 +242,25 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         {/* ── Left: form sections ── */}
         <div className="space-y-6">
           <SectionCard>
-            <SectionLabel>Contact Details</SectionLabel>
+            <SectionLabel>{t("contact_details", "Contact Details")}</SectionLabel>
             <div className="space-y-4">
-              <Input label="Full Name *" {...register("name")} error={errors.name?.message} />
+              <Input label={`${t("full_name", "Full Name")} *`} {...register("name")} error={errors.name?.message} />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input label="Phone *" type="tel" {...register("phone")} error={errors.phone?.message} />
-                <Input label="Email" type="email" {...register("email")} error={errors.email?.message} />
+                <Input label={`${t("phone", "Phone")} *`} type="tel" {...register("phone")} error={errors.phone?.message} />
+                <Input label={t("email", "Email")} type="email" {...register("email")} error={errors.email?.message} />
               </div>
             </div>
           </SectionCard>
 
           <SectionCard>
-            <SectionLabel>Shipping Address</SectionLabel>
+            <SectionLabel>{t("shipping_address", "Shipping Address")}</SectionLabel>
             <div className="space-y-4">
-              <Input label="Address *" {...register("address")} error={errors.address?.message} />
+              <Input label={`${t("address", "Address")} *`} {...register("address")} error={errors.address?.message} />
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Input label="City" {...register("city")} />
-                <Input label="State" {...register("state")} />
+                <Input label={t("city", "City")} {...register("city")} />
+                <Input label={t("state", "State")} {...register("state")} />
                 <Input
-                  label="Country"
+                  label={t("country", "Country")}
                   {...register("country")}
                   readOnly
                   className="bg-[var(--color-surface-50,#f8fafc)] cursor-not-allowed"
@@ -268,7 +270,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
           </SectionCard>
 
           <SectionCard>
-            <SectionLabel>Delivery Method</SectionLabel>
+            <SectionLabel>{t("delivery_method", "Delivery Method")}</SectionLabel>
             <ShippingSelector
               currency={currency}
               methodName={resolveL10n(delivery?.zone_name) ?? ""}
@@ -277,7 +279,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
           </SectionCard>
 
           <SectionCard>
-            <SectionLabel>Payment Method</SectionLabel>
+            <SectionLabel>{t("payment_method", "Payment Method")}</SectionLabel>
             <PaymentSelector
               value={resolveL10n(paymentMethod?.name) ?? ""}
               onChange={setPaymentMethod}
@@ -286,7 +288,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
 
           {showCoupon && (
             <SectionCard>
-              <SectionLabel>Coupon Code</SectionLabel>
+              <SectionLabel>{t("coupon_code", "Coupon Code")}</SectionLabel>
               <CouponInput
                 orderTotal={subTotal}
                 currency={currency}
@@ -299,10 +301,10 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
           )}
 
           <SectionCard>
-            <SectionLabel>Order Notes</SectionLabel>
+            <SectionLabel>{t("order_notes", "Order Notes")}</SectionLabel>
             <textarea
               {...register("note")}
-              placeholder="Special instructions or delivery notes (optional)"
+              placeholder={t("order_notes_ph", "Special instructions or delivery notes (optional)")}
               rows={3}
               className="w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
@@ -312,7 +314,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         {/* ── Right: order summary ── */}
         <aside className="lg:sticky lg:top-24">
           <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6">
-            <h2 className="font-display text-base font-semibold mb-4">Order Summary</h2>
+            <h2 className="font-display text-base font-semibold mb-4">{t("order_summary", "Order Summary")}</h2>
 
             <ul className="divide-y divide-[var(--color-border)] mb-4">
               {items.map((item) => (
@@ -364,29 +366,29 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
 
             <div className="space-y-2 text-sm border-t border-[var(--color-border)] pt-4">
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-secondary)]">Subtotal</span>
+                <span className="text-[var(--color-text-secondary)]">{t("subtotal", "Subtotal")}</span>
                 <span>{formatPrice(subTotal, currency)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[var(--color-text-secondary)]">
-                  Delivery{delivery ? ` (${resolveL10n(delivery.zone_name)})` : ""}
+                  {t("shipping", "Shipping")}{delivery ? ` (${resolveL10n(delivery.zone_name)})` : ""}
                 </span>
                 <span>
                   {delivery
                     ? shippingCost === 0
-                      ? "Free"
+                      ? t("free", "Free")
                       : formatPrice(shippingCost, currency)
                     : "—"}
                 </span>
               </div>
               {discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>Discount</span>
+                  <span>{t("discount", "Discount")}</span>
                   <span>−{formatPrice(discountAmount, currency)}</span>
                 </div>
               )}
               <div className="flex justify-between font-bold text-base border-t border-[var(--color-border)] pt-3 mt-1">
-                <span>Total</span>
+                <span>{t("total", "Total")}</span>
                 <span>{formatPrice(total, currency)}</span>
               </div>
             </div>
@@ -398,12 +400,12 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
               loading={isSubmitting}
               disabled={items.length === 0}
             >
-              Place Order — {formatPrice(total, currency)}
+              {t("place_order", "Place Order")} — {formatPrice(total, currency)}
             </Button>
 
             {!paymentMethod && (
               <p className="text-xs text-center text-[var(--color-text-muted)] mt-2">
-                Select a payment method to continue
+                {t("select_payment_method", "Select a payment method to continue")}
               </p>
             )}
           </div>

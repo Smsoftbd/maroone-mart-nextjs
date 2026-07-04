@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { AccountSidebar } from "@/components/layout/AccountSidebar";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { Spinner } from "@/components/ui/Spinner";
+import { useT } from "@/lib/i18n/I18nProvider";
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuthStore();
+  const t = useT();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -28,7 +30,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="font-display text-2xl font-bold mb-6">My Account</h1>
+      <h1 className="font-display text-2xl font-bold mb-6">{t("my_account", "My Account")}</h1>
       <div className="flex flex-col md:flex-row gap-6">
         <AccountSidebar />
         <div className="flex-1 min-w-0">{children}</div>

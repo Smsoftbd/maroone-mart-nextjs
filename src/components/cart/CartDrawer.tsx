@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { useCartStore } from "@/lib/stores/cartStore";
+import { useT } from "@/lib/i18n/I18nProvider";
 
 interface CartDrawerProps {
   currency: string;
@@ -13,18 +14,19 @@ interface CartDrawerProps {
 
 export function CartDrawer({ currency }: CartDrawerProps) {
   const { isOpen, closeCart, items, totalItems, subTotal } = useCartStore();
+  const t = useT();
 
   return (
     <Drawer
       isOpen={isOpen}
       onClose={closeCart}
-      title={`Cart: (${totalItems} ${totalItems === 1 ? "item" : "items"})`}
+      title={`${t("cart", "Cart")}: (${totalItems} ${totalItems === 1 ? t("item", "item") : t("items", "items")})`}
     >
       {items.length === 0 ? (
         <EmptyState
           icon={ShoppingBag}
-          title="Your cart is empty"
-          description="Add some products to get started."
+          title={t("cart_empty_title", "Your cart is empty")}
+          description={t("cart_empty_desc", "Add some products to get started.")}
           className="py-20"
         />
       ) : (

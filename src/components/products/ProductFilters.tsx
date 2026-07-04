@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { FilterSection } from "@/components/ui/FilterSection";
 import { RangeSlider } from "@/components/ui/RangeSlider";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Brand, FilterAttribute } from "@/lib/api/types";
 
 interface ProductFiltersProps {
@@ -28,6 +29,7 @@ function FilterContent({
 }: ProductFiltersProps & { onApply?: () => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useT();
 
   const activeCategories = searchParams.getAll("category");
   const activeBrands = searchParams.getAll("brands");
@@ -90,23 +92,23 @@ function FilterContent({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-display text-base font-bold">Filters</h2>
+        <h2 className="font-display text-base font-bold">{t("filters", "Filters")}</h2>
         {activeCount > 0 && (
           <button
             onClick={clearAll}
             className="flex items-center gap-1 text-xs font-medium text-brand-500 hover:text-brand-600 transition-colors"
           >
-            <X className="h-3.5 w-3.5" /> Clear all
+            <X className="h-3.5 w-3.5" /> {t("clear_all", "Clear all")}
           </button>
         )}
       </div>
 
-      <FilterSection title="Categories" activeCount={activeCategories.length}>
+      <FilterSection title={t("categories", "Categories")} activeCount={activeCategories.length}>
         <div>{categories.map((cat) => renderCategory(cat, 0))}</div>
       </FilterSection>
 
       {priceRange.max > priceRange.min && (
-        <FilterSection title="Price" activeCount={priceMin || priceMax ? 1 : 0}>
+        <FilterSection title={t("price", "Price")} activeCount={priceMin || priceMax ? 1 : 0}>
           <RangeSlider
             min={priceRange.min}
             max={priceRange.max}
@@ -119,7 +121,7 @@ function FilterContent({
       )}
 
       {brands.length > 0 && (
-        <FilterSection title="Brands" activeCount={activeBrands.length}>
+        <FilterSection title={t("brands", "Brands")} activeCount={activeBrands.length}>
           <div>
             {brands.map((brand) => (
               <Checkbox
@@ -158,6 +160,7 @@ function FilterContent({
 
 export function ProductFilters(props: ProductFiltersProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const t = useT();
 
   return (
     <>
@@ -170,12 +173,12 @@ export function ProductFilters(props: ProductFiltersProps) {
           className="flex items-center gap-2"
         >
           <SlidersHorizontal className="h-4 w-4" />
-          Filters
+          {t("filters", "Filters")}
         </Button>
         <Drawer
           isOpen={drawerOpen}
           onClose={() => setDrawerOpen(false)}
-          title="Filters"
+          title={t("filters", "Filters")}
           side="left"
         >
           <div className="p-5">

@@ -20,6 +20,7 @@ import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
 import { SearchBox } from "./SearchBox";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Store } from "@/lib/api/types";
 
 interface NavbarProps {
@@ -28,6 +29,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ store, categories }: NavbarProps) {
+  const t = useT();
   const [scrolled, setScrolled] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems);
   const openCart = useCartStore((s) => s.openCart);
@@ -58,7 +60,7 @@ export function Navbar({ store, categories }: NavbarProps) {
           <button
             className="lg:hidden p-2 -ml-2 rounded-lg hover:bg-white/15 transition-colors"
             onClick={toggleMobileNav}
-            aria-label="Open menu"
+            aria-label={t("open_menu", "Open menu")}
           >
             <Menu className="h-6 w-6" />
           </button>
@@ -96,7 +98,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               >
                 <Phone className="h-6 w-6" />
                 <div className="text-xs capitalize leading-tight">
-                  <p>Call us now</p>
+                  <p>{t("call_us_now", "Call us now")}</p>
                   <p className="font-semibold">{store.phone}</p>
                 </div>
               </a>
@@ -109,7 +111,7 @@ export function Navbar({ store, categories }: NavbarProps) {
             <button
               className="lg:hidden p-2 rounded-full hover:bg-white/15 transition-colors"
               onClick={toggleSearch}
-              aria-label="Search"
+              aria-label={t("search", "Search")}
             >
               <Search className="h-6 w-6" />
             </button>
@@ -118,7 +120,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               <Link
                 href="/account/wishlist"
                 className="hidden lg:flex p-2 rounded-full hover:bg-white/15 transition-colors"
-                aria-label="Wishlist"
+                aria-label={t("wishlist", "Wishlist")}
               >
                 <Heart className="h-6 w-6" />
               </Link>
@@ -129,7 +131,7 @@ export function Navbar({ store, categories }: NavbarProps) {
               <button
                 onClick={() => setAccountOpen((o) => !o)}
                 className="p-2 rounded-full hover:bg-white/15 transition-colors"
-                aria-label="Account"
+                aria-label={t("account", "Account")}
               >
                 <User className="h-6 w-6" />
               </button>

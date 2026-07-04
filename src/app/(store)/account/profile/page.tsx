@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { appToast } from "@/lib/utils/toast";
+import { useT } from "@/lib/i18n/I18nProvider";
 
 const schema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -24,6 +25,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function ProfilePage() {
   const { customer, updateProfile, isLoading } = useAuthStore();
+  const t = useT();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -54,33 +56,33 @@ export default function ProfilePage() {
 
   return (
     <div>
-      <h2 className="font-display text-xl font-semibold mb-6">Edit Profile</h2>
+      <h2 className="font-display text-xl font-semibold mb-6">{t("edit_profile", "Edit Profile")}</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-lg">
-        <Input label="Full Name *" {...register("name")} error={errors.name?.message} />
-        <Input label="Phone" type="tel" {...register("phone")} />
-        <Input label="Address" {...register("address")} />
+        <Input label={`${t("full_name", "Full Name")} *`} {...register("name")} error={errors.name?.message} />
+        <Input label={t("phone", "Phone")} type="tel" {...register("phone")} />
+        <Input label={t("address", "Address")} {...register("address")} />
         <div className="grid grid-cols-2 gap-4">
-          <Input label="City" {...register("city")} />
-          <Input label="State" {...register("state")} />
+          <Input label={t("city", "City")} {...register("city")} />
+          <Input label={t("state", "State")} {...register("state")} />
         </div>
         <div className="grid grid-cols-2 gap-4">
-          <Input label="Country" {...register("country")} />
-          <Input label="Postal Code" {...register("postal_code")} />
+          <Input label={t("country", "Country")} {...register("country")} />
+          <Input label={t("postal_code", "Postal Code")} {...register("postal_code")} />
         </div>
 
         <div className="border-t border-[var(--color-border)] pt-4">
           <p className="text-sm font-medium mb-3 text-[var(--color-text-secondary)]">
-            Change Password (leave blank to keep current)
+            {t("change_password_hint", "Change Password (leave blank to keep current)")}
           </p>
           <Input
-            label="New Password"
+            label={t("new_password", "New Password")}
             type="password"
             {...register("password")}
             error={errors.password?.message}
           />
           <div className="mt-4">
             <Input
-              label="Confirm Password"
+              label={t("confirm_password", "Confirm Password")}
               type="password"
               {...register("password_confirmation")}
             />
@@ -88,7 +90,7 @@ export default function ProfilePage() {
         </div>
 
         <Button type="submit" variant="primary" loading={isLoading}>
-          Save Changes
+          {t("save_changes", "Save Changes")}
         </Button>
       </form>
     </div>

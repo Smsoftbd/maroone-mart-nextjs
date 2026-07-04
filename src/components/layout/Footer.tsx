@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { ReactElement } from "react";
 import type { Store, PageSummary } from "@/lib/api/types";
 import { ScrollToTop } from "./ScrollToTop";
+import { getServerT } from "@/lib/i18n/server";
 
 interface FooterProps {
   store: Store;
@@ -37,7 +38,8 @@ const socialIcons: Record<string, ReactElement> = {
   ),
 };
 
-export function Footer({ store, pages = [] }: FooterProps) {
+export async function Footer({ store, pages = [] }: FooterProps) {
+  const t = await getServerT();
   const year = new Date().getFullYear();
   const socials = Object.entries(store.social).filter(
     ([key, url]) => url && socialIcons[key],
@@ -96,20 +98,20 @@ export function Footer({ store, pages = [] }: FooterProps) {
 
           {/* Customer Service */}
           <div>
-            <h6 className="mb-4 font-display font-bold uppercase">Customer Service</h6>
+            <h6 className="mb-4 font-display font-bold uppercase">{t("customer_service", "Customer Service")}</h6>
             <ul className="space-y-2 text-sm font-light">
-              <li><Link href="/contact" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Contact</Link></li>
-              <li><Link href="/support" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Support</Link></li>
-              <li><Link href="/track-order" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Track Order</Link></li>
+              <li><Link href="/contact" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("contact", "Contact")}</Link></li>
+              <li><Link href="/support" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("support", "Support")}</Link></li>
+              <li><Link href="/track-order" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("track_order", "Track Order")}</Link></li>
               {store.features.blog && (
-                <li><Link href="/blog" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Blog</Link></li>
+                <li><Link href="/blog" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("blog", "Blog")}</Link></li>
               )}
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h6 className="mb-4 font-display font-bold uppercase">Company</h6>
+            <h6 className="mb-4 font-display font-bold uppercase">{t("company", "Company")}</h6>
             <ul className="space-y-2 text-sm font-light">
               {pages.length > 0 ? (
                 pages.map((page) => (
@@ -121,9 +123,9 @@ export function Footer({ store, pages = [] }: FooterProps) {
                 ))
               ) : (
                 <>
-                  <li><Link href="/products" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">All Products</Link></li>
-                  <li><Link href="/account" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">My Account</Link></li>
-                  <li><Link href="/account/orders" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">Orders</Link></li>
+                  <li><Link href="/products" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("all_products", "All Products")}</Link></li>
+                  <li><Link href="/account" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("my_account", "My Account")}</Link></li>
+                  <li><Link href="/account/orders" className="text-[var(--color-primary-text)]/70 hover:text-[var(--color-primary-text)] transition-colors">{t("orders", "Orders")}</Link></li>
                 </>
               )}
             </ul>
@@ -131,7 +133,7 @@ export function Footer({ store, pages = [] }: FooterProps) {
 
           {/* Follow Us */}
           <div>
-            <h6 className="mb-4 font-display font-bold uppercase">Follow Us</h6>
+            <h6 className="mb-4 font-display font-bold uppercase">{t("follow_us", "Follow Us")}</h6>
             {store.tagline && (
               <p className="text-sm font-light text-[var(--color-primary-text)]/70 mb-4 leading-relaxed">
                 {store.tagline}

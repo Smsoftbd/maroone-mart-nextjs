@@ -12,6 +12,7 @@ import {
   RotateCcw,
   PackageOpen,
 } from "lucide-react";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { StatusHistoryItem } from "@/lib/api/types";
 
 interface StatusConfig {
@@ -129,13 +130,14 @@ interface Props {
 }
 
 export function StatusHistoryTimeline({ statusHistory }: Props) {
+  const t = useT();
   if (!statusHistory || statusHistory.length === 0) return null;
 
   const sorted = [...statusHistory].reverse();
 
   return (
     <div>
-      <h3 className="font-semibold mb-4">Order Timeline</h3>
+      <h3 className="font-semibold mb-4">{t("order_timeline", "Order Timeline")}</h3>
       <ol className="space-y-0">
         {sorted.map((item, i) => {
           const cfg = getConfig(item.to_status);

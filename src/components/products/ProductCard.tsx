@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
+import { useT } from "@/lib/i18n/I18nProvider";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
 import type { Product } from "@/lib/api/types";
 
@@ -24,6 +25,7 @@ interface ProductCardProps {
 export function ProductCard({ product, currency }: ProductCardProps) {
   const router = useRouter();
   const { addItem, isLoading } = useCart();
+  const t = useT();
 
   const isVariable = product.type === "variable";
   const defaultBarcode = product.barcodes.find((b) => b.is_active) ?? product.barcodes[0];
@@ -102,7 +104,7 @@ export function ProductCard({ product, currency }: ProductCardProps) {
 
         <div className="product-actions flex justify-between items-center gap-1 sm:gap-2">
           <button
-            aria-label="Add To Cart"
+            aria-label={t("add_to_cart", "Add to Cart")}
             onClick={handleAddToCart}
             disabled={isLoading || !inStock}
             className="action-btn p-1 lg:px-2 text-sm lg:text-lg rounded border border-black bg-transparent text-black disabled:opacity-40"
@@ -114,7 +116,7 @@ export function ProductCard({ product, currency }: ProductCardProps) {
             disabled={isLoading || !inStock}
             className="action-btn p-1 text-sm lg:text-lg lg:px-4 py-1 w-full rounded border border-black bg-transparent text-black disabled:opacity-40 flex items-center justify-center gap-1"
           >
-            {inStock ? "Buy Now" : "Out of Stock"}
+            {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
             {inStock && (
               <ArrowRight className="hidden @[150px]:inline-block" height={20} width={20} />
             )}

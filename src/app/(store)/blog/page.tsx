@@ -5,6 +5,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { getBlogs } from "@/lib/api/content";
 import { getStore } from "@/lib/api/store";
 import { generatePageMetadata } from "@/lib/utils/metadata";
+import { getServerT } from "@/lib/i18n/server";
 
 export const revalidate = 3600;
 
@@ -23,11 +24,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function BlogPage({ searchParams }: PageProps) {
   const { page = "1" } = await searchParams;
-  const { data: posts, meta } = await getBlogs({ page: Number(page), per_page: 12 });
+  const [{ data: posts, meta }, t] = await Promise.all([
+    getBlogs({ page: Number(page), per_page: 12 }),
+    getServerT(),
+  ]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="font-display text-3xl font-bold mb-8">Blog</h1>
+      <h1 className="font-display text-3xl font-bold mb-8">{t("blog", "Blog")}</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {posts.map((post) => (
           <BlogCard key={post.id} post={post} />

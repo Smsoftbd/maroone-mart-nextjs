@@ -10,10 +10,12 @@ import { StatusHistoryTimeline } from "@/components/account/StatusHistoryTimelin
 import { useAuthStore } from "@/lib/stores/authStore";
 import { getCustomerOrder } from "@/lib/api/customer";
 import { formatPrice, formatDate } from "@/lib/utils/format";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Order, StatusHistoryItem } from "@/lib/api/types";
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { t, locale } = useI18n();
   const { token } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
   const [statusHistory, setStatusHistory] = useState<StatusHistoryItem[]>([]);
@@ -42,7 +44,7 @@ export default function OrderDetailPage() {
       <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h2 className="font-display text-xl font-semibold">{order.invoice_number}</h2>
-          <p className="text-sm text-[var(--color-text-muted)]">{formatDate(order.date)}</p>
+          <p className="text-sm text-[var(--color-text-muted)]">{formatDate(order.date, locale)}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
           <Badge variant={paymentBadgeVariant} className="capitalize">
@@ -61,7 +63,7 @@ export default function OrderDetailPage() {
 
       {/* Shipping Address */}
       <div className="bg-surface-50 rounded-xl p-4 text-sm">
-        <h3 className="font-semibold mb-2">Shipping Address</h3>
+        <h3 className="font-semibold mb-2">{t("shipping_address", "Shipping Address")}</h3>
         <p className="text-[var(--color-text-secondary)]">
           {order.shipping_address.address}
           {order.shipping_address.city && `, ${order.shipping_address.city}`}
@@ -72,7 +74,7 @@ export default function OrderDetailPage() {
 
       {/* Items */}
       <div>
-        <h3 className="font-semibold mb-3">Items</h3>
+        <h3 className="font-semibold mb-3">{t("items_heading", "Items")}</h3>
         <div className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] rounded-xl overflow-hidden">
           {order.details.map((detail) => {
             const sku = detail.barcode?.sku || detail.product.sku;
@@ -113,7 +115,7 @@ export default function OrderDetailPage() {
                       ))}
                     </div>
                   )}
-                  <p className="text-[var(--color-text-muted)] text-xs">Qty: {detail.qty}</p>
+                  <p className="text-[var(--color-text-muted)] text-xs">{t("qty", "Qty")}: {detail.qty}</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <span className="font-bold">{formatPrice(detail.sub_total, "৳")}</span>
@@ -132,46 +134,46 @@ export default function OrderDetailPage() {
       {/* Totals */}
       <div className="border-t border-[var(--color-border)] pt-4 space-y-2 text-sm">
         <div className="flex justify-between text-[var(--color-text-secondary)]">
-          <span>Subtotal</span>
+          <span>{t("subtotal", "Subtotal")}</span>
           <span>{formatPrice(order.sub_total, "৳")}</span>
         </div>
         {order.discount_amount > 0 && (
           <div className="flex justify-between text-green-600">
-            <span>Discount</span>
+            <span>{t("discount", "Discount")}</span>
             <span>-{formatPrice(order.discount_amount, "৳")}</span>
           </div>
         )}
         {order.tax_total > 0 && (
           <div className="flex justify-between text-[var(--color-text-secondary)]">
-            <span>Tax</span>
+            <span>{t("tax", "Tax")}</span>
             <span>{formatPrice(order.tax_total, "৳")}</span>
           </div>
         )}
         {order.customer_delivery_charge > 0 && (
           <div className="flex justify-between text-[var(--color-text-secondary)]">
-            <span>Shipping</span>
+            <span>{t("shipping", "Shipping")}</span>
             <span>{formatPrice(order.customer_delivery_charge, "৳")}</span>
           </div>
         )}
         {order.adjustment !== 0 && (
           <div className="flex justify-between text-[var(--color-text-secondary)]">
-            <span>Adjustment</span>
+            <span>{t("adjustment", "Adjustment")}</span>
             <span>{formatPrice(order.adjustment, "৳")}</span>
           </div>
         )}
         <div className="flex justify-between font-bold text-base pt-1 border-t border-[var(--color-border)]">
-          <span>Total</span>
+          <span>{t("total", "Total")}</span>
           <span>{formatPrice(order.net_total, "৳")}</span>
         </div>
         {order.paid_amount > 0 && (
           <div className="flex justify-between text-green-600 text-sm">
-            <span>Paid</span>
+            <span>{t("paid", "Paid")}</span>
             <span>{formatPrice(order.paid_amount, "৳")}</span>
           </div>
         )}
         {order.due_amount > 0 && (
           <div className="flex justify-between text-red-600 font-medium text-sm">
-            <span>Due</span>
+            <span>{t("due", "Due")}</span>
             <span>{formatPrice(order.due_amount, "৳")}</span>
           </div>
         )}
@@ -180,7 +182,7 @@ export default function OrderDetailPage() {
       {/* Tracking */}
       {order.tracking_number && (
         <div className="bg-surface-50 rounded-xl p-4 text-sm">
-          <span className="font-medium">Tracking Number: </span>
+          <span className="font-medium">{t("tracking_number", "Tracking Number")}: </span>
           <span className="text-brand-500 font-mono">{order.tracking_number}</span>
         </div>
       )}

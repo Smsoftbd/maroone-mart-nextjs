@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/format";
+import { useT } from "@/lib/i18n/I18nProvider";
 
 interface CartSummaryProps {
   subTotal: number;
@@ -19,11 +20,12 @@ export function CartSummary({
   onClose,
 }: CartSummaryProps) {
   const disabled = totalItems === 0;
+  const t = useT();
 
   return (
     <div className="w-full p-4 bg-surface-50 border-t border-[var(--color-border)] flex gap-6 justify-between items-center">
       <div className="text-center shrink-0">
-        <p className="text-[var(--color-text-secondary)]">Total:</p>
+        <p className="text-[var(--color-text-secondary)]">{t("total", "Total")}:</p>
         <h3 className="text-[var(--color-text-primary)] font-bold text-lg">
           {formatPrice(subTotal, currency)}
         </h3>
@@ -39,7 +41,7 @@ export function CartSummary({
           disabled && "opacity-50 pointer-events-none"
         )}
       >
-        <span>Checkout now</span>
+        <span>{t("checkout_now", "Checkout now")}</span>
         <ArrowRight className="h-5 w-5" />
       </Link>
     </div>

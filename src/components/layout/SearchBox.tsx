@@ -9,6 +9,7 @@ import { useSearchHistory } from "@/lib/hooks/useSearchHistory";
 import { resolveL10n, type LocalizedString } from "@/lib/utils/l10n";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category } from "@/lib/api/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -63,6 +64,7 @@ export function SearchBox({
   className,
 }: SearchBoxProps) {
   const router = useRouter();
+  const t = useT();
   const { popular, add, clear, history } = useSearchHistory();
 
   const [query, setQuery] = useState("");
@@ -213,7 +215,7 @@ export function SearchBox({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search"
+          placeholder={t("search", "Search")}
           autoComplete="off"
           aria-label="Search products"
           className="w-full rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"

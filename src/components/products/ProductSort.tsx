@@ -2,19 +2,21 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowUpDown } from "lucide-react";
-
-const sortOptions = [
-  { label: "Newest", value: "new" },
-  { label: "Price: Low to High", value: "price_asc" },
-  { label: "Price: High to Low", value: "price_desc" },
-  { label: "Top Rated", value: "rating" },
-  { label: "Best Selling", value: "sales" },
-];
+import { useT } from "@/lib/i18n/I18nProvider";
 
 export function ProductSort() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useT();
   const current = searchParams.get("sort") || "";
+
+  const sortOptions = [
+    { label: t("sort_newest", "Newest"), value: "new" },
+    { label: t("sort_price_asc", "Price: Low to High"), value: "price_asc" },
+    { label: t("sort_price_desc", "Price: High to Low"), value: "price_desc" },
+    { label: t("sort_top_rated", "Top Rated"), value: "rating" },
+    { label: t("sort_best_selling", "Best Selling"), value: "sales" },
+  ];
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -34,9 +36,9 @@ export function ProductSort() {
         value={current}
         onChange={handleChange}
         className="border border-[var(--color-border)] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white"
-        aria-label="Sort products"
+        aria-label={t("sort_products", "Sort products")}
       >
-        <option value="">Default</option>
+        <option value="">{t("default", "Default")}</option>
         {sortOptions.map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
