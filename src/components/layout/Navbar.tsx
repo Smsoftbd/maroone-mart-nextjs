@@ -13,13 +13,13 @@ import {
   Package,
   Phone,
   ChevronDown,
-  Globe,
 } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
 import { SearchBox } from "./SearchBox";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 import type { Category, Store } from "@/lib/api/types";
 
 interface NavbarProps {
@@ -197,16 +197,8 @@ export function Navbar({ store, categories }: NavbarProps) {
               )}
             </button>
 
-            {/* Language (static) */}
-            <button
-              type="button"
-              className="hidden md:inline-flex items-center gap-1 px-1.5 py-1 rounded-md text-sm font-medium hover:bg-white/15 transition-colors"
-              aria-label="Language"
-            >
-              <Globe className="h-5 w-5" />
-              <span className="font-normal">EN</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
+            {/* Language switcher */}
+            <LanguageSwitcher languages={store.languages} />
           </div>
         </div>
 

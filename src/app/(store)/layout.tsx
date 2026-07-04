@@ -6,23 +6,27 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingCart } from "@/components/cart/FloatingCart";
 import { PopupManager } from "@/components/home/PopupManager";
-import { getStore } from "@/lib/api/store";
+import { getStore, getTranslations } from "@/lib/api/store";
 import { getCategories } from "@/lib/api/products";
 import { getPages } from "@/lib/api/content";
+import { getLocale } from "@/lib/i18n/locale";
+import { I18nProvider } from "@/lib/i18n/I18nProvider";
 
 export default async function StoreLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [store, categories, pages] = await Promise.all([
+  const locale = await getLocale();
+  const [store, categories, pages, dict] = await Promise.all([
     getStore(),
     getCategories(),
     getPages(),
+    getTranslations(locale),
   ]);
 
   return (
-    <>
+    <I18nProvider locale={locale} dict={dict}>
       <AnnouncementBar message={store.offer_message} />
       <Navbar store={store} categories={categories} />
       <MobileNav store={store} categories={categories} />
@@ -38,6 +42,6 @@ export default async function StoreLayout({
       {store.scripts.footer && (
         <script dangerouslySetInnerHTML={{ __html: store.scripts.footer }} />
       )}
-    </>
+    </I18nProvider>
   );
 }

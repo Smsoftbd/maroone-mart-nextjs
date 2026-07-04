@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { ApiErrorShape } from "./types";
+import { getLocale } from "@/lib/i18n/locale";
 
 export type { LocalizedString } from "@/lib/utils/l10n";
 export { resolveL10n } from "@/lib/utils/l10n";
@@ -85,7 +86,17 @@ export async function apiRequest<T>(
   if (revalidate !== undefined) nextOptions.revalidate = revalidate;
   if (tags) nextOptions.tags = [...tags];
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  // Inject the active locale as ?lang= for every request unless a caller already
+  // set one. Localizes all endpoints from one place and keeps each language a
+  // distinct fetch-cache entry (different URL). Reading the cookie makes routes
+  // dynamic, which is acceptable for a language-aware storefront.
+  let finalPath = path;
+  if (!/[?&]lang=/.test(finalPath)) {
+    const lang = await getLocale();
+    finalPath += (finalPath.includes("?") ? "&" : "?") + `lang=${encodeURIComponent(lang)}`;
+  }
+
+  const res = await fetch(`${BASE_URL}${finalPath}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : undefined,

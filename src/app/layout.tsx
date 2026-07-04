@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthInitializer } from "@/components/layout/AuthInitializer";
 import { getStore } from "@/lib/api/store";
 import { buildColorStyleBlock } from "@/lib/utils/colors";
+import { getLocale, isRtl } from "@/lib/i18n/locale";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -37,12 +38,13 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const store = await getStore();
+  const [store, locale] = await Promise.all([getStore(), getLocale()]);
   const colorStyle = buildColorStyleBlock(store.colors);
 
   return (
     <html
-      lang="en"
+      lang={locale}
+      dir={isRtl(locale) ? "rtl" : "ltr"}
       className={`${playfair.variable} ${dmSans.variable} h-full`}
     >
       <head>

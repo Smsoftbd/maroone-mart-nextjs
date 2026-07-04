@@ -8,6 +8,7 @@ import { getBlog } from "@/lib/api/content";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { articleSchema } from "@/lib/utils/structured-data";
 import { formatDate } from "@/lib/utils/format";
+import { getLocale } from "@/lib/i18n/locale";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -34,6 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
+  const locale = await getLocale();
   let post;
   try {
     post = await getBlog(slug);
@@ -63,7 +65,7 @@ export default async function BlogPostPage({ params }: PageProps) {
             <span>·</span>
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />
-              {formatDate(post.published_at)}
+              {formatDate(post.published_at, locale)}
             </span>
             {post.author && (
               <>

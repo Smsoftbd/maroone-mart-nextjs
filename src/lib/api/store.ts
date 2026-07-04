@@ -2,8 +2,10 @@ import "server-only";
 
 import { apiRequest, CACHE_TAGS, REVALIDATE, resolveL10n } from "./client";
 import type { LocalizedString } from "./client";
+import { getLocale } from "@/lib/i18n/locale";
 import type {
   Store,
+  StoreLanguage,
   HeroBanner,
   Slider,
   Popup,
@@ -11,6 +13,8 @@ import type {
 } from "./types";
 
 type ApiStore = {
+  languages?: StoreLanguage[];
+  default_lang?: string;
   store_name: LocalizedString;
   email: string;
   phone: string;
@@ -72,17 +76,20 @@ function stripHtml(html: string): string {
 }
 
 export async function getStore(): Promise<Store> {
+  const lang = await getLocale();
   const res = await apiRequest<ApiStore>("/store", {
     revalidate: REVALIDATE.STORE,
     tags: CACHE_TAGS.STORE,
   });
   return {
-    name: res.store_name?.en ?? "",
+    languages: res.languages ?? [],
+    default_lang: res.default_lang ?? "en",
+    name: resolveL10n(res.store_name, lang),
     logo: res.logo ?? "",
     footer_logo: res.footer_logo ?? res.logo ?? "",
     favicon: res.favicon ?? "",
-    tagline: stripHtml(res.motto?.en ?? ""),
-    offer_message: res.offer_message?.en ?? res.motto?.en ?? "",
+    tagline: stripHtml(resolveL10n(res.motto, lang)),
+    offer_message: resolveL10n(res.offer_message, lang) || resolveL10n(res.motto, lang),
     email: res.email ?? "",
     phone: res.phone ?? "",
     address: res.addresses?.[0] ?? "",
@@ -139,23 +146,30 @@ export async function getStore(): Promise<Store> {
 }
 
 export async function getTranslations(
-  lang: string
+  lang?: string
 ): Promise<Record<string, string>> {
-  const res = await apiRequest<Record<string, string>>(
-    `/translations?lang=${lang}`,
-    {
-      revalidate: REVALIDATE.TRANSLATIONS,
-    }
-  );
-  return res;
+  const code = lang ?? (await getLocale());
+  try {
+    const res = await apiRequest<Record<string, string> | { data: Record<string, string> }>(
+      `/translations?lang=${encodeURIComponent(code)}`,
+      {
+        revalidate: REVALIDATE.TRANSLATIONS,
+      }
+    );
+    // Endpoint may return the map directly or wrapped in { data }.
+    return (res && typeof res === "object" && "data" in res ? res.data : res) as Record<string, string>;
+  } catch {
+    return {};
+  }
 }
 
 export async function getHeroBanners(): Promise<HeroBanner[]> {
+  const lang = await getLocale();
   const res = await apiRequest<{ data: Array<Omit<HeroBanner, "title" | "subtitle"> & { title: LocalizedString | string; subtitle?: LocalizedString | string }> }>("/hero-banners", {
     revalidate: REVALIDATE.BANNERS,
     tags: CACHE_TAGS.BANNERS,
   });
-  return res.data.map((b) => ({ ...b, title: resolveL10n(b.title), subtitle: b.subtitle ? resolveL10n(b.subtitle) : undefined }));
+  return res.data.map((b) => ({ ...b, title: resolveL10n(b.title, lang), subtitle: b.subtitle ? resolveL10n(b.subtitle, lang) : undefined }));
 }
 
 export async function getSliders(): Promise<Slider[]> {

@@ -17,7 +17,16 @@ export interface PaginatedResponse<T> {
 
 // ─── Store ──────────────────────────────────────────────────────────────────
 
+export interface StoreLanguage {
+  code: string;
+  name: string;
+  native_name: string | null;
+  is_default: boolean;
+}
+
 export interface Store {
+  languages: StoreLanguage[];
+  default_lang: string;
   name: string;
   logo: string;
   footer_logo: string;

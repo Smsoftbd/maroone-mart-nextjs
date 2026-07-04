@@ -18,9 +18,36 @@ export function formatDiscount(
   return String(Math.round(pct));
 }
 
-export function formatDate(dateString: string): string {
+/** Map storefront language codes to BCP-47 tags for Intl formatting. */
+const LOCALE_TO_INTL: Record<string, string> = {
+  en: "en-US",
+  bn: "bn-BD",
+  ar: "ar",
+  hi: "hi-IN",
+  ur: "ur-PK",
+  id: "id-ID",
+  ms: "ms-MY",
+  vi: "vi-VN",
+  tr: "tr-TR",
+  ru: "ru-RU",
+  fr: "fr-FR",
+  de: "de-DE",
+  es: "es-ES",
+  pt: "pt-BR",
+  it: "it-IT",
+  nl: "nl-NL",
+  ja: "ja-JP",
+  ko: "ko-KR",
+  zh: "zh-CN",
+};
+
+export function intlLocale(locale?: string): string {
+  return (locale && LOCALE_TO_INTL[locale]) || "en-US";
+}
+
+export function formatDate(dateString: string, locale?: string): string {
   const date = new Date(dateString);
-  return date.toLocaleDateString("en-US", {
+  return date.toLocaleDateString(intlLocale(locale), {
     year: "numeric",
     month: "long",
     day: "numeric",
