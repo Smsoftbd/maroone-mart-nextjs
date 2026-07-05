@@ -1,13 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
+import { getServerT } from "@/lib/i18n/server";
 import type { HomepageCategory } from "@/lib/api/types";
 
 interface CategoryGridProps {
   categories: HomepageCategory[];
 }
 
-export function CategoryGrid({ categories }: CategoryGridProps) {
+export async function CategoryGrid({ categories }: CategoryGridProps) {
   if (!categories.length) return null;
+  const t = await getServerT();
 
   return (
     <section className="banners py-14 bg-surface-50">
@@ -53,7 +55,7 @@ export function CategoryGrid({ categories }: CategoryGridProps) {
                       color: "var(--color-text)",
                     }}
                   >
-                    Shop Now
+                    {t("shop_now", "Shop Now")}
                   </Link>
                 </div>
               </div>

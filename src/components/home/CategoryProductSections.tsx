@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { getServerT } from "@/lib/i18n/server";
 import type { HomepageCategory, Product } from "@/lib/api/types";
 
 export interface CategoryProducts {
@@ -12,12 +13,13 @@ interface CategoryProductSectionsProps {
   currency: string;
 }
 
-export function CategoryProductSections({
+export async function CategoryProductSections({
   sections,
   currency,
 }: CategoryProductSectionsProps) {
   const visible = sections.filter((s) => s.products.length > 0);
   if (!visible.length) return null;
+  const t = await getServerT();
 
   return (
     <>
@@ -34,7 +36,7 @@ export function CategoryProductSections({
               href={`/products?category=${category.slug}`}
               className="text-sm text-brand-500 hover:text-brand-600 font-medium transition-colors"
             >
-              See All →
+              {t("see_all", "See All")} →
             </Link>
           </div>
           <ProductGrid products={products.slice(0, 8)} currency={currency} />

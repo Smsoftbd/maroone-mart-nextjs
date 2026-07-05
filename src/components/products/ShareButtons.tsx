@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/lib/i18n/I18nProvider";
+
 interface ShareButtonsProps {
   url: string;
   title: string;
@@ -24,6 +26,7 @@ const VIEWBOX: Record<string, string> = {
 };
 
 export function ShareButtons({ url, title }: ShareButtonsProps) {
+  const t = useT();
   const enc = encodeURIComponent;
   const links = [
     { label: "facebook", color: "#3b5998", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
@@ -34,7 +37,7 @@ export function ShareButtons({ url, title }: ShareButtonsProps) {
 
   return (
     <div className="flex items-center">
-      <h3 className="font-semibold whitespace-nowrap mr-2">Share:</h3>
+      <h3 className="font-semibold whitespace-nowrap mr-2">{t("share", "Share")}:</h3>
       <div className="flex items-center justify-start gap-2 py-3">
         {links.map(({ label, color, href }) => (
           <a

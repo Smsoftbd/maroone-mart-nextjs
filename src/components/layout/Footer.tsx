@@ -161,7 +161,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
         </div>
 
         <div className="border-t border-[var(--color-primary-text)]/15 mt-10 pt-6 text-center text-sm font-light text-[var(--color-primary-text)]/60">
-          &copy; {year}, All Rights Reserved By{" "}
+          &copy; {year}, {t("all_rights_reserved_by", "All Rights Reserved By")}{" "}
           <Link href="/" className="hover:text-[var(--color-primary-text)]">
             {store.name}
           </Link>

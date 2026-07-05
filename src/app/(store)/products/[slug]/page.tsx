@@ -11,6 +11,7 @@ import { getStore } from "@/lib/api/store";
 import { getDeliveryCharges } from "@/lib/api/content";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { productSchema, breadcrumbSchema } from "@/lib/utils/structured-data";
+import { getServerT } from "@/lib/i18n/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
@@ -73,9 +74,10 @@ export default async function ProductPage({ params }: PageProps) {
       : []),
   ];
 
+  const t = await getServerT();
   const breadcrumbItems = [
-    { name: "Home", url: "/" },
-    { name: "Products", url: "/products" },
+    { name: t("home", "Home"), url: "/" },
+    { name: t("products", "Products"), url: "/products" },
     ...[product.category, product.sub_category, product.child_category]
       .filter((c): c is NonNullable<typeof c> => Boolean(c))
       .map((c) => ({

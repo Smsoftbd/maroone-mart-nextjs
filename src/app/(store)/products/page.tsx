@@ -8,6 +8,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { getProducts, getCategories, getBrands, getProductFilters } from "@/lib/api/products";
 import { getStore } from "@/lib/api/store";
 import { generatePageMetadata } from "@/lib/utils/metadata";
+import { getServerT } from "@/lib/i18n/server";
 
 export const revalidate = 300;
 
@@ -65,11 +66,12 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       getStore(),
     ]);
 
+  const t = await getServerT();
   const heading = search
-    ? `Search: "${search}"`
+    ? `${t("search", "Search")}: "${search}"`
     : categories.length === 1
-    ? categoryTree.find((c) => c.slug === categories[0])?.name || "Products"
-    : "All Products";
+    ? categoryTree.find((c) => c.slug === categories[0])?.name || t("products", "Products")
+    : t("all_products", "All Products");
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -88,7 +90,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
             <p className="text-sm text-[var(--color-text-secondary)]">
-              {meta.total} product{meta.total !== 1 ? "s" : ""} found
+              {meta.total} {meta.total !== 1 ? t("products_lc", "products") : t("product_lc", "product")} {t("found", "found")}
             </p>
             <Suspense fallback={null}>
               <ProductSort />

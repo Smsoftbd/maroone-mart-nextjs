@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Brand, FilterAttribute } from "@/lib/api/types";
 
 interface ActiveFiltersProps {
@@ -33,6 +34,7 @@ export function ActiveFilters({
 }: ActiveFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const t = useT();
 
   const catNames = flattenCategories(categories);
   const brandNames = Object.fromEntries(brands.map((b) => [String(b.id), b.name]));
@@ -100,7 +102,7 @@ export function ActiveFilters({
         onClick={() => router.push("/products")}
         className="text-xs font-medium text-[var(--color-text-muted)] hover:text-brand-600 transition-colors underline"
       >
-        Clear all
+        {t("clear_all", "Clear all")}
       </button>
     </div>
   );

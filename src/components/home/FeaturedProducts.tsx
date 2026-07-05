@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ProductCarousel } from "@/components/products/ProductCarousel";
+import { getServerT } from "@/lib/i18n/server";
 import type { Product } from "@/lib/api/types";
 
 interface SectionProps {
@@ -9,8 +10,9 @@ interface SectionProps {
   currency: string;
 }
 
-function ProductSection({ title, viewAllHref, products, currency }: SectionProps) {
+async function ProductSection({ title, viewAllHref, products, currency }: SectionProps) {
   if (!products.length) return null;
+  const t = await getServerT();
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-center justify-between mb-6">
@@ -19,7 +21,7 @@ function ProductSection({ title, viewAllHref, products, currency }: SectionProps
           href={viewAllHref}
           className="text-sm text-brand-500 hover:text-brand-600 font-medium transition-colors"
         >
-          View All →
+          {t("view_all", "View All")} →
         </Link>
       </div>
       <ProductCarousel products={products.slice(0, 12)} currency={currency} />
@@ -27,10 +29,11 @@ function ProductSection({ title, viewAllHref, products, currency }: SectionProps
   );
 }
 
-export function FeaturedProducts({ products, currency }: { products: Product[]; currency: string }) {
+export async function FeaturedProducts({ products, currency }: { products: Product[]; currency: string }) {
+  const t = await getServerT();
   return (
     <ProductSection
-      title="Featured Products"
+      title={t("featured_products", "Featured Products")}
       viewAllHref="/products?featured=1"
       products={products}
       currency={currency}
@@ -38,10 +41,11 @@ export function FeaturedProducts({ products, currency }: { products: Product[]; 
   );
 }
 
-export function NewArrivals({ products, currency }: { products: Product[]; currency: string }) {
+export async function NewArrivals({ products, currency }: { products: Product[]; currency: string }) {
+  const t = await getServerT();
   return (
     <ProductSection
-      title="New Arrivals"
+      title={t("new_arrivals", "New Arrivals")}
       viewAllHref="/products?sort=new"
       products={products}
       currency={currency}
@@ -49,10 +53,11 @@ export function NewArrivals({ products, currency }: { products: Product[]; curre
   );
 }
 
-export function BestSelling({ products, currency }: { products: Product[]; currency: string }) {
+export async function BestSelling({ products, currency }: { products: Product[]; currency: string }) {
+  const t = await getServerT();
   return (
     <ProductSection
-      title="Best Selling"
+      title={t("best_selling", "Best Selling")}
       viewAllHref="/products?sort=sales"
       products={products}
       currency={currency}

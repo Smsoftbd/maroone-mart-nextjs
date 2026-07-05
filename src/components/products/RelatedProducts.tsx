@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProductGrid } from "./ProductGrid";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
+import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Product } from "@/lib/api/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
@@ -19,6 +20,7 @@ export function RelatedProducts({
   excludeSlug,
   currency,
 }: RelatedProductsProps) {
+  const { t, locale } = useI18n();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -26,7 +28,7 @@ export function RelatedProducts({
     const fetchRelated = async () => {
       try {
         const res = await fetch(
-          `${BASE_URL}/products?category=${categorySlug}&per_page=8`,
+          `${BASE_URL}/products?category=${categorySlug}&per_page=8&lang=${encodeURIComponent(locale)}`,
           { headers: { "X-Api-Key": PUBLIC_KEY, Accept: "application/json" } }
         );
         if (!res.ok) return;
@@ -42,14 +44,14 @@ export function RelatedProducts({
       }
     };
     fetchRelated();
-  }, [categorySlug, excludeSlug]);
+  }, [categorySlug, excludeSlug, locale]);
 
   if (!isLoading && products.length === 0) return null;
 
   return (
     <section id="same-category-products" className="mt-16 lg:pt-6">
       <h2 className="font-display text-2xl font-semibold text-center mb-8">
-        Similar Products
+        {t("similar_products", "Similar Products")}
       </h2>
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
