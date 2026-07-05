@@ -10,6 +10,7 @@ import type {
   Slider,
   Popup,
   HomepageCategory,
+  AuthMode,
 } from "./types";
 
 type ApiStore = {
@@ -27,6 +28,8 @@ type ApiStore = {
   footer_logo: string;
   favicon: string;
   guest_checkout: boolean;
+  auth_mode?: AuthMode;
+  checkout_otp?: boolean;
   social: {
     facebook?: string | null;
     instagram?: string | null;
@@ -97,6 +100,8 @@ export async function getStore(): Promise<Store> {
     currency: "BDT",
     currency_symbol: "৳",
     guest_checkout: res.guest_checkout ?? true,
+    auth_mode: res.auth_mode ?? "email_password",
+    checkout_otp: res.checkout_otp ?? false,
     social: {
       facebook: res.social?.facebook ?? undefined,
       instagram: res.social?.instagram ?? undefined,

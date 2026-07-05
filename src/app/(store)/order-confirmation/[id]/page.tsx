@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle, Package, Star, Download } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
+import { getStore } from "@/lib/api/store";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
@@ -16,7 +17,9 @@ interface PageProps {
 export default async function OrderConfirmationPage({ params, searchParams }: PageProps) {
   const { id } = await params;
   const { invoice, total, points, invoice_url: invoiceUrl } = await searchParams;
-  const t = await getServerT();
+  const [t, store] = await Promise.all([getServerT(), getStore()]);
+  // Guest-only stores have no customer accounts — hide the orders link.
+  const showMyOrders = store.auth_mode !== "guest_only";
 
   return (
     <div className="max-w-lg mx-auto px-4 py-16 text-center">
@@ -67,12 +70,14 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             <Download className="h-4 w-4" /> {t("download_invoice", "Download Invoice")}
           </a>
         )}
-        <Link
-          href="/account/orders"
-          className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-        >
-          {t("view_my_orders", "View My Orders")}
-        </Link>
+        {showMyOrders && (
+          <Link
+            href="/account/orders"
+            className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          >
+            {t("view_my_orders", "View My Orders")}
+          </Link>
+        )}
         <Link
           href="/products"
           className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center border border-surface-900 text-surface-900 hover:bg-surface-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"

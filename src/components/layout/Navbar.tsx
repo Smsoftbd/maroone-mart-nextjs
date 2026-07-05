@@ -126,7 +126,8 @@ export function Navbar({ store, categories }: NavbarProps) {
               </Link>
             )}
 
-            {/* Account dropdown */}
+            {/* Account dropdown — hidden entirely in guest-only stores */}
+            {store.auth_mode !== "guest_only" && (
             <div className="relative hidden lg:block">
               <button
                 onClick={() => setAccountOpen((o) => !o)}
@@ -170,20 +171,23 @@ export function Navbar({ store, categories }: NavbarProps) {
                         className="block px-4 py-2 text-sm hover:bg-surface-100"
                         onClick={() => setAccountOpen(false)}
                       >
-                        Login
+                        {store.auth_mode === "sms_otp" ? "Login / Sign Up" : "Login"}
                       </Link>
-                      <Link
-                        href="/register"
-                        className="block px-4 py-2 text-sm hover:bg-surface-100"
-                        onClick={() => setAccountOpen(false)}
-                      >
-                        Create Account
-                      </Link>
+                      {store.auth_mode === "email_password" && (
+                        <Link
+                          href="/register"
+                          className="block px-4 py-2 text-sm hover:bg-surface-100"
+                          onClick={() => setAccountOpen(false)}
+                        >
+                          Create Account
+                        </Link>
+                      )}
                     </>
                   )}
                 </div>
               )}
             </div>
+            )}
 
             {/* Cart */}
             <button

@@ -74,6 +74,38 @@ export async function registerCustomer(
   });
 }
 
+export async function requestOtp(phone: string): Promise<{ message: string }> {
+  return customerFetch("/customer/otp/request", {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ phone }),
+  });
+}
+
+export async function verifyOtp(
+  phone: string,
+  code: string,
+  name?: string
+): Promise<AuthResponse> {
+  return customerFetch("/customer/otp/verify", {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ phone, code, ...(name ? { name } : {}) }),
+  });
+}
+
+/** Verify a phone at checkout without logging in (store requires checkout OTP). */
+export async function checkoutVerifyOtp(
+  phone: string,
+  code: string
+): Promise<{ verified: boolean }> {
+  return customerFetch("/customer/otp/checkout-verify", {
+    method: "POST",
+    headers: publicHeaders(),
+    body: JSON.stringify({ phone, code }),
+  });
+}
+
 export async function logoutCustomer(token: string): Promise<{ message: string }> {
   return customerFetch("/customer/logout", {
     method: "POST",

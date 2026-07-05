@@ -24,6 +24,9 @@ export interface StoreLanguage {
   is_default: boolean;
 }
 
+/** Storefront login/checkout method configured per store in Eleven POS. */
+export type AuthMode = "guest_only" | "email_password" | "sms_otp";
+
 export interface Store {
   languages: StoreLanguage[];
   default_lang: string;
@@ -40,6 +43,8 @@ export interface Store {
   currency: string;
   currency_symbol: string;
   guest_checkout: boolean;
+  auth_mode: AuthMode;
+  checkout_otp: boolean;
   social: {
     facebook?: string;
     instagram?: string;

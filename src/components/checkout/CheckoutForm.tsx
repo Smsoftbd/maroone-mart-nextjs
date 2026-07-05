@@ -8,11 +8,15 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
 import { ShippingSelector } from "./ShippingSelector";
 import { PaymentSelector } from "./PaymentSelector";
 import { CouponInput } from "./CouponInput";
+import Link from "next/link";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
+import { requestOtp as requestOtpApi, checkoutVerifyOtp } from "@/lib/api/customer";
 import { formatPrice } from "@/lib/utils/format";
 import { appToast } from "@/lib/utils/toast";
 import { useT } from "@/lib/i18n/I18nProvider";
@@ -76,7 +80,8 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const router = useRouter();
   const t = useT();
   const { items, subTotal, priceOverrides, attributeOverrides, clearCart } = useCartStore();
-  const { customer, token } = useAuthStore();
+  const { customer, token, isAuthenticated } = useAuthStore();
+  const { authMode, guestCheckout, checkoutOtp } = useStoreConfig();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [couponCode, setCouponCode] = useState("");
@@ -106,12 +111,32 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const shippingCost = delivery ? parseFloat(delivery.charge_amount) : 0;
   const total = subTotal + shippingCost - discountAmount;
 
-  const onSubmit = async (data: FormData) => {
+  // Store requires SMS OTP at checkout — logged-in customers are exempt.
+  const requiresCheckoutOtp = checkoutOtp && !isAuthenticated;
+  const [otpModalOpen, setOtpModalOpen] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
+  const [pendingData, setPendingData] = useState<FormData | null>(null);
+
+  const sendOtp = async (phone: string) => {
+    setOtpError(null);
+    setOtpSending(true);
+    try {
+      await requestOtpApi(phone);
+    } catch (e) {
+      setOtpError(e instanceof Error ? e.message : "Failed to send code");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  const placeOrder = async (data: FormData) => {
     if (!paymentMethod) {
       appToast.apiError("Please select a payment method.");
       return;
     }
-
     setIsSubmitting(true);
     try {
       const orderItems = items.map((i) => {
@@ -235,6 +260,69 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
       setIsSubmitting(false);
     }
   };
+
+  const onSubmit = async (data: FormData) => {
+    if (!paymentMethod) {
+      appToast.apiError("Please select a payment method.");
+      return;
+    }
+    const phone = data.phone.trim();
+    // Gate on a modal only when the store requires it and this phone isn't verified yet.
+    if (requiresCheckoutOtp && verifiedPhone !== phone) {
+      setPendingData(data);
+      setOtpCode("");
+      setOtpError(null);
+      setOtpModalOpen(true);
+      void sendOtp(phone);
+      return;
+    }
+    await placeOrder(data);
+  };
+
+  const confirmCheckoutOtp = async () => {
+    if (!pendingData) return;
+    const phone = pendingData.phone.trim();
+    if (otpCode.trim().length < 4) {
+      setOtpError(t("otp_required", "Enter the verification code"));
+      return;
+    }
+    setOtpError(null);
+    setOtpSending(true);
+    try {
+      await checkoutVerifyOtp(phone, otpCode.trim());
+      setVerifiedPhone(phone);
+      setOtpModalOpen(false);
+      await placeOrder(pendingData);
+    } catch (e) {
+      setOtpError(e instanceof Error ? e.message : "Invalid code");
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  // Login-required store: a login mode is active, guest checkout is disabled,
+  // and the shopper is not signed in → gate checkout behind login.
+  const loginRequired = authMode !== "guest_only" && !guestCheckout && !isAuthenticated;
+
+  if (loginRequired) {
+    return (
+      <div className="bg-white border border-[var(--color-border)] rounded-2xl p-8 text-center max-w-md mx-auto">
+        <h2 className="font-display text-lg font-semibold mb-2">
+          {t("login_to_checkout", "Please sign in to checkout")}
+        </h2>
+        <p className="text-sm text-[var(--color-text-secondary)] mb-6">
+          {authMode === "sms_otp"
+            ? t("login_to_checkout_otp", "Verify your phone number to place your order.")
+            : t("login_to_checkout_email", "Sign in to your account to place your order.")}
+        </p>
+        <Link href="/login">
+          <Button variant="primary" fullWidth>
+            {t("sign_in", "Sign In")}
+          </Button>
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -411,6 +499,45 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
           </div>
         </aside>
       </div>
+
+      <Modal
+        isOpen={otpModalOpen}
+        onClose={() => setOtpModalOpen(false)}
+        title={t("verify_your_phone", "Verify your phone")}
+        className="max-w-sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            {t("otp_sent_to", "We sent a code to")}{" "}
+            <span className="font-medium text-[var(--color-text-primary)]">{pendingData?.phone}</span>
+          </p>
+          <Input
+            label={t("verification_code", "Verification Code")}
+            inputMode="numeric"
+            autoFocus
+            value={otpCode}
+            onChange={(e) => setOtpCode(e.target.value)}
+            error={otpError ?? undefined}
+          />
+          <Button
+            type="button"
+            variant="primary"
+            fullWidth
+            loading={otpSending || isSubmitting}
+            onClick={confirmCheckoutOtp}
+          >
+            {t("verify_and_place_order", "Verify & Place Order")}
+          </Button>
+          <button
+            type="button"
+            disabled={otpSending}
+            onClick={() => pendingData && sendOtp(pendingData.phone.trim())}
+            className="w-full text-center text-sm text-[var(--color-text-secondary)] hover:text-brand-600 disabled:opacity-50"
+          >
+            {t("resend_code", "Resend code")}
+          </button>
+        </div>
+      </Modal>
     </form>
   );
 }

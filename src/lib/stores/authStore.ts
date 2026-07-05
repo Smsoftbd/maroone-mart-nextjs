@@ -8,6 +8,8 @@ import {
   logoutCustomer,
   getCustomerProfile,
   updateCustomerProfile,
+  requestOtp as requestOtpApi,
+  verifyOtp as verifyOtpApi,
 } from "@/lib/api/customer";
 import type { Customer, RegisterData, UpdateProfileData } from "@/lib/api/types";
 
@@ -20,6 +22,8 @@ interface AuthStore {
   initialize: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
+  requestOtp: (phone: string) => Promise<void>;
+  otpLogin: (phone: string, code: string, name?: string) => Promise<void>;
   logout: () => Promise<void>;
   fetchProfile: () => Promise<void>;
   updateProfile: (data: UpdateProfileData) => Promise<void>;
@@ -66,6 +70,24 @@ export const useAuthStore = create<AuthStore>()(
         set({ isLoading: true });
         try {
           const res = await registerCustomer(data);
+          set({
+            token: res.access_token,
+            customer: res.customer,
+            isAuthenticated: true,
+          });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+
+      requestOtp: async (phone) => {
+        await requestOtpApi(phone);
+      },
+
+      otpLogin: async (phone, code, name) => {
+        set({ isLoading: true });
+        try {
+          const res = await verifyOtpApi(phone, code, name);
           set({
             token: res.access_token,
             customer: res.customer,

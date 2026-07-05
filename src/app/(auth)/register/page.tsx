@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuthStore } from "@/lib/stores/authStore";
+import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
 import { appToast } from "@/lib/utils/toast";
 import { useT } from "@/lib/i18n/I18nProvider";
 
@@ -29,11 +31,19 @@ type FormData = z.infer<typeof schema>;
 export default function RegisterPage() {
   const router = useRouter();
   const { register: registerUser, isLoading } = useAuthStore();
+  const { authMode } = useStoreConfig();
   const t = useT();
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
+
+  // Guest-only stores have no registration UI. SMS OTP unifies login/register,
+  // so send OTP registration to the login screen.
+  useEffect(() => {
+    if (authMode === "guest_only") router.replace("/");
+    else if (authMode === "sms_otp") router.replace("/login");
+  }, [authMode, router]);
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -45,6 +55,8 @@ export default function RegisterPage() {
       appToast.apiError(msg);
     }
   };
+
+  if (authMode !== "email_password") return null;
 
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">

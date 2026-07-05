@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Sans } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AuthInitializer } from "@/components/layout/AuthInitializer";
+import { StoreConfigProvider } from "@/components/providers/StoreConfigProvider";
 import { getStore } from "@/lib/api/store";
 import { buildColorStyleBlock } from "@/lib/utils/colors";
 import { getLocale, isRtl } from "@/lib/i18n/locale";
@@ -61,7 +62,15 @@ export default async function RootLayout({
           Skip to content
         </a>
         <AuthInitializer />
-        {children}
+        <StoreConfigProvider
+          value={{
+            authMode: store.auth_mode,
+            guestCheckout: store.guest_checkout,
+            checkoutOtp: store.checkout_otp,
+          }}
+        >
+          {children}
+        </StoreConfigProvider>
         <Toaster
           position="top-right"
           toastOptions={{

@@ -140,6 +140,7 @@ export function MobileNav({ store, categories }: MobileNavProps) {
               </Link>
             </nav>
 
+            {store.auth_mode !== "guest_only" && (
             <div className="border-t border-[var(--color-border)] py-4 px-5">
               {isAuthenticated ? (
                 <div className="space-y-1">
@@ -174,18 +175,21 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                     className="flex-1 text-center py-2.5 border border-surface-900 rounded-lg text-sm font-medium hover:bg-surface-100 transition-colors"
                     onClick={closeMobileNav}
                   >
-                    Login
+                    {store.auth_mode === "sms_otp" ? "Login / Sign Up" : "Login"}
                   </Link>
-                  <Link
-                    href="/register"
-                    className="flex-1 text-center py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
-                    onClick={closeMobileNav}
-                  >
-                    Sign Up
-                  </Link>
+                  {store.auth_mode === "email_password" && (
+                    <Link
+                      href="/register"
+                      className="flex-1 text-center py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
+                      onClick={closeMobileNav}
+                    >
+                      Sign Up
+                    </Link>
+                  )}
                 </div>
               )}
             </div>
+            )}
           </motion.div>
         </div>
       )}
