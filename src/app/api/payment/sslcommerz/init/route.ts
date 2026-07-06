@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { getGatewayCredentials, type SslCreds } from "@/lib/api/payments";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SSLCommerzPayment = require("sslcommerz-lts");
 
-const STORE_ID = process.env.SSL_STORE_ID!;
-const STORE_PASSWORD = process.env.SSL_STORE_PASSWORD!;
-const IS_LIVE = process.env.SSL_IS_LIVE === "true";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!;
 
 const schema = z.object({
@@ -38,7 +36,8 @@ export async function POST(req: NextRequest) {
     const { order_id, amount, payment_method_id, customer, shipping_address } = parsed.data;
     const currency = parsed.data.currency === "৳" ? "BDT" : parsed.data.currency;
 
-    const sslcz = new SSLCommerzPayment(STORE_ID, STORE_PASSWORD, IS_LIVE);
+    const creds = await getGatewayCredentials<SslCreds>("sslcommerz");
+    const sslcz = new SSLCommerzPayment(creds.store_id, creds.store_password, creds.is_live);
 
     const paymentData = {
       total_amount: amount,

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { generateGrantToken } from "../helpers/grant-token";
-import { getAuthHeaders } from "../helpers/bkash-headers";
+import { getAuthHeaders, getBkashBaseUrl } from "../helpers/bkash-headers";
+import { getGatewayCredentials, type BkashCreds } from "@/lib/api/payments";
 
-const BKASH_BASE_URL = process.env.BKASH_BASE_URL!;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!;
 
 const schema = z.object({
@@ -26,15 +26,16 @@ export async function POST(req: NextRequest) {
 
     const { order_id, amount, payment_method_id, customer } = parsed.data;
 
-    const token = await generateGrantToken();
+    const creds = await getGatewayCredentials<BkashCreds>("bkash");
+    const token = await generateGrantToken(creds);
 
     const callbackURL =
       `${SITE_URL}/api/payment/bkash/callback` +
       `?order_id=${order_id}&payment_method_id=${payment_method_id}`;
 
-    const res = await fetch(`${BKASH_BASE_URL}/create`, {
+    const res = await fetch(`${getBkashBaseUrl(creds)}/create`, {
       method: "POST",
-      headers: { ...getAuthHeaders(), authorization: token },
+      headers: { ...getAuthHeaders(creds), authorization: token },
       body: JSON.stringify({
         mode: "0011",
         payerReference: customer.phone,

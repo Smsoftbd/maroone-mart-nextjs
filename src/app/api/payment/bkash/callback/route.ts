@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { confirmPayment } from "@/lib/api/orders";
 import { generateGrantToken } from "../helpers/grant-token";
-import { getAuthHeaders } from "../helpers/bkash-headers";
-
-const BKASH_BASE_URL = process.env.BKASH_BASE_URL!;
+import { getAuthHeaders, getBkashBaseUrl } from "../helpers/bkash-headers";
+import { getGatewayCredentials, type BkashCreds } from "@/lib/api/payments";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -23,11 +22,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const token = await generateGrantToken();
+    const creds = await getGatewayCredentials<BkashCreds>("bkash");
+    const token = await generateGrantToken(creds);
 
-    const res = await fetch(`${BKASH_BASE_URL}/execute`, {
+    const res = await fetch(`${getBkashBaseUrl(creds)}/execute`, {
       method: "POST",
-      headers: { ...getAuthHeaders(), authorization: token },
+      headers: { ...getAuthHeaders(creds), authorization: token },
       body: JSON.stringify({ paymentID }),
     });
 

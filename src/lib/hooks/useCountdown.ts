@@ -21,9 +21,18 @@ export function useCountdown(endsAt: string): CountdownResult {
     return { days, hours, minutes, seconds, isExpired: false };
   };
 
-  const [state, setState] = useState<CountdownResult>(calculate);
+  // Start with a deterministic value so SSR and first client render match.
+  // Compute the real remaining time only after mount.
+  const [state, setState] = useState<CountdownResult>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    isExpired: false,
+  });
 
   useEffect(() => {
+    setState(calculate());
     const id = setInterval(() => setState(calculate()), 1000);
     return () => clearInterval(id);
   }, [endsAt]); // eslint-disable-line react-hooks/exhaustive-deps

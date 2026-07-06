@@ -1,14 +1,13 @@
-import { getTokenHeaders } from "./bkash-headers";
+import { getTokenHeaders, getBkashBaseUrl } from "./bkash-headers";
+import type { BkashCreds } from "@/lib/api/payments";
 
-const BKASH_BASE_URL = process.env.BKASH_BASE_URL!;
-
-export async function generateGrantToken(): Promise<string> {
-  const res = await fetch(`${BKASH_BASE_URL}/token/grant`, {
+export async function generateGrantToken(creds: BkashCreds): Promise<string> {
+  const res = await fetch(`${getBkashBaseUrl(creds)}/token/grant`, {
     method: "POST",
-    headers: getTokenHeaders(),
+    headers: getTokenHeaders(creds),
     body: JSON.stringify({
-      app_key: process.env.BKASH_APP_KEY,
-      app_secret: process.env.BKASH_APP_SECRET,
+      app_key: creds.app_key,
+      app_secret: creds.app_secret,
     }),
   });
 
