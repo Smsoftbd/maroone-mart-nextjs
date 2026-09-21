@@ -39,7 +39,11 @@ export async function CategoryProductSections({
               {t("see_all", "See All")} →
             </Link>
           </div>
-          <ProductGrid products={products.slice(0, 8)} currency={currency} />
+          <ProductGrid
+            products={products.slice(0, 8)}
+            currency={currency}
+            variant="minimal"
+          />
         </section>
       ))}
     </>

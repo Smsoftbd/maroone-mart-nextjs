@@ -32,6 +32,8 @@ interface SearchBoxProps {
   /** Called after a search commits — mobile uses it to close the collapsible bar. */
   onNavigate?: () => void;
   className?: string;
+  /** "minimal" = underline field for the homepage's light header. */
+  variant?: "default" | "minimal";
 }
 
 interface RawBarcode {
@@ -62,7 +64,9 @@ export function SearchBox({
   autoFocus,
   onNavigate,
   className,
+  variant = "default",
 }: SearchBoxProps) {
+  const isMinimal = variant === "minimal";
   const router = useRouter();
   const t = useT();
   const { popular, add, clear, history } = useSearchHistory();
@@ -218,15 +222,25 @@ export function SearchBox({
           placeholder={t("search", "Search")}
           autoComplete="off"
           aria-label="Search products"
-          className="w-full rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-white/40"
+          className={cn(
+            "w-full text-sm focus:outline-none",
+            isMinimal
+              ? "rounded-none border-b border-neutral-300 bg-transparent pl-0 pr-10 py-2 text-neutral-900 placeholder:text-neutral-400 placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-[11px] focus:border-neutral-900 transition-colors"
+              : "rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
+          )}
         />
         <button
           type="button"
           onClick={() => runSearch(query)}
-          className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded-full text-brand-500 hover:bg-brand-50 transition-colors"
+          className={cn(
+            "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
+            isMinimal
+              ? "right-0 h-8 w-8 text-neutral-900 hover:opacity-60"
+              : "right-1.5 h-8 w-8 rounded-full text-brand-500 hover:bg-brand-50"
+          )}
           aria-label="Search"
         >
-          <Search className="h-5 w-5" />
+          <Search className="h-5 w-5" strokeWidth={isMinimal ? 1.5 : 2} />
         </button>
       </div>
 
@@ -234,7 +248,12 @@ export function SearchBox({
         <div
           id="searchbox-listbox"
           role="listbox"
-          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-white text-gray-900 rounded-xl shadow-lg border border-[var(--color-border)]"
+          className={cn(
+            "absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-white text-gray-900 border",
+            isMinimal
+              ? "border-neutral-200 shadow-[0_24px_48px_-32px_rgba(0,0,0,0.45)]"
+              : "rounded-xl shadow-lg border-[var(--color-border)]"
+          )}
         >
           {isTyping ? (
             <>

@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
+import { FooterMinimal } from "@/components/layout/FooterMinimal";
+import { FooterSwitch } from "@/components/layout/FooterSwitch";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingCart } from "@/components/cart/FloatingCart";
@@ -38,7 +40,10 @@ export default async function StoreLayout({
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer store={store} pages={pages} />
+      <FooterSwitch
+        home={<FooterMinimal store={store} pages={pages} />}
+        standard={<Footer store={store} pages={pages} />}
+      />
       {store.scripts.footer && (
         <script dangerouslySetInnerHTML={{ __html: store.scripts.footer }} />
       )}

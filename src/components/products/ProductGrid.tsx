@@ -1,16 +1,18 @@
-import { ProductCard } from "./ProductCard";
+import { ProductCard, type ProductCardVariant } from "./ProductCard";
 import type { Product } from "@/lib/api/types";
 
 interface ProductGridProps {
   products: Product[];
   currency: string;
   showWishlist?: boolean;
+  variant?: ProductCardVariant;
 }
 
 export function ProductGrid({
   products,
   currency,
   showWishlist = true,
+  variant = "default",
 }: ProductGridProps) {
   if (products.length === 0) {
     return (
@@ -21,13 +23,20 @@ export function ProductGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
+    <div
+      className={
+        variant === "minimal"
+          ? "grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4"
+          : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+      }
+    >
       {products.map((product) => (
         <ProductCard
           key={product.id}
           product={product}
           currency={currency}
           showWishlist={showWishlist}
+          variant={variant}
         />
       ))}
     </div>

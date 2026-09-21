@@ -34,11 +34,13 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
         {/* Product rail */}
         <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
           {sale.products.map((product) => (
-            <div key={product.id} className="shrink-0 w-48">
+            // White panel keeps the chrome-less minimal card legible on the brand ground
+            <div key={product.id} className="shrink-0 w-48 bg-white p-3">
               <ProductCard
                 product={product}
                 currency={currency}
                 showWishlist={false}
+                variant="minimal"
               />
             </div>
           ))}

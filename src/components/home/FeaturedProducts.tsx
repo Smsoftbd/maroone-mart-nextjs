@@ -24,7 +24,11 @@ async function ProductSection({ title, viewAllHref, products, currency }: Sectio
           {t("view_all", "View All")} →
         </Link>
       </div>
-      <ProductCarousel products={products.slice(0, 12)} currency={currency} />
+      <ProductCarousel
+        products={products.slice(0, 12)}
+        currency={currency}
+        variant="minimal"
+      />
     </section>
   );
 }

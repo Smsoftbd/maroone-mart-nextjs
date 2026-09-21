@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { ProductCard } from "./ProductCard";
+import { ProductCard, type ProductCardVariant } from "./ProductCard";
 import type { Product } from "@/lib/api/types";
 
 import "swiper/css";
@@ -13,16 +13,25 @@ import "swiper/css/navigation";
 interface ProductCarouselProps {
   products: Product[];
   currency: string;
+  variant?: ProductCardVariant;
 }
 
-export function ProductCarousel({ products, currency }: ProductCarouselProps) {
+export function ProductCarousel({
+  products,
+  currency,
+  variant = "default",
+}: ProductCarouselProps) {
   const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
   const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
 
   if (!products.length) return null;
 
   return (
-    <div className="sm:shadow-lg sm:bg-white rounded-xl sm:p-6">
+    <div
+      className={
+        variant === "minimal" ? "" : "sm:shadow-lg sm:bg-white rounded-xl sm:p-6"
+      }
+    >
       <div className="relative">
         <Swiper
           modules={[Navigation]}
@@ -39,7 +48,7 @@ export function ProductCarousel({ products, currency }: ProductCarouselProps) {
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="!h-auto">
-              <ProductCard product={product} currency={currency} />
+              <ProductCard product={product} currency={currency} variant={variant} />
             </SwiperSlide>
           ))}
         </Swiper>
