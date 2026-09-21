@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
+import { DeferredPurchase } from "@/components/analytics/DeferredPurchase";
 
 export const metadata: Metadata = {
   title: "Payment Result",
@@ -25,6 +26,7 @@ export default async function PaymentResultPage({ searchParams }: PageProps) {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-16 text-center">
+      {isSuccess && order_id && <DeferredPurchase orderId={order_id} />}
       <div className="mb-6 flex justify-center">
         {isSuccess ? (
           <div className="bg-green-100 rounded-full p-4">

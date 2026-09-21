@@ -1,27 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { X } from "lucide-react";
 
 interface AnnouncementBarProps {
   message?: string;
 }
 
-export function AnnouncementBar({ message }: AnnouncementBarProps) {
-  const [visible, setVisible] = useState(true);
+const noopSubscribe = () => () => {};
 
-  useEffect(() => {
-    if (sessionStorage.getItem("announcement-dismissed")) {
-      setVisible(false);
-    }
-  }, []);
+export function AnnouncementBar({ message }: AnnouncementBarProps) {
+  const [dismissed, setDismissed] = useState(false);
+  // Read once on the client; SSR/hydration renders the bar.
+  const dismissedEarlier = useSyncExternalStore(
+    noopSubscribe,
+    () => sessionStorage.getItem("announcement-dismissed") === "1",
+    () => false
+  );
 
   const dismiss = () => {
-    setVisible(false);
+    setDismissed(true);
     sessionStorage.setItem("announcement-dismissed", "1");
   };
 
-  if (!visible || !message) return null;
+  if (dismissed || dismissedEarlier || !message) return null;
 
   return (
     <div className="bg-brand-500 text-[var(--color-primary-text)] text-sm py-2 px-4 text-center relative">

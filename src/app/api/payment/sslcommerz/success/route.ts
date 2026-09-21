@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { confirmPayment, verifyPayment } from "@/lib/api/orders";
 import { getGatewayCredentials, type SslCreds } from "@/lib/api/payments";
+import { trackPaidPurchase } from "@/lib/analytics/server-purchase";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SSLCommerzPayment = require("sslcommerz-lts");
 
@@ -32,7 +33,10 @@ export async function POST(req: NextRequest) {
         ...(orderId ? { order_id: orderId } : {}),
         ...(data.tran_id ? { tran_id: data.tran_id } : {}),
       });
-      return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url));
+      const res = NextResponse.redirect(new URL(`/payment/result?${params}`, req.url));
+      // Paid — now the order counts as a Purchase.
+      if (orderId) trackPaidPurchase(req, res, Number(orderId), Number(data.amount));
+      return res;
     }
 
     const params = new URLSearchParams({

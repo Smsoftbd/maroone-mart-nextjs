@@ -24,7 +24,9 @@ import { useT } from "@/lib/i18n/I18nProvider";
 import type { DeliveryCharge, PaymentMethod } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
 import { isBdPhone, isBangladesh } from "@/lib/utils/phone";
-import { metaEvents, setMetaUserData, type MetaItem } from "@/lib/analytics/meta";
+import type { MetaItem } from "@/lib/analytics/meta";
+import { deferPurchase, setTrackingUserData, track } from "@/lib/analytics/track";
+import { isOnlinePaymentGateway } from "@/lib/analytics/purchase-shared";
 import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
 function makeSchema(country: string) {
@@ -122,7 +124,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   useEffect(() => {
     if (checkoutTracked.current || items.length === 0) return;
     checkoutTracked.current = true;
-    metaEvents.initiateCheckout(metaItems(), subTotal);
+    track.initiateCheckout(metaItems(), subTotal);
   }, [items.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const [paymentInfoTracked, setPaymentInfoTracked] = useState(false);
 
@@ -193,6 +195,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
           tracking: {
             external_id: customer?.id ? String(customer.id) : undefined,
             event_source_url: window.location.href,
+            payment_gateway: paymentMethod.code,
           },
         }),
       });
@@ -213,15 +216,16 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         return;
       }
 
-      // Browser half of Purchase; /api/orders already sent the CAPI copy with the same event id.
-      metaEvents.purchase(
+      const gateway = paymentMethod.code;
+
+      // Browser half of Purchase (server half shares the event id). Gateway
+      // orders only count once paid — fired from /payment/result instead.
+      (isOnlinePaymentGateway(gateway) ? deferPurchase : track.purchase)(
         metaItems(),
         Number(result.order.net_total) || total,
         result.order.id,
         result.order.invoice_number
       );
-
-      const gateway = paymentMethod.code;
 
       if (gateway === "sslcommerz") {
         const payRes = await fetch("/api/payment/sslcommerz/init", {
@@ -244,7 +248,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         const payData = await payRes.json();
         if (payData.gateway_url) {
           await clearCart(token);
-          window.location.href = payData.gateway_url;
+          window.location.assign(payData.gateway_url);
           return;
         }
         appToast.apiError(payData.error || "Could not initiate payment. Please try again.");
@@ -265,7 +269,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         const payData = await payRes.json();
         if (payData.bkash_url) {
           await clearCart(token);
-          window.location.href = payData.bkash_url;
+          window.location.assign(payData.bkash_url);
           return;
         }
         appToast.apiError(payData.error || "Could not initiate bKash payment.");
@@ -294,7 +298,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
       return;
     }
     const phone = data.phone.trim();
-    setMetaUserData(
+    setTrackingUserData(
       buildMetaUserData({
         name: data.name,
         email: data.email,
@@ -307,7 +311,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
     );
     if (!paymentInfoTracked) {
       setPaymentInfoTracked(true);
-      metaEvents.addPaymentInfo(metaItems(), total);
+      track.addPaymentInfo(metaItems(), total);
     }
     // Gate on a modal only when the store requires it and this phone isn't verified yet.
     if (requiresCheckoutOtp && verifiedPhone !== phone) {

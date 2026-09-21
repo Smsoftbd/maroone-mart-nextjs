@@ -8,7 +8,7 @@ import { MapPin, Phone, Mail } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { appToast } from "@/lib/utils/toast";
-import { metaEvents, setMetaUserData } from "@/lib/analytics/meta";
+import { setTrackingUserData, track } from "@/lib/analytics/track";
 import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 import { useT } from "@/lib/i18n/I18nProvider";
 
@@ -39,8 +39,8 @@ export default function ContactPage() {
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error();
-      setMetaUserData(buildMetaUserData(data));
-      metaEvents.contact();
+      setTrackingUserData(buildMetaUserData(data));
+      track.contact();
       setSuccess(true);
       reset();
     } catch {

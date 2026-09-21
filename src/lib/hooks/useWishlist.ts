@@ -8,7 +8,8 @@ import {
   removeFromWishlist,
 } from "@/lib/api/customer";
 import { appToast } from "@/lib/utils/toast";
-import { metaEvents, type MetaItem } from "@/lib/analytics/meta";
+import type { MetaItem } from "@/lib/analytics/meta";
+import { track } from "@/lib/analytics/track";
 import type { WishlistItem } from "@/lib/api/types";
 
 export function useWishlist() {
@@ -50,7 +51,7 @@ export function useWishlist() {
         const res = await addToWishlist(token, productSlug);
         setItems((prev) => [...prev, res.data]);
         appToast.wishlistAdded();
-        if (metaItem) metaEvents.addToWishlist(metaItem);
+        if (metaItem) track.addToWishlist(metaItem);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

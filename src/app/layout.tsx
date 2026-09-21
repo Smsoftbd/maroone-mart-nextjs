@@ -8,6 +8,8 @@ import { getStore } from "@/lib/api/store";
 import { buildColorStyleBlock } from "@/lib/utils/colors";
 import { getLocale, isRtl } from "@/lib/i18n/locale";
 import { MetaPixelBody, MetaPixelHead, isValidPixelId } from "@/components/analytics/MetaPixel";
+import { GtmBody, GtmHead } from "@/components/analytics/Gtm";
+import { getGtmConfig, stripGtmSnippet } from "@/lib/analytics/gtm-config";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -46,6 +48,8 @@ export default async function RootLayout({
   const [store, locale] = await Promise.all([getStore(), getLocale()]);
   const colorStyle = buildColorStyleBlock(store.colors);
   const pixelId = isValidPixelId(store.tracking.fb_pixel_id) ? store.tracking.fb_pixel_id : null;
+  const gtm = getGtmConfig();
+  const headerScript = stripGtmSnippet(store.scripts.header, gtm?.id);
 
   return (
     <html
@@ -55,10 +59,9 @@ export default async function RootLayout({
     >
       <head>
         <style dangerouslySetInnerHTML={{ __html: colorStyle }} />
+        {gtm && <GtmHead config={gtm} />}
         {pixelId && <MetaPixelHead pixelId={pixelId} />}
-        {store.scripts.header && (
-          <script dangerouslySetInnerHTML={{ __html: store.scripts.header }} />
-        )}
+        {headerScript && <script dangerouslySetInnerHTML={{ __html: headerScript }} />}
       </head>
       <body suppressHydrationWarning className="min-h-full font-body text-[var(--color-text-primary)] bg-[var(--color-surface-0)]">
         <a
@@ -67,6 +70,7 @@ export default async function RootLayout({
         >
           Skip to content
         </a>
+        {gtm && <GtmBody config={gtm} />}
         <AuthInitializer />
         {pixelId && <MetaPixelBody pixelId={pixelId} />}
         <StoreConfigProvider

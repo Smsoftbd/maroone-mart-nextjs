@@ -36,6 +36,9 @@ function loadUserData(): MetaUserData {
   return userData;
 }
 
+/** Current normalized (unhashed) match keys; also feeds GTM enhanced conversions. */
+export const getMetaUserData = (): MetaUserData => ({ ...loadUserData() });
+
 /** Merge newly learned customer info (login, checkout form, …) into the match keys. */
 export function setMetaUserData(next: MetaUserData) {
   const merged = { ...loadUserData(), ...next };

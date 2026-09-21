@@ -13,6 +13,7 @@ import { getCategories } from "@/lib/api/products";
 import { getPages } from "@/lib/api/content";
 import { getLocale } from "@/lib/i18n/locale";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
+import { getGtmConfig, stripGtmSnippet } from "@/lib/analytics/gtm-config";
 
 export default async function StoreLayout({
   children,
@@ -26,6 +27,7 @@ export default async function StoreLayout({
     getPages(),
     getTranslations(locale),
   ]);
+  const footerScript = stripGtmSnippet(store.scripts.footer, getGtmConfig()?.id);
 
   return (
     <I18nProvider locale={locale} dict={dict}>
@@ -44,9 +46,7 @@ export default async function StoreLayout({
         home={<FooterMinimal store={store} pages={pages} />}
         standard={<Footer store={store} pages={pages} />}
       />
-      {store.scripts.footer && (
-        <script dangerouslySetInnerHTML={{ __html: store.scripts.footer }} />
-      )}
+      {footerScript && <script dangerouslySetInnerHTML={{ __html: footerScript }} />}
     </I18nProvider>
   );
 }

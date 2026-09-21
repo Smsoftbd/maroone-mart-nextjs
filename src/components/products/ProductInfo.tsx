@@ -20,7 +20,7 @@ import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { useT } from "@/lib/i18n/I18nProvider";
-import { metaEvents } from "@/lib/analytics/meta";
+import { track } from "@/lib/analytics/track";
 import type { Product, Barcode } from "@/lib/api/types";
 
 interface ProductInfoProps {
@@ -77,7 +77,7 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
   }, [showSticky]);
 
   useEffect(() => {
-    metaEvents.viewContent({
+    track.viewContent({
       id: selectedBarcode?.id ?? product.id,
       name: product.name,
       price,

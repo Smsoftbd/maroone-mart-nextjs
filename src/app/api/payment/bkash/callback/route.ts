@@ -3,6 +3,7 @@ import { confirmPayment } from "@/lib/api/orders";
 import { generateGrantToken } from "../helpers/grant-token";
 import { getAuthHeaders, getBkashBaseUrl } from "../helpers/bkash-headers";
 import { getGatewayCredentials, type BkashCreds } from "@/lib/api/payments";
+import { trackPaidPurchase } from "@/lib/analytics/server-purchase";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -48,7 +49,10 @@ export async function GET(req: NextRequest) {
         ...(orderId ? { order_id: orderId } : {}),
         ...(result.trxID ? { tran_id: result.trxID } : {}),
       });
-      return NextResponse.redirect(new URL(`/payment/result?${successParams}`, req.url));
+      const res = NextResponse.redirect(new URL(`/payment/result?${successParams}`, req.url));
+      // Paid — now the order counts as a Purchase.
+      if (orderId) trackPaidPurchase(req, res, Number(orderId), Number(result.amount));
+      return res;
     }
 
     return NextResponse.redirect(failUrl);
