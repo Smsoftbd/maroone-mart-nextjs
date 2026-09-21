@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/format";
 import { useT } from "@/lib/i18n/I18nProvider";
@@ -23,20 +23,27 @@ export function CartSummary({
   const t = useT();
 
   return (
-    <div className="w-full p-4 bg-surface-50 border-t border-[var(--color-border)] flex gap-6 justify-between items-center">
-      <div className="text-center shrink-0">
-        <p className="text-[var(--color-text-secondary)]">{t("total", "Total")}:</p>
-        <h3 className="text-[var(--color-text-primary)] font-bold text-lg">
+    <div className="w-full p-4 bg-surface-50 border-t border-[var(--color-border)] space-y-3">
+      <div className="flex items-baseline justify-between">
+        <p className="text-sm text-[var(--color-text-secondary)]">
+          {t("subtotal", "Subtotal")} ({totalItems}{" "}
+          {totalItems === 1 ? t("item", "item") : t("items", "items")})
+        </p>
+        <p className="text-xl font-bold text-[var(--color-text-primary)] tabular-nums">
           {formatPrice(subTotal, currency)}
-        </h3>
+        </p>
       </div>
+      <p className="text-xs text-[var(--color-text-muted)]">
+        {t("shipping_at_checkout", "Shipping calculated at checkout.")}
+      </p>
+
       <Link
         href="/checkout"
         onClick={disabled ? undefined : onClose}
         aria-disabled={disabled}
         className={cn(
-          "py-3 px-3 md:px-6 w-full md:w-[276px] text-center active:scale-95 rounded-lg",
-          "inline-flex items-center justify-center gap-2 font-medium",
+          "w-full py-3 px-6 rounded-lg active:scale-[0.98]",
+          "inline-flex items-center justify-center gap-2 font-semibold",
           "bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 transition-colors",
           disabled && "opacity-50 pointer-events-none"
         )}
@@ -44,6 +51,20 @@ export function CartSummary({
         <span>{t("checkout_now", "Checkout now")}</span>
         <ArrowRight className="h-5 w-5" />
       </Link>
+
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="w-full py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-brand-500 transition-colors"
+        >
+          {t("continue_shopping", "Continue shopping")}
+        </button>
+      )}
+
+      <p className="flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-muted)]">
+        <ShieldCheck className="h-3.5 w-3.5" />
+        {t("secure_checkout", "Secure checkout")}
+      </p>
     </div>
   );
 }

@@ -64,7 +64,9 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
       router.push(href);
       return;
     }
-    await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock);
+    await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock, undefined, {
+      openDrawer: false,
+    });
     router.push("/checkout");
   };
 

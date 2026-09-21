@@ -1,17 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Zap } from "lucide-react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay, Navigation, Pagination } from "swiper/modules";
+import { ArrowRight, ChevronLeft, ChevronRight, Zap } from "lucide-react";
 import { Countdown } from "@/components/ui/Countdown";
 import { ProductCard } from "@/components/products/ProductCard";
 import type { FlashSale } from "@/lib/api/types";
+
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
 
 interface FlashSaleBannerProps {
   sales: FlashSale[];
   currency: string;
 }
 
+const navBtn =
+  "hidden md:flex absolute top-1/2 -translate-y-1/2 z-10 h-10 w-10 items-center justify-center rounded-full bg-white shadow-lg text-slate-700 transition-opacity hover:opacity-90 disabled:opacity-0";
+
 export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
+  const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
+  const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
+  const [paginationEl, setPaginationEl] = useState<HTMLDivElement | null>(null);
+
   const sale = sales[0];
   if (!sale) return null;
 
@@ -37,28 +51,60 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
           </div>
         </div>
 
-        {/* Product rail */}
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-          {sale.products.map((product) => (
-            // White panel keeps the chrome-less minimal card legible on the brand ground
-            <div key={product.id} className="shrink-0 w-48 bg-white p-3">
-              <ProductCard
-                product={product}
-                currency={currency}
-                showWishlist={false}
-                variant="minimal"
-              />
-            </div>
-          ))}
-          <div className="shrink-0 flex items-center px-4">
-            <Link
-              href="/flash-sale"
-              className="text-white border-2 border-white/50 hover:border-white px-6 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
-            >
-              View All →
-            </Link>
-          </div>
+        <div className="relative">
+          <Swiper
+            modules={[Autoplay, Navigation, Pagination]}
+            spaceBetween={16}
+            grabCursor
+            watchOverflow
+            rewind
+            autoplay={{ delay: 3500, disableOnInteraction: false, pauseOnMouseEnter: true }}
+            navigation={{ prevEl, nextEl }}
+            pagination={{ el: paginationEl, clickable: true }}
+            breakpoints={{
+              0: { slidesPerView: 2.2, slidesPerGroup: 2 },
+              640: { slidesPerView: 3.2, slidesPerGroup: 3 },
+              768: { slidesPerView: 4, slidesPerGroup: 4 },
+              1024: { slidesPerView: 5, slidesPerGroup: 5 },
+              1280: { slidesPerView: 6, slidesPerGroup: 6 },
+            }}
+            className="deals-carousel"
+          >
+            {sale.products.map((product) => (
+              <SwiperSlide key={product.id} className="!h-auto">
+                {/* White panel keeps the chrome-less minimal card legible on the brand ground */}
+                <div className="h-full bg-white p-3 rounded-lg">
+                  <ProductCard
+                    product={product}
+                    currency={currency}
+                    showWishlist={false}
+                    variant="minimal"
+                  />
+                </div>
+              </SwiperSlide>
+            ))}
+            <SwiperSlide className="!h-auto">
+              <Link
+                href="/flash-sale"
+                className="h-full min-h-48 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-white/50 hover:border-white hover:bg-white/10 text-white text-sm font-medium transition-colors"
+              >
+                <span className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center">
+                  <ArrowRight className="h-6 w-6" />
+                </span>
+                View all deals
+              </Link>
+            </SwiperSlide>
+          </Swiper>
+
+          <button ref={setPrevEl} aria-label="Previous deals" className={`${navBtn} -left-5`}>
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button ref={setNextEl} aria-label="Next deals" className={`${navBtn} -right-5`}>
+            <ChevronRight className="h-5 w-5" />
+          </button>
         </div>
+
+        <div ref={setPaginationEl} className="deals-pagination mt-5 flex justify-center" />
       </div>
     </section>
   );

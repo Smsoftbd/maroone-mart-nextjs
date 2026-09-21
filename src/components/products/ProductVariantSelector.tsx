@@ -60,61 +60,78 @@ export function ProductVariantSelector({
   };
 
   return (
-    <div className="product-size space-y-4">
-      {attributeGroups.map(({ name, entries }) => (
-        <div key={name}>
-          <h4 className="text-slate-900 text-sm lg:text-base font-normal">
-            Select {name}:
-          </h4>
-          <div className="flex gap-2 lg:gap-3 flex-wrap mt-2 lg:mt-3">
-            {entries.map(({ value, code, label }) => {
-              const oos = isOutOfStock(name, value);
-              const active = selected[name] === value;
+    <div className="product-size space-y-5">
+      {attributeGroups.map(({ name, entries }) => {
+        const current = entries.find((e) => e.value === selected[name]);
+        return (
+          <div key={name}>
+            <p className="text-sm text-[var(--color-text-secondary)]">
+              <span className="capitalize">{name}</span>
+              {current ? (
+                <span className="ml-1.5 font-medium text-[var(--color-text-primary)]">
+                  {current.label}
+                </span>
+              ) : (
+                <span className="ml-1.5 text-[var(--color-text-muted)]">— select</span>
+              )}
+            </p>
+            <div className="flex gap-2 flex-wrap mt-2.5">
+              {entries.map(({ value, code, label }) => {
+                const oos = isOutOfStock(name, value);
+                const active = selected[name] === value;
 
-              if (isHexColor(code)) {
+                if (isHexColor(code)) {
+                  return (
+                    <button
+                      key={value}
+                      title={oos ? `${label} (out of stock)` : label}
+                      onClick={() => !oos && handleSelect(name, value)}
+                      disabled={oos}
+                      className={cn(
+                        "relative h-9 w-9 rounded-full p-0.5 ring-1 transition-all",
+                        active
+                          ? "ring-2 ring-[var(--color-text-primary)]"
+                          : "ring-[var(--color-border-dark)] hover:ring-[var(--color-text-secondary)]",
+                        oos && "opacity-40 cursor-not-allowed"
+                      )}
+                      aria-pressed={active}
+                      aria-label={label}
+                    >
+                      <span
+                        className="block h-full w-full rounded-full border border-black/10"
+                        style={{ backgroundColor: code }}
+                      />
+                      {oos && (
+                        <span className="absolute inset-0 m-auto h-px w-full rotate-45 bg-[var(--color-text-secondary)]" />
+                      )}
+                    </button>
+                  );
+                }
+
                 return (
                   <button
                     key={value}
-                    title={label}
                     onClick={() => !oos && handleSelect(name, value)}
                     disabled={oos}
-                    style={{ backgroundColor: code }}
                     className={cn(
-                      "w-9 h-9 rounded-full border-2 transition-all",
+                      "min-w-12 h-10 px-4 rounded-full border text-sm transition-colors",
                       active
-                        ? "border-brand-500 scale-110 ring-2 ring-brand-200"
-                        : "border-transparent hover:border-brand-300",
-                      oos && "opacity-40 cursor-not-allowed"
+                        ? "border-[var(--color-text-primary)] bg-[var(--color-text-primary)] text-[var(--color-surface-0)] font-medium"
+                        : "border-[var(--color-border-dark)] text-[var(--color-text-primary)] hover:border-[var(--color-text-primary)]",
+                      oos &&
+                        "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)] hover:border-[var(--color-border-dark)]"
                     )}
                     aria-pressed={active}
-                    aria-label={label}
-                  />
+                    aria-disabled={oos}
+                  >
+                    {label}
+                  </button>
                 );
-              }
-
-              return (
-                <button
-                  key={value}
-                  onClick={() => !oos && handleSelect(name, value)}
-                  disabled={oos}
-                  className={cn(
-                    "py-2 lg:py-3 px-4 rounded-lg border text-sm lg:text-base cursor-pointer transition-colors",
-                    active
-                      ? "border-brand-500 bg-brand-50 text-brand-600 font-medium"
-                      : "border-slate-300 text-slate-700 hover:border-brand-300",
-                    oos &&
-                      "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)]"
-                  )}
-                  aria-pressed={active}
-                  aria-disabled={oos}
-                >
-                  {label}
-                </button>
-              );
-            })}
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

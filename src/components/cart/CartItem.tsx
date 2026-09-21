@@ -1,127 +1,162 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, X } from "lucide-react";
+import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { formatPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
+import { useT } from "@/lib/i18n/I18nProvider";
 import type { CartItem as CartItemType } from "@/lib/api/types";
 
 interface CartItemProps {
   item: CartItemType;
   currency: string;
+  onNavigate?: () => void;
 }
 
-export function CartItem({ item, currency }: CartItemProps) {
+const LOW_STOCK_THRESHOLD = 5;
+
+export function CartItem({ item, currency, onNavigate }: CartItemProps) {
   const { updateItem, removeItem } = useCart();
   const priceOverrides = useCartStore((s) => s.priceOverrides);
   const stockOverrides = useCartStore((s) => s.stockOverrides);
   const attributeOverrides = useCartStore((s) => s.attributeOverrides);
   const attributes = attributeOverrides[item.barcode_id] ?? [];
+  const t = useT();
+  const [pending, setPending] = useState(false);
 
   const productName = item.product_name;
-  const productSlug = item.product_slug;
+  const productHref = `/products/${item.product_slug}`;
   const productImage = item.product_image || null;
   const unitPrice = item.unit_price || priceOverrides[item.barcode_id] || 0;
+  const lineTotal = unitPrice * item.quantity;
   const maxQty = stockOverrides[item.barcode_id] ?? Infinity;
   const atMin = item.quantity <= 1;
   const atMax = item.quantity >= maxQty;
+  const lowStock = Number.isFinite(maxQty) && maxQty <= LOW_STOCK_THRESHOLD;
+
+  const run = async (action: () => Promise<void>) => {
+    if (pending) return;
+    setPending(true);
+    try {
+      await action();
+    } finally {
+      setPending(false);
+    }
+  };
+
+  const decrease = () =>
+    run(() => (atMin ? removeItem(item.id) : updateItem(item.id, item.quantity - 1)));
+  const increase = () => !atMax && run(() => updateItem(item.id, item.quantity + 1));
+  const remove = () => run(() => removeItem(item.id));
+
+  const stepperBtn =
+    "w-9 h-9 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 disabled:hover:bg-transparent";
 
   return (
-    <div className="relative cart-card p-4 border-b border-[var(--color-border)] mb-3">
-      {/* Remove */}
-      <button
-        onClick={() => removeItem(item.id)}
-        aria-label="Remove item"
-        className="absolute right-2 top-2 p-1 text-brand-500 hover:opacity-70 transition-opacity"
-      >
-        <X className="h-5 w-5" />
-      </button>
+    <div
+      className={cn(
+        "cart-card flex gap-3 py-4 border-b border-[var(--color-border)] last:border-b-0 transition-opacity",
+        pending && "opacity-60"
+      )}
+    >
+      <Link href={productHref} onClick={onNavigate} className="shrink-0">
+        {productImage ? (
+          <Image
+            src={productImage}
+            alt={productName}
+            width={88}
+            height={88}
+            className="h-[88px] w-[88px] object-cover rounded-lg border border-[var(--color-border)]"
+          />
+        ) : (
+          <div className="h-[88px] w-[88px] rounded-lg border border-[var(--color-border)] bg-surface-100 flex items-center justify-center text-xs text-[var(--color-text-muted)]">
+            {t("no_image", "No image")}
+          </div>
+        )}
+      </Link>
 
-      <div className="flex gap-3">
-        <Link href={`/products/${productSlug}`} className="shrink-0">
-          {productImage ? (
-            <Image
-              src={productImage}
-              alt={productName}
-              width={80}
-              height={80}
-              className="h-20 w-20 object-cover rounded"
-            />
-          ) : (
-            <div className="h-20 w-20 rounded border border-[var(--color-border)] bg-surface-100 flex items-center justify-center text-xs text-[var(--color-text-muted)]">
-              No image
-            </div>
-          )}
-        </Link>
-
-        <div className="flex flex-col justify-between min-w-0 pr-6">
+      <div className="flex flex-col flex-1 min-w-0 gap-1.5">
+        <div className="flex items-start justify-between gap-2">
           <Link
-            href={`/products/${productSlug}`}
-            className="product-title text-base font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-500 transition-colors"
+            href={productHref}
+            onClick={onNavigate}
+            className="product-title text-sm font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-500 transition-colors"
           >
             {productName}
           </Link>
-          <div className="flex gap-3 items-center mt-1">
-            <h3 className="text-xl text-[var(--color-text-primary)]">
-              {formatPrice(unitPrice, currency)}
-            </h3>
+          <p className="shrink-0 font-bold text-[var(--color-text-primary)] tabular-nums">
+            {formatPrice(lineTotal, currency)}
+          </p>
+        </div>
+
+        {attributes.length > 0 && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {attributes.map((attr) => {
+              const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
+              return (
+                <span
+                  key={attr.name}
+                  className="inline-flex items-center gap-1.5 px-2 h-6 text-xs border border-[var(--color-border)] rounded-md text-[var(--color-text-secondary)]"
+                >
+                  {isColor && (
+                    <span
+                      style={{ backgroundColor: attr.value_code }}
+                      className="inline-block w-3.5 h-3.5 rounded-full border border-black/10"
+                    />
+                  )}
+                  {attr.name}: {attr.value}
+                </span>
+              );
+            })}
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Variant pills + quantity */}
-      <div className="flex items-center justify-between text-sm mt-4">
-        <div className="flex items-center gap-2 flex-wrap">
-          {attributes.map((attr) => {
-            const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
-            return isColor ? (
-              <span
-                key={attr.name}
-                title={`${attr.name}: ${attr.value}`}
-                style={{ backgroundColor: attr.value_code }}
-                className="inline-block w-6 h-6 rounded-full border border-black/10"
-              />
-            ) : (
-              <span
-                key={attr.name}
-                className="px-2 py-[1px] text-sm h-6 inline-flex items-center border border-[var(--color-border)] rounded-md text-[var(--color-text-primary)]"
-              >
-                {attr.name}: {attr.value}
-              </span>
-            );
-          })}
-        </div>
+        <p className="text-xs text-[var(--color-text-secondary)] tabular-nums">
+          {formatPrice(unitPrice, currency)} {t("each", "each")}
+          {lowStock && (
+            <span className="ml-2 font-medium text-amber-600">
+              {atMax
+                ? t("max_stock_reached", "Max available")
+                : `${t("only", "Only")} ${maxQty} ${t("left", "left")}`}
+            </span>
+          )}
+        </p>
 
-        <div className="flex items-center gap-3 text-[var(--color-text-primary)]">
+        <div className="flex items-center justify-between mt-auto pt-1">
+          <div className="inline-flex items-center border border-[var(--color-border)] rounded-lg overflow-hidden text-[var(--color-text-primary)]">
+            <button
+              onClick={decrease}
+              disabled={pending}
+              aria-label={atMin ? t("remove_item", "Remove item") : t("decrease_qty", "Decrease quantity")}
+              className={cn(stepperBtn, atMin && "text-red-500 hover:bg-red-50")}
+            >
+              {atMin ? <Trash2 className="h-4 w-4" /> : <Minus className="h-4 w-4" strokeWidth={2} />}
+            </button>
+            <span className="w-9 text-center font-semibold tabular-nums" aria-live="polite">
+              {pending ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : item.quantity}
+            </span>
+            <button
+              onClick={increase}
+              disabled={pending || atMax}
+              aria-label={t("increase_qty", "Increase quantity")}
+              title={atMax ? t("max_stock_reached", "Max available") : undefined}
+              className={stepperBtn}
+            >
+              <Plus className="h-4 w-4" strokeWidth={2} />
+            </button>
+          </div>
+
           <button
-            onClick={() => (atMin ? removeItem(item.id) : updateItem(item.id, item.quantity - 1))}
-            disabled={atMin}
-            aria-label="Decrease quantity"
-            className={cn(
-              "bg-transparent border rounded w-7 h-7 flex items-center justify-center transition-colors",
-              atMin
-                ? "border-[var(--color-border)] text-[var(--color-text-muted)] cursor-not-allowed"
-                : "border-brand-500 hover:bg-brand-50"
-            )}
+            onClick={remove}
+            disabled={pending}
+            className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-red-500 transition-colors disabled:opacity-50"
           >
-            <Minus className="h-4 w-4" strokeWidth={2} />
-          </button>
-          <div className="mx-1 font-bold tabular-nums">{item.quantity}</div>
-          <button
-            onClick={() => !atMax && updateItem(item.id, item.quantity + 1)}
-            disabled={atMax}
-            aria-label="Increase quantity"
-            className={cn(
-              "bg-transparent border rounded w-7 h-7 flex items-center justify-center transition-colors",
-              atMax
-                ? "border-[var(--color-border)] text-[var(--color-text-muted)] cursor-not-allowed"
-                : "border-brand-500 hover:bg-brand-50"
-            )}
-          >
-            <Plus className="h-4 w-4" strokeWidth={2} />
+            <Trash2 className="h-3.5 w-3.5" />
+            {t("remove", "Remove")}
           </button>
         </div>
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { Check, Link2 } from "lucide-react";
 import { useT } from "@/lib/i18n/I18nProvider";
 
 interface ShareButtonsProps {
@@ -27,38 +29,65 @@ const VIEWBOX: Record<string, string> = {
 
 export function ShareButtons({ url, title }: ShareButtonsProps) {
   const t = useT();
+  const [copied, setCopied] = useState(false);
   const enc = encodeURIComponent;
   const links = [
-    { label: "facebook", color: "#3b5998", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
-    { label: "twitter", color: "#00acee", href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}` },
-    { label: "email", color: "#D44638", href: `mailto:?subject=${enc(title)}&body=${enc(url)}` },
-    { label: "linkedin", color: "#0e76a8", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}` },
+    { label: "facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+    { label: "twitter", href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}` },
+    { label: "linkedin", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}` },
+    { label: "email", href: `mailto:?subject=${enc(title)}&body=${enc(url)}` },
   ];
 
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(url || window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      // clipboard unavailable
+    }
+  };
+
+  const btn =
+    "flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-primary)] hover:text-[var(--color-text-primary)] transition-colors";
+
   return (
-    <div className="flex items-center">
-      <h3 className="font-semibold whitespace-nowrap mr-2">{t("share", "Share")}:</h3>
-      <div className="flex items-center justify-start gap-2 py-3">
-        {links.map(({ label, color, href }) => (
+    <div className="flex items-center justify-between gap-4">
+      <span className="text-sm text-[var(--color-text-secondary)]">{t("share", "Share")}</span>
+      <div className="flex items-center gap-2">
+        {links.map(({ label, href }) => (
           <a
             key={label}
             href={href}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={`Share on ${label}`}
-            className="rounded-full w-[30px] h-[30px] flex justify-center items-center bg-surface-50 hover:bg-brand-50 transition-colors"
+            className={btn}
           >
             <svg
-              width="18"
-              height="18"
+              width="15"
+              height="15"
               viewBox={VIEWBOX[label]}
-              fill={color}
+              fill="currentColor"
               xmlns="http://www.w3.org/2000/svg"
             >
               <path d={ICON[label]} />
             </svg>
           </a>
         ))}
+        <button
+          type="button"
+          onClick={copy}
+          aria-label={t("copy_link", "Copy link")}
+          title={copied ? t("copied", "Copied!") : t("copy_link", "Copy link")}
+          className={btn}
+        >
+          {copied ? (
+            <Check className="h-4 w-4 text-[var(--color-success)]" />
+          ) : (
+            <Link2 className="h-4 w-4" />
+          )}
+        </button>
       </div>
     </div>
   );

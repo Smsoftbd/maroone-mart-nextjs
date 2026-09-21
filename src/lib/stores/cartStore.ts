@@ -32,7 +32,8 @@ interface CartStore {
     bearerToken?: string | null,
     unitPrice?: number,
     stock?: number,
-    attributes?: Attribute[]
+    attributes?: Attribute[],
+    openDrawer?: boolean
   ) => Promise<void>;
   updateItem: (
     cartItemId: number,
@@ -80,7 +81,7 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      addItem: async (barcodeId, quantity, bearerToken, unitPrice, stock, attributes) => {
+      addItem: async (barcodeId, quantity, bearerToken, unitPrice, stock, attributes, openDrawer = true) => {
         const { cartToken, priceOverrides, stockOverrides, attributeOverrides } = get();
         set({ isLoading: true });
         try {
@@ -112,7 +113,7 @@ export const useCartStore = create<CartStore>()(
             priceOverrides: newPriceOverrides,
             stockOverrides: newStockOverrides,
             attributeOverrides: newAttributeOverrides,
-            isOpen: true,
+            ...(openDrawer && { isOpen: true }),
           });
         } finally {
           set({ isLoading: false });

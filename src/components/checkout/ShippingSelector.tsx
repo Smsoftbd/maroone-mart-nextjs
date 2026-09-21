@@ -29,9 +29,14 @@ export function ShippingSelector({
       headers: { "X-Api-Key": PUBLIC_KEY, Accept: "application/json" },
     })
       .then((r) => r.json())
-      .then((data) => setCharges(data.data || []))
+      .then((data) => {
+        const list: DeliveryCharge[] = data.data || [];
+        setCharges(list);
+        if (list.length > 0) onChange(list[0]);
+      })
       .catch(() => {})
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {

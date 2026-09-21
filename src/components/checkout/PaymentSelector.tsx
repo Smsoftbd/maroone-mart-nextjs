@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Check, CreditCard } from "lucide-react";
+import { Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { PaymentMethod } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
+const DEFAULT_ICON = "/images/payment/default.png";
+
+// Backend sends a generic no_image placeholder when no icon is set.
+function iconFor(method: PaymentMethod) {
+  return method.icon && !method.icon.includes("no_image") ? method.icon : DEFAULT_ICON;
+}
 
 interface PaymentSelectorProps {
   value: string;
@@ -24,9 +30,14 @@ export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
       headers: { "X-Api-Key": PUBLIC_KEY, Accept: "application/json" },
     })
       .then((r) => r.json())
-      .then((data) => setMethods(data.data || []))
+      .then((data) => {
+        const list: PaymentMethod[] = data.data || [];
+        setMethods(list);
+        if (list.length === 1) onChange(list[0]);
+      })
       .catch(() => {})
       .finally(() => setIsLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) {
@@ -61,17 +72,13 @@ export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
               onChange={() => onChange(method)}
             />
             <span className="flex h-9 w-12 shrink-0 items-center justify-center rounded-lg bg-white border border-[var(--color-border)]">
-              {method.icon ? (
-                <Image
-                  src={method.icon}
-                  alt=""
-                  width={36}
-                  height={22}
-                  className="object-contain"
-                />
-              ) : (
-                <CreditCard className="h-4 w-4 text-[var(--color-text-muted)]" />
-              )}
+              <Image
+                src={iconFor(method)}
+                alt=""
+                width={36}
+                height={22}
+                className="object-contain"
+              />
             </span>
             <span className="flex-1 text-sm font-medium">{displayName}</span>
             <span

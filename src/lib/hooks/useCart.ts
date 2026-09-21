@@ -15,10 +15,11 @@ export function useCart() {
     productName?: string,
     unitPrice?: number,
     stock?: number,
-    attributes?: Attribute[]
+    attributes?: Attribute[],
+    { openDrawer = true }: { openDrawer?: boolean } = {}
   ) => {
     try {
-      await store.addItem(barcodeId, quantity, token, unitPrice, stock, attributes);
+      await store.addItem(barcodeId, quantity, token, unitPrice, stock, attributes, openDrawer);
       if (productName) appToast.addedToCart(productName);
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

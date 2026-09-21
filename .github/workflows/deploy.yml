@@ -1,45 +1,45 @@
-name: Deploy to VPS
+# name: Deploy to VPS
 
-on:
-  push:
-    branches:
-      - main
+# on:
+#   push:
+#     branches:
+#       - main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
 
-    steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            set -e
+#     steps:
+#       - name: Deploy to VPS
+#         uses: appleboy/ssh-action@v1.0.3
+#         with:
+#           host: ${{ secrets.SERVER_HOST }}
+#           username: ${{ secrets.SERVER_USER }}
+#           key: ${{ secrets.SSH_PRIVATE_KEY }}
+#           script: |
+#             set -e
 
-            APP_DIR="${{ vars.APP_DIR }}"
-            APP_BRANCH="${{ vars.APP_BRANCH }}"
-            PM2_APP_NAME="${{ vars.PM2_APP_NAME }}"
+#             APP_DIR="${{ vars.APP_DIR }}"
+#             APP_BRANCH="${{ vars.APP_BRANCH }}"
+#             PM2_APP_NAME="${{ vars.PM2_APP_NAME }}"
 
-            echo "📂 Going to app directory"
-            cd "$APP_DIR"
+#             echo "📂 Going to app directory"
+#             cd "$APP_DIR"
 
-            echo "📥 Pulling latest code"
-            git fetch origin
-            git reset --hard origin/$APP_BRANCH
+#             echo "📥 Pulling latest code"
+#             git fetch origin
+#             git reset --hard origin/$APP_BRANCH
 
-            echo "📦 Installing dependencies"
-            npm ci --omit=dev=false
+#             echo "📦 Installing dependencies"
+#             npm ci --omit=dev=false
 
-            echo "🏗️ Building application"
-            npm run build
+#             echo "🏗️ Building application"
+#             npm run build
 
-            echo "♻️ Restarting app"
-            pm2 restart "$PM2_APP_NAME" || pm2 start npm --name "$PM2_APP_NAME" -- start
+#             echo "♻️ Restarting app"
+#             pm2 restart "$PM2_APP_NAME" || pm2 start npm --name "$PM2_APP_NAME" -- start
 
-            echo "🔐 Fixing permissions"
-            chown -R www-data:www-data "$APP_DIR/.next"
+#             echo "🔐 Fixing permissions"
+#             chown -R www-data:www-data "$APP_DIR/.next"
 
-            echo "✅ Deployment completed successfully"
+#             echo "✅ Deployment completed successfully"

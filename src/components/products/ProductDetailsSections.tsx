@@ -19,88 +19,125 @@ export async function ProductDetailsSections({
 }: ProductDetailsSectionsProps) {
   const [t, locale] = await Promise.all([getServerT(), getLocale()]);
   const specs = product.specifications ?? [];
+  const hasAside = deliveryCharges.length > 0 || Boolean(store.phone);
+
+  const nav = [
+    product.description && { id: "product-description", label: t("description", "Description") },
+    specs.length > 0 && { id: "product-specifications", label: t("specifications", "Specifications") },
+    deliveryCharges.length > 0 && { id: "product-delivery", label: t("delivery", "Delivery") },
+  ].filter((x): x is { id: string; label: string } => Boolean(x));
+
+  if (nav.length === 0 && !hasAside) return null;
 
   return (
-    <div className="pt-3 lg:pt-6 pb-2 lg:pb-4 space-y-8">
-      {/* Description */}
-      {product.description && (
-        <div className="description">
-          <h4 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3">
-            {t("product_description", "Product Description")}
-          </h4>
-          <div
-            className="prose-content max-w-none"
-            dangerouslySetInnerHTML={{ __html: product.description }}
-          />
-        </div>
-      )}
-
-      {/* Specifications */}
-      {specs.length > 0 && (
-        <div id="product-specifications">
-          <h4 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3">
-            {t("specifications", "Specifications")}
-          </h4>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <tbody className="divide-y divide-[var(--color-border)]">
-                {specs.map((spec, i) => (
-                  <tr key={i}>
-                    <td className="py-3 pr-6 font-medium text-[var(--color-text-secondary)] w-40">
-                      {spec.label}
-                    </td>
-                    <td className="py-3">{spec.value}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Delivery charges */}
-      {deliveryCharges.length > 0 && (
-        <div>
-          <h4 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3 flex items-center gap-2">
-            <Truck className="h-6 w-6" /> {t("delivery_charges", "Delivery Charges")}
-          </h4>
-          <ul className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] rounded-lg overflow-hidden">
-            {deliveryCharges.map((d) => (
-              <li key={d.id} className="flex items-center justify-between px-4 py-3">
-                <span className="font-medium text-[var(--color-text-primary)]">
-                  {resolveL10n(d.zone_name, locale)}
-                </span>
-                <span className="font-semibold text-brand-500">
-                  {currency}
-                  {Number(d.charge_amount).toLocaleString("en-US")}
-                </span>
+    <section className="mt-12 lg:mt-20">
+      {/* Section nav */}
+      {nav.length > 1 && (
+        <nav className="sticky top-[3.25rem] lg:top-[7.5rem] z-10 -mx-4 px-4 sm:mx-0 sm:px-0 bg-[var(--color-surface-0)]/90 backdrop-blur border-b border-[var(--color-border)]">
+          <ul className="flex gap-6 overflow-x-auto scrollbar-none">
+            {nav.map((n) => (
+              <li key={n.id}>
+                <a
+                  href={`#${n.id}`}
+                  className="block whitespace-nowrap py-3.5 text-sm font-medium text-[var(--color-text-secondary)] border-b-2 border-transparent -mb-px hover:text-[var(--color-text-primary)] hover:border-[var(--color-text-primary)] transition-colors"
+                >
+                  {n.label}
+                </a>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
-            📌 {t("delivery_charges_note", "Delivery charges apply to all orders.")}
-          </p>
-        </div>
+        </nav>
       )}
 
-      {/* Contact */}
-      {store.phone && (
-        <div className="contact bg-amber-100 border border-amber-200 rounded-lg p-4 text-center">
-          <h5 className="text-2xl font-bold font-display text-[var(--color-text-primary)] mb-3">
-            {t("contact_for_details", "Contact for more details")}
-          </h5>
-          <p className="flex justify-center items-center gap-3">
-            <span className="text-base text-[var(--color-text-primary)]">{t("call_now", "Call now")}:</span>
-            <a
-              href={`tel:${store.phone}`}
-              className="inline-flex items-center gap-2 text-2xl font-bold font-display text-brand-500"
-            >
-              <Phone className="h-5 w-5" />
-              {store.phone}
-            </a>
-          </p>
+      <div
+        className={
+          hasAside
+            ? "mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16"
+            : "mt-8"
+        }
+      >
+        <div className="space-y-12 min-w-0">
+          {/* Description */}
+          {product.description && (
+            <div id="product-description" className="scroll-mt-32 lg:scroll-mt-48">
+              <h2 className="font-display text-xl font-semibold text-[var(--color-text-primary)] mb-4">
+                {t("product_description", "Product Description")}
+              </h2>
+              <div
+                className="prose-content max-w-3xl text-[15px] leading-relaxed text-[var(--color-text-secondary)] [&_img]:rounded-xl [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
+            </div>
+          )}
+
+          {/* Specifications */}
+          {specs.length > 0 && (
+            <div id="product-specifications" className="scroll-mt-32 lg:scroll-mt-48">
+              <h2 className="font-display text-xl font-semibold text-[var(--color-text-primary)] mb-4">
+                {t("specifications", "Specifications")}
+              </h2>
+              <dl className="max-w-3xl divide-y divide-[var(--color-border)] rounded-2xl border border-[var(--color-border)] overflow-hidden text-sm">
+                {specs.map((spec, i) => (
+                  <div key={i} className="grid grid-cols-[minmax(8rem,35%)_1fr] gap-4 px-5 py-3.5 odd:bg-surface-50">
+                    <dt className="text-[var(--color-text-secondary)]">{spec.label}</dt>
+                    <dd className="font-medium text-[var(--color-text-primary)]">{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+
+        {hasAside && (
+          <aside className="space-y-4 lg:sticky lg:top-48 lg:self-start">
+            {/* Delivery charges */}
+            {deliveryCharges.length > 0 && (
+              <div id="product-delivery" className="scroll-mt-32 lg:scroll-mt-48 rounded-2xl border border-[var(--color-border)] p-5">
+                <h2 className="flex items-center gap-2 font-semibold text-[var(--color-text-primary)]">
+                  <Truck className="h-5 w-5" strokeWidth={1.5} />
+                  {t("delivery_charges", "Delivery Charges")}
+                </h2>
+                <ul className="mt-4 space-y-2.5 text-sm">
+                  {deliveryCharges.map((d) => (
+                    <li key={d.id} className="flex items-center justify-between gap-4">
+                      <span className="text-[var(--color-text-secondary)]">
+                        {resolveL10n(d.zone_name, locale)}
+                      </span>
+                      <span className="font-semibold tabular-nums text-[var(--color-text-primary)]">
+                        {currency}
+                        {Number(d.charge_amount).toLocaleString("en-US")}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-4 pt-4 border-t border-[var(--color-border)] text-xs text-[var(--color-text-muted)]">
+                  {t("delivery_charges_note", "Delivery charges apply to all orders.")}
+                </p>
+              </div>
+            )}
+
+            {/* Contact */}
+            {store.phone && (
+              <a
+                href={`tel:${store.phone}`}
+                className="group flex items-center gap-4 rounded-2xl border border-[var(--color-border)] p-5 transition-colors hover:border-[var(--color-text-primary)]"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[var(--color-primary-text)]">
+                  <Phone className="h-5 w-5" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-xs text-[var(--color-text-secondary)]">
+                    {t("contact_for_details", "Contact for more details")}
+                  </span>
+                  <span className="block text-lg font-semibold text-[var(--color-text-primary)] tabular-nums">
+                    {store.phone}
+                  </span>
+                </span>
+              </a>
+            )}
+          </aside>
+        )}
+      </div>
+    </section>
   );
 }

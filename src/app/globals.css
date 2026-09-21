@@ -214,3 +214,65 @@ body {
     width: calc((100% - 60px) / 4);
   }
 }
+
+/* Hot Deals carousel: pre-init sizing (mirrors breakpoints in FlashSaleBanner)
+   and white pagination bullets on the brand background. */
+.deals-carousel .swiper-wrapper {
+  display: flex;
+}
+.deals-carousel .swiper-slide {
+  flex-shrink: 0;
+  width: calc((100% - 32px) / 2.2);
+  margin-right: 16px;
+}
+@media (min-width: 640px) {
+  .deals-carousel .swiper-slide { width: calc((100% - 48px) / 3.2); }
+}
+@media (min-width: 768px) {
+  .deals-carousel .swiper-slide { width: calc((100% - 48px) / 4); }
+}
+@media (min-width: 1024px) {
+  .deals-carousel .swiper-slide { width: calc((100% - 64px) / 5); }
+}
+@media (min-width: 1280px) {
+  .deals-carousel .swiper-slide { width: calc((100% - 80px) / 6); }
+}
+.deals-pagination {
+  gap: 6px;
+}
+.deals-pagination .swiper-pagination-bullet {
+  margin: 0 !important;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  opacity: 0.5;
+  transition: width 0.25s, opacity 0.25s;
+}
+.deals-pagination .swiper-pagination-bullet-active {
+  width: 24px;
+  border-radius: 9999px;
+  opacity: 1;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Lift the scroll-to-top button above the mobile sticky buy bar on product
+   pages (ProductInfo toggles the attribute). */
+body[data-sticky-cta] .scroll-to-top {
+  bottom: 5.5rem;
+}
+@media (min-width: 1024px) {
+  body[data-sticky-cta] .scroll-to-top {
+    bottom: 1.25rem;
+  }
+}
