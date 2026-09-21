@@ -85,7 +85,12 @@ export function ProductImageGallery({
 
   return (
     <div className="lg:sticky lg:top-24">
-      <div className="flex flex-col lg:grid lg:grid-cols-[66px_1fr] lg:gap-4 items-start">
+      <div
+        className={cn(
+          "flex flex-col items-start",
+          images.length > 1 && "lg:grid lg:grid-cols-[66px_1fr] lg:gap-4"
+        )}
+      >
         {/* Thumbnails */}
         {images.length > 1 && (
           <div className="order-2 lg:order-1 mt-3 lg:mt-0 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible lg:max-h-[42rem] lg:overflow-y-auto">
