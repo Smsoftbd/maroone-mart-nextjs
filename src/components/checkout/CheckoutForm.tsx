@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,6 +24,8 @@ import { useT } from "@/lib/i18n/I18nProvider";
 import type { DeliveryCharge, PaymentMethod } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
 import { isBdPhone, isBangladesh } from "@/lib/utils/phone";
+import { metaEvents, setMetaUserData, type MetaItem } from "@/lib/analytics/meta";
+import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
 function makeSchema(country: string) {
   const phone = isBangladesh(country)
@@ -107,6 +109,23 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const shippingCost = delivery ? parseFloat(delivery.charge_amount) : 0;
   const total = subTotal + shippingCost - discountAmount;
 
+  const metaItems = (): MetaItem[] =>
+    items.map((i) => ({
+      id: i.barcode_id,
+      name: i.product_name,
+      price: i.unit_price || priceOverrides[i.barcode_id] || 0,
+      quantity: i.quantity,
+    }));
+
+  // InitiateCheckout once, as soon as the (async-loaded) cart has items.
+  const checkoutTracked = useRef(false);
+  useEffect(() => {
+    if (checkoutTracked.current || items.length === 0) return;
+    checkoutTracked.current = true;
+    metaEvents.initiateCheckout(metaItems(), subTotal);
+  }, [items.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [paymentInfoTracked, setPaymentInfoTracked] = useState(false);
+
   // Store requires SMS OTP at checkout — logged-in customers are exempt.
   const requiresCheckoutOtp = checkoutOtp && !isAuthenticated;
   const [otpModalOpen, setOtpModalOpen] = useState(false);
@@ -171,6 +190,10 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
           },
           coupon_code: couponCode || undefined,
           note: data.note,
+          tracking: {
+            external_id: customer?.id ? String(customer.id) : undefined,
+            event_source_url: window.location.href,
+          },
         }),
       });
 
@@ -189,6 +212,14 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         appToast.apiError(firstMsg || result.error || result.message || "Order failed. Please review the form.");
         return;
       }
+
+      // Browser half of Purchase; /api/orders already sent the CAPI copy with the same event id.
+      metaEvents.purchase(
+        metaItems(),
+        Number(result.order.net_total) || total,
+        result.order.id,
+        result.order.invoice_number
+      );
 
       const gateway = paymentMethod.code;
 
@@ -263,6 +294,21 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
       return;
     }
     const phone = data.phone.trim();
+    setMetaUserData(
+      buildMetaUserData({
+        name: data.name,
+        email: data.email,
+        phone,
+        city: data.city,
+        state: data.state,
+        country: data.country || country,
+        id: customer?.id,
+      })
+    );
+    if (!paymentInfoTracked) {
+      setPaymentInfoTracked(true);
+      metaEvents.addPaymentInfo(metaItems(), total);
+    }
     // Gate on a modal only when the store requires it and this phone isn't verified yet.
     if (requiresCheckoutOtp && verifiedPhone !== phone) {
       setPendingData(data);

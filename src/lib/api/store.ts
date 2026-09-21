@@ -72,6 +72,13 @@ type ApiStore = {
     header: string | null;
     footer: string | null;
   };
+  tracking?: {
+    fb_pixel_id?: string | null;
+    fb_domain_verification_id?: string | null;
+    // Only returned for secret-key requests.
+    fb_access_token?: string | null;
+    fb_test_event_code?: string | null;
+  };
 };
 
 function stripHtml(html: string): string {
@@ -147,6 +154,44 @@ export async function getStore(): Promise<Store> {
       header: res.scripts?.header ?? null,
       footer: res.scripts?.footer ?? null,
     },
+    tracking: {
+      fb_pixel_id: process.env.META_PIXEL_ID || res.tracking?.fb_pixel_id || null,
+      fb_domain_verification_id: res.tracking?.fb_domain_verification_id ?? null,
+    },
+  };
+}
+
+export type MetaCapiConfig = {
+  pixelId: string;
+  accessToken: string;
+  testEventCode: string | null;
+};
+
+/**
+ * Server-side Conversions API credentials. Env vars win over the admin
+ * tracking settings; the access token is only returned for secret-key calls.
+ */
+export async function getMetaCapiConfig(): Promise<MetaCapiConfig | null> {
+  let tracking: ApiStore["tracking"];
+  try {
+    // Distinct URL keeps this secret-key response in its own fetch-cache entry,
+    // so the token can never be served to the public getStore() path.
+    const res = await apiRequest<ApiStore>("/store?scope=server", {
+      keyType: "secret",
+      revalidate: REVALIDATE.STORE,
+      tags: CACHE_TAGS.STORE,
+    });
+    tracking = res.tracking;
+  } catch {
+    tracking = undefined;
+  }
+  const pixelId = process.env.META_PIXEL_ID || tracking?.fb_pixel_id;
+  const accessToken = process.env.META_CAPI_ACCESS_TOKEN || tracking?.fb_access_token;
+  if (!pixelId || !accessToken) return null;
+  return {
+    pixelId,
+    accessToken,
+    testEventCode: process.env.META_TEST_EVENT_CODE || tracking?.fb_test_event_code || null,
   };
 }
 

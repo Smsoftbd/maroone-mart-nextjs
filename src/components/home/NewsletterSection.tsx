@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { useT } from "@/lib/i18n/I18nProvider";
+import { metaEvents, setMetaUserData } from "@/lib/analytics/meta";
+import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
 export function NewsletterSection() {
   const t = useT();
@@ -21,6 +23,8 @@ export function NewsletterSection() {
         body: JSON.stringify({ email }),
       });
       if (!res.ok) throw new Error();
+      setMetaUserData(buildMetaUserData({ email }));
+      metaEvents.lead();
       setStatus("success");
       setEmail("");
     } catch {

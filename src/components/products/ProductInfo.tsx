@@ -20,6 +20,7 @@ import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { useT } from "@/lib/i18n/I18nProvider";
+import { metaEvents } from "@/lib/analytics/meta";
 import type { Product, Barcode } from "@/lib/api/types";
 
 interface ProductInfoProps {
@@ -74,6 +75,16 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
       delete document.body.dataset.stickyCta;
     };
   }, [showSticky]);
+
+  useEffect(() => {
+    metaEvents.viewContent({
+      id: selectedBarcode?.id ?? product.id,
+      name: product.name,
+      price,
+      quantity: 1,
+      category: category?.name,
+    });
+  }, [product.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleVariantChange = (b: Barcode) => {
     setSelectedBarcode(b);
@@ -261,7 +272,15 @@ export function ProductInfo({ product, currency, shareUrl }: ProductInfoProps) {
           </button>
 
           <button
-            onClick={() => toggle(product.slug, product.id)}
+            onClick={() =>
+              toggle(product.slug, product.id, {
+                id: selectedBarcode?.id ?? product.id,
+                name: product.name,
+                price,
+                quantity: 1,
+                category: category?.name,
+              })
+            }
             aria-label={inWishlist ? t("remove_from_wishlist", "Remove from wishlist") : t("add_to_wishlist", "Add to wishlist")}
             aria-pressed={inWishlist}
             className={cn(

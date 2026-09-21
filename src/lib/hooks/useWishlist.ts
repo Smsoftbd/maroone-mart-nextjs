@@ -8,6 +8,7 @@ import {
   removeFromWishlist,
 } from "@/lib/api/customer";
 import { appToast } from "@/lib/utils/toast";
+import { metaEvents, type MetaItem } from "@/lib/analytics/meta";
 import type { WishlistItem } from "@/lib/api/types";
 
 export function useWishlist() {
@@ -33,7 +34,7 @@ export function useWishlist() {
   const isInWishlist = (productId: number) =>
     items.some((i) => i.product_id === productId);
 
-  const toggle = async (productSlug: string, productId: number) => {
+  const toggle = async (productSlug: string, productId: number, metaItem?: MetaItem) => {
     if (!token) {
       appToast.apiError("Please log in to use wishlist");
       return;
@@ -49,6 +50,7 @@ export function useWishlist() {
         const res = await addToWishlist(token, productSlug);
         setItems((prev) => [...prev, res.data]);
         appToast.wishlistAdded();
+        if (metaItem) metaEvents.addToWishlist(metaItem);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

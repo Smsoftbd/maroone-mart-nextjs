@@ -7,6 +7,7 @@ import { StoreConfigProvider } from "@/components/providers/StoreConfigProvider"
 import { getStore } from "@/lib/api/store";
 import { buildColorStyleBlock } from "@/lib/utils/colors";
 import { getLocale, isRtl } from "@/lib/i18n/locale";
+import { MetaPixelBody, MetaPixelHead, isValidPixelId } from "@/components/analytics/MetaPixel";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -31,6 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
     icons: {
       icon: store.favicon || "/favicon.ico",
     },
+    ...(store.tracking.fb_domain_verification_id && {
+      other: { "facebook-domain-verification": store.tracking.fb_domain_verification_id },
+    }),
   };
 }
 
@@ -41,6 +45,7 @@ export default async function RootLayout({
 }) {
   const [store, locale] = await Promise.all([getStore(), getLocale()]);
   const colorStyle = buildColorStyleBlock(store.colors);
+  const pixelId = isValidPixelId(store.tracking.fb_pixel_id) ? store.tracking.fb_pixel_id : null;
 
   return (
     <html
@@ -50,6 +55,7 @@ export default async function RootLayout({
     >
       <head>
         <style dangerouslySetInnerHTML={{ __html: colorStyle }} />
+        {pixelId && <MetaPixelHead pixelId={pixelId} />}
         {store.scripts.header && (
           <script dangerouslySetInnerHTML={{ __html: store.scripts.header }} />
         )}
@@ -62,6 +68,7 @@ export default async function RootLayout({
           Skip to content
         </a>
         <AuthInitializer />
+        {pixelId && <MetaPixelBody pixelId={pixelId} />}
         <StoreConfigProvider
           value={{
             authMode: store.auth_mode,

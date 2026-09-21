@@ -90,6 +90,10 @@ export interface Store {
     header: string | null;
     footer: string | null;
   };
+  tracking: {
+    fb_pixel_id: string | null;
+    fb_domain_verification_id: string | null;
+  };
 }
 
 // ─── Categories ─────────────────────────────────────────────────────────────

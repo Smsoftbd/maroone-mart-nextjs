@@ -3,6 +3,7 @@
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { appToast } from "@/lib/utils/toast";
+import { metaEvents } from "@/lib/analytics/meta";
 import type { Attribute } from "@/lib/api/types";
 
 export function useCart() {
@@ -21,6 +22,7 @@ export function useCart() {
     try {
       await store.addItem(barcodeId, quantity, token, unitPrice, stock, attributes, openDrawer);
       if (productName) appToast.addedToCart(productName);
+      metaEvents.addToCart({ id: barcodeId, name: productName, price: unitPrice ?? 0, quantity });
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;
       appToast.apiError(msg);

@@ -12,6 +12,8 @@ import {
   verifyOtp as verifyOtpApi,
 } from "@/lib/api/customer";
 import type { Customer, RegisterData, UpdateProfileData } from "@/lib/api/types";
+import { metaEvents, setMetaUserData } from "@/lib/analytics/meta";
+import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
 interface AuthStore {
   customer: Customer | null;
@@ -75,6 +77,8 @@ export const useAuthStore = create<AuthStore>()(
             customer: res.customer,
             isAuthenticated: true,
           });
+          setMetaUserData(buildMetaUserData(res.customer));
+          metaEvents.completeRegistration();
         } finally {
           set({ isLoading: false });
         }
@@ -93,6 +97,11 @@ export const useAuthStore = create<AuthStore>()(
             customer: res.customer,
             isAuthenticated: true,
           });
+          // Name is only collected on the sign-up form — that's a registration.
+          if (name) {
+            setMetaUserData(buildMetaUserData(res.customer));
+            metaEvents.completeRegistration();
+          }
         } finally {
           set({ isLoading: false });
         }
