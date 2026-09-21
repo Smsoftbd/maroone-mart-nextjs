@@ -83,24 +83,25 @@ export function ActiveFilters({
     }
     params.delete("page");
     const qs = params.toString();
-    router.push(qs ? `/products?${qs}` : "/products");
+    router.push(qs ? `/products?${qs}` : "/products", { scroll: false });
   };
 
   return (
-    <div className="mb-5 flex flex-wrap items-center gap-2">
+    <div className="mt-4 mb-6 lg:mt-0 flex flex-wrap items-center gap-2">
       {chips.map((chip) => (
         <button
           key={`${chip.key}:${chip.value}`}
           onClick={() => remove(chip)}
-          className="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-600 hover:bg-brand-100 transition-colors"
+          aria-label={`${t("remove", "Remove")} ${chip.label}`}
+          className="group inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] py-1 pl-3 pr-2 text-xs font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-text-primary)]"
         >
           {chip.label}
-          <X className="h-3 w-3" />
+          <X className="h-3 w-3 text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]" />
         </button>
       ))}
       <button
-        onClick={() => router.push("/products")}
-        className="text-xs font-medium text-[var(--color-text-muted)] hover:text-brand-600 transition-colors underline"
+        onClick={() => router.push("/products", { scroll: false })}
+        className="ml-1 text-xs font-medium text-[var(--color-text-secondary)] underline underline-offset-4 transition-colors hover:text-[var(--color-text-primary)]"
       >
         {t("clear_all", "Clear all")}
       </button>

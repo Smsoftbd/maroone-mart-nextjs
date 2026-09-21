@@ -21,29 +21,38 @@ export function FilterSection({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="border-b border-[var(--color-border)] pb-4 last:border-b-0">
+    <div className="border-b border-[var(--color-border)] py-4 last:border-b-0">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between py-1 text-left"
+        className="group flex w-full items-center justify-between text-left"
         aria-expanded={open}
       >
-        <span className="flex items-center gap-2 font-display text-sm font-semibold uppercase tracking-wide">
+        <span className="flex items-center gap-2 text-sm font-medium">
           {title}
           {activeCount > 0 && (
-            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-[11px] font-medium text-[var(--color-primary-text)]">
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] px-1.5 text-[11px] font-medium text-[var(--color-surface-0)]">
               {activeCount}
             </span>
           )}
         </span>
         <ChevronDown
           className={cn(
-            "h-4 w-4 text-[var(--color-text-muted)] transition-transform",
+            "h-4 w-4 text-[var(--color-text-muted)] transition-transform duration-200 group-hover:text-[var(--color-text-primary)]",
             open && "rotate-180"
           )}
         />
       </button>
-      {open && <div className="mt-2">{children}</div>}
+      <div
+        className={cn(
+          "grid transition-[grid-template-rows] duration-200 ease-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="pt-3">{children}</div>
+        </div>
+      </div>
     </div>
   );
 }

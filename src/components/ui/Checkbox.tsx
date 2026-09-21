@@ -22,10 +22,10 @@ export function Checkbox({ checked, onChange, label, meta, swatch, className }: 
     >
       <span
         className={cn(
-          "relative flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border transition-colors",
+          "relative flex h-4 w-4 shrink-0 items-center justify-center rounded-[4px] border transition-colors group-has-[:focus-visible]:ring-2 group-has-[:focus-visible]:ring-[var(--color-text-primary)] group-has-[:focus-visible]:ring-offset-2",
           checked
-            ? "bg-brand-500 border-brand-500 text-[var(--color-primary-text)]"
-            : "border-[var(--color-border)] group-hover:border-brand-400 bg-transparent"
+            ? "bg-[var(--color-text-primary)] border-[var(--color-text-primary)] text-[var(--color-surface-0)]"
+            : "border-[var(--color-border-dark)] group-hover:border-[var(--color-text-primary)] bg-transparent"
         )}
       >
         <input
@@ -34,7 +34,7 @@ export function Checkbox({ checked, onChange, label, meta, swatch, className }: 
           onChange={onChange}
           className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
         />
-        {checked && <Check className="h-3 w-3" strokeWidth={3} />}
+        {checked && <Check className="h-2.5 w-2.5" strokeWidth={3.5} />}
       </span>
       {swatch && (
         <span

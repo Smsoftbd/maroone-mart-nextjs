@@ -178,9 +178,9 @@ body {
   height: 16px;
   width: 16px;
   border-radius: 9999px;
-  background: var(--color-brand-500);
-  border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: var(--color-text-primary);
+  border: 3px solid var(--color-surface-0);
+  box-shadow: 0 0 0 1px var(--color-text-primary);
   cursor: pointer;
 }
 .range-thumb::-moz-range-thumb {
@@ -188,9 +188,9 @@ body {
   height: 16px;
   width: 16px;
   border-radius: 9999px;
-  background: var(--color-brand-500);
-  border: 2px solid #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: var(--color-text-primary);
+  border: 3px solid var(--color-surface-0);
+  box-shadow: 0 0 0 1px var(--color-text-primary);
   cursor: pointer;
 }
 

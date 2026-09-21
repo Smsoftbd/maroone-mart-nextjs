@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "./Button";
@@ -39,15 +40,19 @@ export function EmptyState({
           {description}
         </p>
       )}
-      {action && (
-        <Button
-          variant="primary"
-          onClick={action.onClick}
-          {...(action.href ? { as: "a", href: action.href } : {})}
-        >
-          {action.label}
-        </Button>
-      )}
+      {action &&
+        (action.href ? (
+          <Link
+            href={action.href}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+          >
+            {action.label}
+          </Link>
+        ) : (
+          <Button variant="primary" onClick={action.onClick}>
+            {action.label}
+          </Button>
+        ))}
     </div>
   );
 }

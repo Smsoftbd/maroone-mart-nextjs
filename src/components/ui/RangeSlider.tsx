@@ -54,9 +54,9 @@ export function RangeSlider({
   return (
     <div className="pt-1">
       <div className="relative h-5">
-        <div className="absolute top-1/2 h-1 w-full -translate-y-1/2 rounded-full bg-surface-100" />
+        <div className="absolute top-1/2 h-0.5 w-full -translate-y-1/2 rounded-full bg-[var(--color-border)]" />
         <div
-          className="absolute top-1/2 h-1 -translate-y-1/2 rounded-full bg-brand-500"
+          className="absolute top-1/2 h-0.5 -translate-y-1/2 rounded-full bg-[var(--color-text-primary)]"
           style={{ left: `${loPct}%`, right: `${100 - hiPct}%` }}
         />
         <input
@@ -131,7 +131,7 @@ function PriceInput({
   };
 
   return (
-    <div className="flex flex-1 items-center gap-1 rounded-lg border border-[var(--color-border)] px-2 py-1.5 focus-within:ring-2 focus-within:ring-brand-500">
+    <div className="flex flex-1 items-center gap-1 rounded-md border border-[var(--color-border)] px-2.5 py-1.5 transition-colors focus-within:border-[var(--color-text-primary)]">
       {currency && (
         <span className="text-xs text-[var(--color-text-muted)]">{currency}</span>
       )}
@@ -142,7 +142,7 @@ function PriceInput({
         onChange={(e) => setText(e.target.value)}
         onBlur={fire}
         onKeyDown={(e) => e.key === "Enter" && fire()}
-        className="w-full min-w-0 bg-transparent text-sm outline-none"
+        className="w-full min-w-0 bg-transparent text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
       />
     </div>
   );

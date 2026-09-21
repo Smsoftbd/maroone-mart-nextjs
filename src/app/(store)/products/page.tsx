@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PackageSearch } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductSort } from "@/components/products/ProductSort";
 import { Pagination } from "@/components/ui/Pagination";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { getProducts, getCategories, getBrands, getProductFilters } from "@/lib/api/products";
 import { getStore } from "@/lib/api/store";
 import { generatePageMetadata } from "@/lib/utils/metadata";
@@ -73,10 +76,35 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     ? categoryTree.find((c) => c.slug === categories[0])?.name || t("products", "Products")
     : t("all_products", "All Products");
 
+  const hasFilters =
+    categories.length > 0 ||
+    brands.length > 0 ||
+    attribute_values.length > 0 ||
+    !!price_min ||
+    !!price_max ||
+    !!search;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="font-display text-3xl font-bold mb-6">{heading}</h1>
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16 lg:pt-10">
+      <header className="mb-8 lg:mb-10">
+        <Breadcrumb
+          items={[
+            { label: t("home", "Home"), href: "/" },
+            { label: t("products", "Products"), href: "/products" },
+            ...(heading !== t("all_products", "All Products") ? [{ label: heading }] : []),
+          ]}
+        />
+        <div className="mt-4 flex items-end justify-between gap-4">
+          <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
+            {heading}
+          </h1>
+          <p className="hidden sm:block shrink-0 pb-1 text-sm text-[var(--color-text-muted)] tabular-nums">
+            {meta.total} {meta.total !== 1 ? t("products_lc", "products") : t("product_lc", "product")}
+          </p>
+        </div>
+      </header>
+
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
         <Suspense fallback={null}>
           <ProductFilters
             categories={categoryTree}
@@ -84,13 +112,24 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             filterAttributes={filters.attributes}
             priceRange={filters.price_range}
             currency={store.currency_symbol}
+            total={meta.total}
+            toolbarSlot={
+              <Suspense fallback={null}>
+                <ProductSort />
+              </Suspense>
+            }
           />
         </Suspense>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              {meta.total} {meta.total !== 1 ? t("products_lc", "products") : t("product_lc", "product")} {t("found", "found")}
+          <div className="hidden lg:flex items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4 mb-6">
+            <p className="text-sm text-[var(--color-text-secondary)] tabular-nums">
+              {t("showing", "Showing")}{" "}
+              <span className="font-medium text-[var(--color-text-primary)]">
+                {meta.total === 0 ? 0 : (meta.current_page - 1) * 24 + 1}–
+                {Math.min(meta.current_page * 24, meta.total)}
+              </span>{" "}
+              {t("of", "of")} {meta.total}
             </p>
             <Suspense fallback={null}>
               <ProductSort />
@@ -106,7 +145,25 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             />
           </Suspense>
 
-          <ProductGrid products={products} currency={store.currency_symbol} />
+          {products.length === 0 ? (
+            <EmptyState
+              icon={PackageSearch}
+              title={t("no_products_found", "No products found")}
+              description={
+                hasFilters
+                  ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
+                  : t("no_products_hint", "Check back soon — new products are on the way.")
+              }
+              action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
+              className="py-24"
+            />
+          ) : (
+            <ProductGrid
+              products={products}
+              currency={store.currency_symbol}
+              variant="minimal"
+            />
+          )}
 
           <Suspense fallback={null}>
             <Pagination
