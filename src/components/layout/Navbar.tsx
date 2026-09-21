@@ -24,6 +24,8 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Store } from "@/lib/api/types";
 
+const MINIMAL_HOME_HEADER = false;
+
 interface NavbarProps {
   store: Store;
   categories: Category[];
@@ -31,9 +33,10 @@ interface NavbarProps {
 
 export function Navbar({ store, categories }: NavbarProps) {
   const t = useT();
-  // The homepage runs a minimal, editorial header; every other route keeps the
-  // solid brand bar.
-  const isHome = usePathname() === "/";
+  // Set MINIMAL_HOME_HEADER to true to give the homepage the minimal, editorial
+  // (white) header; otherwise every route uses the solid brand bar.
+  const pathname = usePathname();
+  const isHome = MINIMAL_HOME_HEADER && pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const totalItems = useCartStore((s) => s.totalItems);
   const openCart = useCartStore((s) => s.openCart);

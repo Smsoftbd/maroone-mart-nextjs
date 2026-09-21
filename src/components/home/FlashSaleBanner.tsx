@@ -22,6 +22,12 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
           <div className="flex items-center gap-3 text-white">
             <Zap className="h-6 w-6 fill-current" />
             <h2 className="font-display text-2xl font-bold">{sale.title}</h2>
+            <Link
+              href="/flash-sale"
+              className="ml-2 text-sm font-medium underline underline-offset-4 opacity-90 hover:opacity-100 whitespace-nowrap"
+            >
+              View all ({sale.products.length}) →
+            </Link>
           </div>
           <div className="text-white">
             <p className="text-xs uppercase tracking-widest opacity-80 mb-1">
@@ -46,7 +52,7 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
           ))}
           <div className="shrink-0 flex items-center px-4">
             <Link
-              href="/products"
+              href="/flash-sale"
               className="text-white border-2 border-white/50 hover:border-white px-6 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-colors"
             >
               View All →

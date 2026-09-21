@@ -149,6 +149,7 @@ export interface Barcode {
   discount_amount: number;
   sale_price: number;
   effective_price: number;
+  flash_sale?: { id: number; ends_at: string | null } | null;
   whole_sale_price?: number;
   stock: number;
   in_stock: boolean;
