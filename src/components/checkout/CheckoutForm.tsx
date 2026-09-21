@@ -13,6 +13,7 @@ import { ShippingSelector } from "./ShippingSelector";
 import { PaymentSelector } from "./PaymentSelector";
 import { CouponInput } from "./CouponInput";
 import Link from "next/link";
+import { ChevronDown, Lock, MessageSquare, Tag } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
@@ -62,17 +63,30 @@ interface CheckoutFormProps {
   showCoupon: boolean;
 }
 
-function SectionCard({ children }: { children: React.ReactNode }) {
+function Step({
+  index,
+  title,
+  hint,
+  children,
+}: {
+  index: number;
+  title: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="bg-white border border-[var(--color-border)] rounded-2xl p-6">
-      {children}
+    <section className="p-5 sm:p-7">
+      <div className="flex items-start gap-3 mb-5">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-900 text-white text-xs font-semibold">
+          {index}
+        </span>
+        <div>
+          <h2 className="text-base font-semibold leading-7">{title}</h2>
+          {hint && <p className="text-xs text-[var(--color-text-muted)]">{hint}</p>}
+        </div>
+      </div>
+      <div className="sm:pl-10">{children}</div>
     </section>
-  );
-}
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="font-display text-base font-semibold mb-4">{children}</h2>
   );
 }
 
@@ -87,6 +101,8 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [couponOpen, setCouponOpen] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
 
   const schema = useMemo(() => makeSchema(country), [country]);
 
@@ -324,180 +340,258 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
     );
   }
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
-        {/* ── Left: form sections ── */}
-        <div className="space-y-6">
-          <SectionCard>
-            <SectionLabel>{t("contact_details", "Contact Details")}</SectionLabel>
-            <div className="space-y-4">
-              <Input label={`${t("full_name", "Full Name")} *`} {...register("name")} error={errors.name?.message} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input label={`${t("phone", "Phone")} *`} type="tel" {...register("phone")} error={errors.phone?.message} />
-                <Input label={t("email", "Email")} type="email" {...register("email")} error={errors.email?.message} />
-              </div>
-            </div>
-          </SectionCard>
 
-          <SectionCard>
-            <SectionLabel>{t("shipping_address", "Shipping Address")}</SectionLabel>
-            <div className="space-y-4">
-              <Input label={`${t("address", "Address")} *`} {...register("address")} error={errors.address?.message} />
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Input label={t("city", "City")} {...register("city")} />
-                <Input label={t("state", "State")} {...register("state")} />
+  const itemCount = items.reduce((n, i) => n + i.quantity, 0);
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-6 lg:gap-10 items-start">
+        {/* ── Left: steps ── */}
+        <div className="bg-white border border-[var(--color-border)] rounded-3xl divide-y divide-[var(--color-border)] overflow-hidden">
+          <Step index={1} title={t("contact_details", "Contact Details")}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
                 <Input
-                  label={t("country", "Country")}
-                  {...register("country")}
-                  readOnly
-                  className="bg-[var(--color-surface-50,#f8fafc)] cursor-not-allowed"
+                  label={`${t("full_name", "Full Name")} *`}
+                  autoComplete="name"
+                  {...register("name")}
+                  error={errors.name?.message}
                 />
               </div>
+              <Input
+                label={`${t("phone", "Phone")} *`}
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                {...register("phone")}
+                error={errors.phone?.message}
+              />
+              <Input
+                label={t("email", "Email")}
+                type="email"
+                autoComplete="email"
+                placeholder={t("optional", "Optional")}
+                {...register("email")}
+                error={errors.email?.message}
+              />
             </div>
-          </SectionCard>
+          </Step>
 
-          <SectionCard>
-            <SectionLabel>{t("delivery_method", "Delivery Method")}</SectionLabel>
+          <Step
+            index={2}
+            title={t("shipping_address", "Shipping Address")}
+            hint={`${t("delivering_to", "Delivering to")} ${country}`}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <Input
+                  label={`${t("address", "Address")} *`}
+                  autoComplete="street-address"
+                  placeholder={t("address_ph", "House, road, area")}
+                  {...register("address")}
+                  error={errors.address?.message}
+                />
+              </div>
+              <Input label={t("city", "City")} autoComplete="address-level2" {...register("city")} />
+              <Input label={t("state", "State")} autoComplete="address-level1" {...register("state")} />
+              <input type="hidden" {...register("country")} />
+            </div>
+          </Step>
+
+          <Step index={3} title={t("delivery_method", "Delivery Method")}>
             <ShippingSelector
               currency={currency}
               methodName={resolveL10n(delivery?.zone_name) ?? ""}
               onChange={setDelivery}
             />
-          </SectionCard>
+          </Step>
 
-          <SectionCard>
-            <SectionLabel>{t("payment_method", "Payment Method")}</SectionLabel>
+          <Step index={4} title={t("payment_method", "Payment Method")}>
             <PaymentSelector
               value={resolveL10n(paymentMethod?.name) ?? ""}
               onChange={setPaymentMethod}
             />
-          </SectionCard>
+          </Step>
 
-          {showCoupon && (
-            <SectionCard>
-              <SectionLabel>{t("coupon_code", "Coupon Code")}</SectionLabel>
-              <CouponInput
-                orderTotal={subTotal}
-                currency={currency}
-                onApply={(code, amount) => {
-                  setCouponCode(code);
-                  setDiscountAmount(amount);
-                }}
+          <div className="px-5 py-4 sm:px-7">
+            <button
+              type="button"
+              onClick={() => setNoteOpen((o) => !o)}
+              className="flex w-full items-center justify-between text-sm font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+              aria-expanded={noteOpen}
+            >
+              <span className="inline-flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                {t("add_order_note", "Add a note to your order")}
+              </span>
+              <ChevronDown className={`h-4 w-4 transition-transform ${noteOpen ? "rotate-180" : ""}`} />
+            </button>
+            {noteOpen && (
+              <textarea
+                {...register("note")}
+                placeholder={t("order_notes_ph", "Special instructions or delivery notes (optional)")}
+                rows={3}
+                className="mt-3 w-full border border-[var(--color-border)] rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               />
-            </SectionCard>
-          )}
-
-          <SectionCard>
-            <SectionLabel>{t("order_notes", "Order Notes")}</SectionLabel>
-            <textarea
-              {...register("note")}
-              placeholder={t("order_notes_ph", "Special instructions or delivery notes (optional)")}
-              rows={3}
-              className="w-full border border-[var(--color-border)] rounded-lg px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500"
-            />
-          </SectionCard>
+            )}
+          </div>
         </div>
 
         {/* ── Right: order summary ── */}
         <aside className="lg:sticky lg:top-24">
-          <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6">
-            <h2 className="font-display text-base font-semibold mb-4">{t("order_summary", "Order Summary")}</h2>
+          <div className="bg-white border border-[var(--color-border)] rounded-3xl p-5 sm:p-7">
+            <div className="flex items-baseline justify-between mb-5">
+              <h2 className="text-base font-semibold">{t("order_summary", "Order Summary")}</h2>
+              <span className="text-xs text-[var(--color-text-muted)]">
+                {itemCount} {itemCount === 1 ? t("item", "item") : t("items", "items")}
+              </span>
+            </div>
 
-            <ul className="divide-y divide-[var(--color-border)] mb-4">
-              {items.map((item) => (
-                <li key={item.id} className="flex items-center gap-3 py-3">
-                  <div className="relative h-14 w-14 shrink-0 rounded-lg overflow-hidden border border-[var(--color-border)] bg-surface-50">
-                    {item.product_image ? (
-                      <Image
-                        src={item.product_image}
-                        alt={item.product_name}
-                        fill
-                        className="object-cover"
-                        sizes="56px"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-surface-100" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.product_name}</p>
-                    {(attributeOverrides[item.barcode_id] ?? []).length > 0 && (
-                      <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
-                        {(attributeOverrides[item.barcode_id] ?? []).map((attr) => {
+            <ul className="space-y-4 max-h-72 overflow-y-auto pr-1 -mr-1 mb-5">
+              {items.map((item) => {
+                const unit = item.unit_price || priceOverrides[item.barcode_id] || 0;
+                const attrs = attributeOverrides[item.barcode_id] ?? [];
+                return (
+                  <li key={item.id} className="flex items-center gap-3">
+                    <div className="relative h-14 w-14 shrink-0">
+                      <div className="relative h-full w-full rounded-xl overflow-hidden bg-surface-100">
+                        {item.product_image && (
+                          <Image
+                            src={item.product_image}
+                            alt={item.product_name}
+                            fill
+                            className="object-cover"
+                            sizes="56px"
+                          />
+                        )}
+                      </div>
+                      <span className="absolute -top-1.5 -right-1.5 min-w-5 h-5 px-1 rounded-full bg-surface-900 text-white text-[10px] font-semibold flex items-center justify-center">
+                        {item.quantity}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{item.product_name}</p>
+                      <div className="flex flex-wrap items-center gap-1.5 mt-0.5 text-xs text-[var(--color-text-muted)]">
+                        {attrs.map((attr) => {
                           const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
                           return isColor ? (
                             <span
                               key={attr.name}
                               title={`${attr.name}: ${attr.value}`}
                               style={{ backgroundColor: attr.value_code }}
-                              className="inline-block w-3 h-3 rounded-full border border-black/10"
+                              className="inline-block w-3 h-3 rounded-full ring-1 ring-black/10"
                             />
                           ) : (
-                            <span key={attr.name} className="text-xs text-[var(--color-text-muted)] bg-surface-100 px-1.5 py-0.5 rounded">
-                              {attr.name}: {attr.value}
-                            </span>
+                            <span key={attr.name}>{attr.value}</span>
                           );
                         })}
+                        {attrs.length > 0 && <span aria-hidden>·</span>}
+                        <span>{formatPrice(unit, currency)}</span>
                       </div>
-                    )}
-                    <p className="text-xs text-[var(--color-text-secondary)]">
-                      {formatPrice(item.unit_price || priceOverrides[item.barcode_id] || 0, currency)} × {item.quantity}
-                    </p>
-                  </div>
-                  <span className="text-sm font-semibold shrink-0">
-                    {formatPrice(item.line_total || (item.unit_price || priceOverrides[item.barcode_id] || 0) * item.quantity, currency)}
-                  </span>
-                </li>
-              ))}
+                    </div>
+                    <span className="text-sm font-semibold shrink-0 tabular-nums">
+                      {formatPrice(item.line_total || unit * item.quantity, currency)}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
 
-            <div className="space-y-2 text-sm border-t border-[var(--color-border)] pt-4">
+            {showCoupon && (
+              <div className="border-t border-[var(--color-border)] py-4">
+                {couponOpen || couponCode ? (
+                  <CouponInput
+                    orderTotal={subTotal}
+                    currency={currency}
+                    onApply={(code, amount) => {
+                      setCouponCode(code);
+                      setDiscountAmount(amount);
+                    }}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setCouponOpen(true)}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-600"
+                  >
+                    <Tag className="h-4 w-4" />
+                    {t("have_coupon", "Have a coupon code?")}
+                  </button>
+                )}
+              </div>
+            )}
+
+            <dl className="space-y-2.5 text-sm border-t border-[var(--color-border)] pt-4">
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-secondary)]">{t("subtotal", "Subtotal")}</span>
-                <span>{formatPrice(subTotal, currency)}</span>
+                <dt className="text-[var(--color-text-secondary)]">{t("subtotal", "Subtotal")}</dt>
+                <dd className="tabular-nums">{formatPrice(subTotal, currency)}</dd>
               </div>
               <div className="flex justify-between">
-                <span className="text-[var(--color-text-secondary)]">
-                  {t("shipping", "Shipping")}{delivery ? ` (${resolveL10n(delivery.zone_name)})` : ""}
-                </span>
-                <span>
-                  {delivery
-                    ? shippingCost === 0
-                      ? t("free", "Free")
-                      : formatPrice(shippingCost, currency)
-                    : "—"}
-                </span>
+                <dt className="text-[var(--color-text-secondary)]">{t("shipping", "Shipping")}</dt>
+                <dd className="tabular-nums">
+                  {delivery ? (
+                    shippingCost === 0 ? (
+                      <span className="text-green-600 font-medium">{t("free", "Free")}</span>
+                    ) : (
+                      formatPrice(shippingCost, currency)
+                    )
+                  ) : (
+                    <span className="text-[var(--color-text-muted)]">{t("select_delivery", "Select delivery")}</span>
+                  )}
+                </dd>
               </div>
               {discountAmount > 0 && (
                 <div className="flex justify-between text-green-600">
-                  <span>{t("discount", "Discount")}</span>
-                  <span>−{formatPrice(discountAmount, currency)}</span>
+                  <dt>{t("discount", "Discount")}</dt>
+                  <dd className="tabular-nums">−{formatPrice(discountAmount, currency)}</dd>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-base border-t border-[var(--color-border)] pt-3 mt-1">
-                <span>{t("total", "Total")}</span>
-                <span>{formatPrice(total, currency)}</span>
+              <div className="flex justify-between items-baseline border-t border-[var(--color-border)] pt-4 mt-2">
+                <dt className="font-semibold">{t("total", "Total")}</dt>
+                <dd className="text-2xl font-bold tabular-nums">{formatPrice(total, currency)}</dd>
               </div>
+            </dl>
+
+            <div className="hidden lg:block">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="w-full mt-6 rounded-xl h-13"
+                loading={isSubmitting}
+                disabled={items.length === 0}
+              >
+                <Lock className="h-4 w-4" />
+                {t("place_order", "Place Order")}
+              </Button>
+              {!paymentMethod && (
+                <p className="text-xs text-center text-[var(--color-text-muted)] mt-3">
+                  {t("select_payment_method", "Select a payment method to continue")}
+                </p>
+              )}
             </div>
-
-            <Button
-              type="submit"
-              variant="primary"
-              className="w-full mt-6"
-              loading={isSubmitting}
-              disabled={items.length === 0}
-            >
-              {t("place_order", "Place Order")} — {formatPrice(total, currency)}
-            </Button>
-
-            {!paymentMethod && (
-              <p className="text-xs text-center text-[var(--color-text-muted)] mt-2">
-                {t("select_payment_method", "Select a payment method to continue")}
-              </p>
-            )}
           </div>
         </aside>
+      </div>
+
+      {/* ── Mobile: sticky pay bar ── */}
+      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-[var(--color-border)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="flex items-center gap-4 max-w-6xl mx-auto">
+          <div className="min-w-0">
+            <p className="text-xs text-[var(--color-text-muted)]">{t("total", "Total")}</p>
+            <p className="text-lg font-bold tabular-nums leading-tight">{formatPrice(total, currency)}</p>
+          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="flex-1 rounded-xl"
+            loading={isSubmitting}
+            disabled={items.length === 0}
+          >
+            {t("place_order", "Place Order")}
+          </Button>
+        </div>
       </div>
 
       <Modal

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle, Tag } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { formatPrice } from "@/lib/utils/format";
@@ -49,7 +49,7 @@ export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps)
 
   if (applied) {
     return (
-      <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+      <div className="flex items-center gap-3 px-3 py-2.5 bg-green-50 border border-green-200 rounded-xl">
         <CheckCircle className="h-5 w-5 text-green-600 shrink-0" />
         <div className="flex-1">
           <p className="text-sm font-medium text-green-800">
@@ -60,6 +60,7 @@ export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps)
           </p>
         </div>
         <button
+          type="button"
           onClick={() => {
             setApplied(null);
             setCode("");
@@ -81,16 +82,21 @@ export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps)
             value={code}
             onChange={(e) => setCode(e.target.value.toUpperCase())}
             placeholder={t("enter_coupon", "Enter coupon code")}
-            onKeyDown={(e) => e.key === "Enter" && handleApply()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                handleApply();
+              }
+            }}
           />
         </div>
         <Button
+          type="button"
           variant="secondary"
           loading={isLoading}
           onClick={handleApply}
-          className="shrink-0 flex items-center gap-1.5"
+          className="shrink-0 rounded-xl"
         >
-          <Tag className="h-4 w-4" />
           {t("apply", "Apply")}
         </Button>
       </div>

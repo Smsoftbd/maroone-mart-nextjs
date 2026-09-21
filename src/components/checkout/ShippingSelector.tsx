@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Truck } from "lucide-react";
+import { Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatPrice } from "@/lib/utils/format";
 import type { DeliveryCharge } from "@/lib/api/types";
@@ -36,45 +36,53 @@ export function ShippingSelector({
 
   if (isLoading) {
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-14 w-full" />
+          <Skeleton key={i} className="h-16 w-full rounded-2xl" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3" role="radiogroup">
       {charges.map((charge) => {
         const displayName = resolveL10n(charge.zone_name);
         const cost = parseFloat(charge.charge_amount);
+        const selected = methodName === displayName;
         return (
           <label
             key={charge.id}
-            className={`flex items-center gap-3 p-4 border-2 rounded-xl cursor-pointer transition-colors ${
-              methodName === displayName
-                ? "border-brand-500 bg-brand-50"
-                : "border-[var(--color-border)] hover:border-brand-300"
+            className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl border cursor-pointer transition-all ${
+              selected
+                ? "border-brand-500 ring-1 ring-brand-500 bg-brand-50/60"
+                : "border-[var(--color-border)] hover:border-[var(--color-border-dark)] hover:bg-surface-50"
             }`}
           >
             <input
               type="radio"
               name="delivery"
-              className="accent-brand-500"
-              checked={methodName === displayName}
+              className="sr-only"
+              checked={selected}
               onChange={() => onChange(charge)}
             />
-            <Truck className="h-4 w-4 text-[var(--color-text-muted)]" />
-            <div className="flex-1">
-              <span className="text-sm font-medium">{displayName}</span>
+            <span
+              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                selected ? "border-brand-500 bg-brand-500" : "border-[var(--color-border-dark)]"
+              }`}
+              aria-hidden
+            >
+              {selected && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">{displayName}</p>
               {charge.free_delivery_above && (
-                <span className="text-xs text-[var(--color-text-muted)] ml-2">
+                <p className="text-xs text-[var(--color-text-muted)]">
                   Free above {formatPrice(parseFloat(charge.free_delivery_above), currency)}
-                </span>
+                </p>
               )}
             </div>
-            <span className="text-sm font-bold">
+            <span className={`text-sm font-semibold tabular-nums ${cost === 0 ? "text-green-600" : ""}`}>
               {cost === 0 ? "Free" : formatPrice(cost, currency)}
             </span>
           </label>
