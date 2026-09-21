@@ -1,5 +1,7 @@
 import "server-only";
 
+import { getConsentConfig, type ConsentConfig } from "./consent-server";
+
 /**
  * Google Tag Manager / GA4 settings, all from env:
  *
@@ -8,27 +10,21 @@ import "server-only";
  *                               first-party and receives server-side purchases
  * - GA4_MEASUREMENT_ID          G-XXXX, for server-side purchases (Measurement Protocol)
  * - GA4_API_SECRET              Measurement Protocol API secret
- * - GTM_CONSENT_DEFAULT         "granted" (default) or "denied"
- * - GTM_CONSENT_DENIED_REGIONS  optional, e.g. "EEA" or "GB,CH,US-CA" — denied by
- *                               default there until a consent banner updates it
+ * - META_VIA_SGTM               "true" once Meta CAPI runs as a tag in server-side
+ *                               GTM: this app stops its own CAPI sends (Pixel stays)
+ * - Consent Mode settings: see consent-server.ts
  */
+
+export const isMetaViaSgtm = () => process.env.META_VIA_SGTM?.trim().toLowerCase() === "true";
 
 const GOOGLE_TAG_ORIGIN = "https://www.googletagmanager.com";
 const GOOGLE_ANALYTICS_ORIGIN = "https://www.google-analytics.com";
-
-const EEA_REGIONS = [
-  "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE",
-  "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE",
-  "IS", "LI", "NO", "GB", "CH",
-];
-
-export type ConsentState = "granted" | "denied";
 
 export type GtmConfig = {
   id: string;
   /** Where gtm.js / ns.html are loaded from. */
   origin: string;
-  consent: { default: ConsentState; deniedRegions: string[] };
+  consent: ConsentConfig;
   /** GA4 purchases are sent server-side; the GA4 tag should skip the browser copy. */
   serverPurchase: boolean;
 };
@@ -51,17 +47,6 @@ function getServerOrigin(): string | null {
   } catch {
     return null;
   }
-}
-
-function getConsentConfig(): GtmConfig["consent"] {
-  const def: ConsentState =
-    process.env.GTM_CONSENT_DEFAULT?.trim().toLowerCase() === "denied" ? "denied" : "granted";
-  const deniedRegions = (process.env.GTM_CONSENT_DENIED_REGIONS ?? "")
-    .split(",")
-    .map((r) => r.trim().toUpperCase())
-    .flatMap((r) => (r === "EEA" ? EEA_REGIONS : [r]))
-    .filter((r) => /^[A-Z]{2}(-[A-Z0-9]{1,3})?$/.test(r));
-  return { default: def, deniedRegions: [...new Set(deniedRegions)] };
 }
 
 export function getGa4MpConfig(): Ga4MpConfig | null {

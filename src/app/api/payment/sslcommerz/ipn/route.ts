@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPayment } from "@/lib/api/orders";
 import { getGatewayCredentials, type SslCreds } from "@/lib/api/payments";
+import { trackPaidPurchase } from "@/lib/analytics/server-purchase";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SSLCommerzPayment = require("sslcommerz-lts");
 
@@ -15,6 +16,8 @@ export async function POST(req: NextRequest) {
 
     if (validation?.status === "VALID" || validation?.status === "VALIDATED") {
       await verifyPayment("sslcommerz", { val_id: data.val_id, value_a: data.value_a }).catch(() => null);
+      // Records the Purchase even if the shopper closed the tab before the success redirect.
+      if (data.value_a) trackPaidPurchase(req, Number(data.value_a), Number(data.amount), "ipn");
       return NextResponse.json({ status: "ok" });
     }
 

@@ -4,6 +4,8 @@ import type { Store, PageSummary } from "@/lib/api/types";
 import { ScrollToTop } from "./ScrollToTop";
 import { socialIcons } from "./social-icons";
 import { getServerT } from "@/lib/i18n/server";
+import { ConsentSettingsLink } from "@/components/analytics/ConsentSettingsLink";
+import { getConsentBannerMode } from "@/lib/analytics/consent-server";
 
 interface FooterProps {
   store: Store;
@@ -137,6 +139,15 @@ export async function Footer({ store, pages = [] }: FooterProps) {
           <Link href="/" className="hover:text-[var(--color-primary-text)]">
             {store.name}
           </Link>
+          {getConsentBannerMode() !== "off" && (
+            <>
+              {" · "}
+              <ConsentSettingsLink
+                label={t("cookie_settings", "Cookie settings")}
+                className="hover:text-[var(--color-primary-text)]"
+              />
+            </>
+          )}
         </div>
       </div>
 

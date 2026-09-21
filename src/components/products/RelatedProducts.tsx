@@ -69,7 +69,11 @@ export function RelatedProducts({
           ))}
         </div>
       ) : (
-        <ProductGrid products={products} currency={currency} />
+        <ProductGrid
+          products={products}
+          currency={currency}
+          list={{ id: "related_products", name: "Related products" }}
+        />
       )}
     </section>
   );

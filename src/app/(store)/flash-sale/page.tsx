@@ -50,7 +50,11 @@ export default async function FlashSalePage() {
                 <Countdown endsAt={sale.ends_at} />
               </div>
             </div>
-            <ProductGrid products={sale.products} currency={currency} />
+            <ProductGrid
+              products={sale.products}
+              currency={currency}
+              list={{ id: `flash_sale_${sale.id}`, name: `Flash sale: ${sale.title}` }}
+            />
           </section>
           );
         })

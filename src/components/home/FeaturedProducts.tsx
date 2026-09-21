@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ProductCarousel } from "@/components/products/ProductCarousel";
 import { getServerT } from "@/lib/i18n/server";
+import type { ItemList } from "@/lib/analytics/track";
 import type { Product } from "@/lib/api/types";
 
 interface SectionProps {
@@ -8,9 +9,10 @@ interface SectionProps {
   viewAllHref: string;
   products: Product[];
   currency: string;
+  list: ItemList;
 }
 
-async function ProductSection({ title, viewAllHref, products, currency }: SectionProps) {
+async function ProductSection({ title, viewAllHref, products, currency, list }: SectionProps) {
   if (!products.length) return null;
   const t = await getServerT();
   return (
@@ -28,6 +30,7 @@ async function ProductSection({ title, viewAllHref, products, currency }: Sectio
         products={products.slice(0, 12)}
         currency={currency}
         variant="minimal"
+        list={list}
       />
     </section>
   );
@@ -41,6 +44,7 @@ export async function FeaturedProducts({ products, currency }: { products: Produ
       viewAllHref="/products?featured=1"
       products={products}
       currency={currency}
+      list={{ id: "featured_products", name: "Featured products" }}
     />
   );
 }
@@ -53,6 +57,7 @@ export async function NewArrivals({ products, currency }: { products: Product[];
       viewAllHref="/products?sort=new"
       products={products}
       currency={currency}
+      list={{ id: "new_arrivals", name: "New arrivals" }}
     />
   );
 }
@@ -65,6 +70,7 @@ export async function BestSelling({ products, currency }: { products: Product[];
       viewAllHref="/products?sort=sales"
       products={products}
       currency={currency}
+      list={{ id: "best_selling", name: "Best selling" }}
     />
   );
 }

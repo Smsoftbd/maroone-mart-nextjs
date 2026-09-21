@@ -11,6 +11,8 @@ import { useCartStore } from "@/lib/stores/cartStore";
 import { useCart } from "@/lib/hooks/useCart";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { appToast } from "@/lib/utils/toast";
+import { track } from "@/lib/analytics/track";
+import { cartTrackItem, useTrackViewCart } from "@/lib/hooks/useTrackViewCart";
 
 interface CartDrawerProps {
   currency: string;
@@ -23,6 +25,7 @@ export function CartDrawer({ currency }: CartDrawerProps) {
   const t = useT();
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearing, setClearing] = useState(false);
+  useTrackViewCart(isOpen);
 
   const handleClose = useCallback(() => {
     setConfirmClear(false);
@@ -31,8 +34,10 @@ export function CartDrawer({ currency }: CartDrawerProps) {
 
   const handleClear = async () => {
     setClearing(true);
+    const cleared = items;
     try {
       await clearCart();
+      cleared.forEach((i) => track.removeFromCart(cartTrackItem(i)));
     } catch (e) {
       appToast.apiError(e instanceof Error ? e.message : undefined);
     } finally {

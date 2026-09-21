@@ -43,6 +43,7 @@ export async function CategoryProductSections({
             products={products.slice(0, 8)}
             currency={currency}
             variant="minimal"
+            list={{ id: `home_category_${category.slug}`, name: category.name }}
           />
         </section>
       ))}

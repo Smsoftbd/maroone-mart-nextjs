@@ -7,5 +7,6 @@ export async function POST(req: NextRequest) {
     status: "failed",
     ...(data.value_a ? { order_id: data.value_a } : {}),
   });
-  return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url));
+  // 303: the gateway POSTs here; the result page must be loaded with GET.
+  return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url), 303);
 }

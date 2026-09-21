@@ -9,7 +9,9 @@ import { buildColorStyleBlock } from "@/lib/utils/colors";
 import { getLocale, isRtl } from "@/lib/i18n/locale";
 import { MetaPixelBody, MetaPixelHead, isValidPixelId } from "@/components/analytics/MetaPixel";
 import { GtmBody, GtmHead } from "@/components/analytics/Gtm";
-import { getGtmConfig, stripGtmSnippet } from "@/lib/analytics/gtm-config";
+import { getGtmConfig, isMetaViaSgtm, stripGtmSnippet } from "@/lib/analytics/gtm-config";
+import { getDefaultConsent } from "@/lib/analytics/consent-server";
+import { headers } from "next/headers";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -45,11 +47,12 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [store, locale] = await Promise.all([getStore(), getLocale()]);
+  const [store, locale, reqHeaders] = await Promise.all([getStore(), getLocale(), headers()]);
   const colorStyle = buildColorStyleBlock(store.colors);
   const pixelId = isValidPixelId(store.tracking.fb_pixel_id) ? store.tracking.fb_pixel_id : null;
   const gtm = getGtmConfig();
   const headerScript = stripGtmSnippet(store.scripts.header, gtm?.id);
+  const marketingDefault = getDefaultConsent(reqHeaders).marketing;
 
   return (
     <html
@@ -60,7 +63,13 @@ export default async function RootLayout({
       <head>
         <style dangerouslySetInnerHTML={{ __html: colorStyle }} />
         {gtm && <GtmHead config={gtm} />}
-        {pixelId && <MetaPixelHead pixelId={pixelId} />}
+        {pixelId && (
+          <MetaPixelHead
+            pixelId={pixelId}
+            marketingDefault={marketingDefault}
+            relay={!isMetaViaSgtm()}
+          />
+        )}
         {headerScript && <script dangerouslySetInnerHTML={{ __html: headerScript }} />}
       </head>
       <body suppressHydrationWarning className="min-h-full font-body text-[var(--color-text-primary)] bg-[var(--color-surface-0)]">
@@ -72,7 +81,7 @@ export default async function RootLayout({
         </a>
         {gtm && <GtmBody config={gtm} />}
         <AuthInitializer />
-        {pixelId && <MetaPixelBody pixelId={pixelId} />}
+        {pixelId && <MetaPixelBody pixelId={pixelId} marketingDefault={marketingDefault} />}
         <StoreConfigProvider
           value={{
             authMode: store.auth_mode,

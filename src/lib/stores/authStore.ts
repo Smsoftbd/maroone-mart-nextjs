@@ -63,6 +63,7 @@ export const useAuthStore = create<AuthStore>()(
             customer: res.customer,
             isAuthenticated: true,
           });
+          track.login("email");
         } finally {
           set({ isLoading: false });
         }
@@ -78,7 +79,7 @@ export const useAuthStore = create<AuthStore>()(
             isAuthenticated: true,
           });
           setTrackingUserData(buildMetaUserData(res.customer));
-          track.completeRegistration();
+          track.completeRegistration("email");
         } finally {
           set({ isLoading: false });
         }
@@ -100,7 +101,9 @@ export const useAuthStore = create<AuthStore>()(
           // Name is only collected on the sign-up form — that's a registration.
           if (name) {
             setTrackingUserData(buildMetaUserData(res.customer));
-            track.completeRegistration();
+            track.completeRegistration("otp");
+          } else {
+            track.login("otp");
           }
         } finally {
           set({ isLoading: false });

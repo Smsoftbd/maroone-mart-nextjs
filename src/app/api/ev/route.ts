@@ -7,6 +7,8 @@ import {
   sendMetaEvents,
 } from "@/lib/analytics/meta-capi";
 import { META_CLIENT_EVENTS, type MetaCustomData } from "@/lib/analytics/meta-shared";
+import { resolveConsent } from "@/lib/analytics/consent-server";
+import { isMetaViaSgtm } from "@/lib/analytics/gtm-config";
 
 // Browser → Conversions API relay. Short, neutral path so ad blockers that
 // strip Pixel requests don't also drop the server-side copy.
@@ -39,8 +41,10 @@ export async function POST(req: NextRequest) {
     return new NextResponse(null, { status: 400 });
   }
   const event = parsed.data;
-  const config = await getMetaCapiConfig();
   const res = new NextResponse(null, { status: 204 });
+  // No marketing consent, or server-side GTM owns Meta CAPI: nothing to relay.
+  if (isMetaViaSgtm() || !resolveConsent(req.headers, req.cookies).marketing) return res;
+  const config = await getMetaCapiConfig();
   if (!config) return res;
 
   const ctx = getMetaRequestContext(req, event.event_source_url);

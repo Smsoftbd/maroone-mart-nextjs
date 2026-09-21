@@ -21,6 +21,8 @@ type Fbq = (...args: unknown[]) => void;
 declare global {
   interface Window {
     fbq?: Fbq;
+    /** false when Meta CAPI runs in server-side GTM (META_VIA_SGTM) — skip the /api/ev relay. */
+    smMetaRelay?: boolean;
   }
 }
 
@@ -69,6 +71,21 @@ export function newMetaEventId(prefix: string) {
   return `${prefix}.${rand}`;
 }
 
+const lastShared = new Map<string, { key: string; id: string }>();
+
+/**
+ * One event id per prefix until its key changes, so the Meta and GTM route
+ * listeners (separate components, same commit) tag the same page view alike
+ * and server-side GTM can dedupe its Meta copy against the Pixel.
+ */
+export function sharedEventId(prefix: string, key: string) {
+  const last = lastShared.get(prefix);
+  if (last?.key === key) return last.id;
+  const id = newMetaEventId(prefix);
+  lastShared.set(prefix, { key, id });
+  return id;
+}
+
 type TrackOptions = {
   eventId?: string;
   /** false when the server already sent this event to CAPI (Purchase). */
@@ -84,7 +101,7 @@ export function trackMeta(
 
   window.fbq!("track", event, customData, { eventID: eventId });
 
-  if (!relay || event === "Purchase") return;
+  if (!relay || event === "Purchase" || window.smMetaRelay === false) return;
   const body = JSON.stringify({
     event_name: event as MetaClientEvent,
     event_id: eventId,
@@ -127,14 +144,18 @@ function itemsData(items: MetaItem[], value?: number): MetaCustomData {
 
 const round = (n: number) => Math.round(n * 100) / 100;
 
+// `eventId` lets the caller share one id with the GTM copy of the event.
 export const metaEvents = {
-  viewContent: (item: MetaItem) => trackMeta("ViewContent", itemsData([item])),
-  addToCart: (item: MetaItem) => trackMeta("AddToCart", itemsData([item])),
-  addToWishlist: (item: MetaItem) => trackMeta("AddToWishlist", itemsData([item])),
-  initiateCheckout: (items: MetaItem[], value: number) =>
-    trackMeta("InitiateCheckout", itemsData(items, value)),
-  addPaymentInfo: (items: MetaItem[], value: number) =>
-    trackMeta("AddPaymentInfo", itemsData(items, value)),
+  viewContent: (item: MetaItem, eventId?: string) =>
+    trackMeta("ViewContent", itemsData([item]), { eventId }),
+  addToCart: (item: MetaItem, eventId?: string) =>
+    trackMeta("AddToCart", itemsData([item]), { eventId }),
+  addToWishlist: (item: MetaItem, eventId?: string) =>
+    trackMeta("AddToWishlist", itemsData([item]), { eventId }),
+  initiateCheckout: (items: MetaItem[], value: number, eventId?: string) =>
+    trackMeta("InitiateCheckout", itemsData(items, value), { eventId }),
+  addPaymentInfo: (items: MetaItem[], value: number, eventId?: string) =>
+    trackMeta("AddPaymentInfo", itemsData(items, value), { eventId }),
   /** Browser half only — /api/orders already sent the CAPI copy with this event id. */
   purchase: (items: MetaItem[], value: number, orderId: number | string, invoice?: string) =>
     trackMeta(
@@ -142,8 +163,10 @@ export const metaEvents = {
       { ...itemsData(items, value), order_id: invoice || String(orderId) },
       { eventId: purchaseEventId(orderId), relay: false }
     ),
-  search: (query: string) => trackMeta("Search", { search_string: query }),
-  completeRegistration: () => trackMeta("CompleteRegistration", { status: "completed" }),
-  contact: () => trackMeta("Contact"),
-  lead: () => trackMeta("Lead"),
+  search: (query: string, eventId?: string) =>
+    trackMeta("Search", { search_string: query }, { eventId }),
+  completeRegistration: (eventId?: string) =>
+    trackMeta("CompleteRegistration", { status: "completed" }, { eventId }),
+  contact: (eventId?: string) => trackMeta("Contact", {}, { eventId }),
+  lead: (eventId?: string) => trackMeta("Lead", {}, { eventId }),
 };

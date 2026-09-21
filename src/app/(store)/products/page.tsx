@@ -76,6 +76,16 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     ? categoryTree.find((c) => c.slug === categories[0])?.name || t("products", "Products")
     : t("all_products", "All Products");
 
+  // GA4 list names stay untranslated so reports don't split by language.
+  const itemList = search
+    ? { id: "search_results", name: "Search results" }
+    : categories.length === 1
+    ? {
+        id: `category_${categories[0]}`,
+        name: categoryTree.find((c) => c.slug === categories[0])?.name || categories[0],
+      }
+    : { id: "all_products", name: "All products" };
+
   const hasFilters =
     categories.length > 0 ||
     brands.length > 0 ||
@@ -162,6 +172,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               products={products}
               currency={store.currency_symbol}
               variant="minimal"
+              list={itemList}
             />
           )}
 

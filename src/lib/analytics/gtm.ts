@@ -5,7 +5,7 @@
  */
 
 import { META_CURRENCY, purchaseEventId, type MetaUserData } from "./meta-shared";
-import type { MetaItem } from "./meta";
+import { newMetaEventId, type MetaItem } from "./meta";
 
 declare global {
   interface Window {
@@ -20,16 +20,8 @@ export function pushDataLayer(data: Record<string, unknown>) {
   window.dataLayer!.push(data);
 }
 
-function newEventId(prefix: string) {
-  const rand =
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-  return `${prefix}.${rand}`;
-}
-
 export function trackGtm(event: string, params: Record<string, unknown> = {}, eventId?: string) {
-  pushDataLayer({ event, event_id: eventId ?? newEventId(event), ...params });
+  pushDataLayer({ event, event_id: eventId ?? newMetaEventId(event), ...params });
 }
 
 /**
@@ -62,53 +54,104 @@ export function setGtmUserData(ud: MetaUserData | null) {
 
 // ─── GA4 ecommerce events ────────────────────────────────────────────────────
 
+/** A product in a list (grid/carousel) or line; ids match the Meta catalog (barcode id). */
+export type GtmItem = MetaItem & {
+  index?: number;
+  listId?: string;
+  listName?: string;
+};
+
+export type ItemList = { id: string; name: string };
+
+export type PurchaseExtras = { coupon?: string; shipping?: number; tax?: number };
+
 const round = (n: number) => Math.round(n * 100) / 100;
 
-function ecommerce(items: MetaItem[], value?: number) {
+const gaItem = (i: GtmItem) => ({
+  item_id: String(i.id),
+  ...(i.name && { item_name: i.name }),
+  ...(i.category && { item_category: i.category }),
+  ...(i.listId && { item_list_id: i.listId }),
+  ...(i.listName && { item_list_name: i.listName }),
+  ...(i.index !== undefined && { index: i.index }),
+  price: i.price,
+  quantity: i.quantity,
+});
+
+function ecommerce(items: GtmItem[], value?: number) {
   return {
     currency: META_CURRENCY,
     value: round(value ?? items.reduce((s, i) => s + i.price * i.quantity, 0)),
-    items: items.map((i) => ({
-      item_id: String(i.id),
-      ...(i.name && { item_name: i.name }),
-      ...(i.category && { item_category: i.category }),
-      price: i.price,
-      quantity: i.quantity,
-    })),
+    items: items.map(gaItem),
   };
 }
 
-function trackEcommerce(
-  event: string,
-  data: Record<string, unknown>,
-  eventId?: string
-) {
+function trackEcommerce(event: string, data: Record<string, unknown>, eventId?: string) {
   // Clear the previous ecommerce object so GTM's merged data model doesn't leak items.
   pushDataLayer({ ecommerce: null });
   trackGtm(event, { ecommerce: data }, eventId);
 }
 
 export const gtmEvents = {
-  pageView: () =>
-    trackGtm("page_view", {
-      page_location: window.location.href,
-      page_path: window.location.pathname + window.location.search,
-      page_title: document.title,
+  pageView: (eventId?: string) =>
+    trackGtm(
+      "page_view",
+      {
+        page_location: window.location.href,
+        page_path: window.location.pathname + window.location.search,
+        page_title: document.title,
+      },
+      eventId
+    ),
+  viewItemList: (list: ItemList, items: GtmItem[]) =>
+    trackEcommerce("view_item_list", {
+      item_list_id: list.id,
+      item_list_name: list.name,
+      items: items.map(gaItem),
     }),
-  viewItem: (item: MetaItem) => trackEcommerce("view_item", ecommerce([item])),
-  addToCart: (item: MetaItem) => trackEcommerce("add_to_cart", ecommerce([item])),
-  addToWishlist: (item: MetaItem) => trackEcommerce("add_to_wishlist", ecommerce([item])),
-  beginCheckout: (items: MetaItem[], value: number) =>
-    trackEcommerce("begin_checkout", ecommerce(items, value)),
-  addPaymentInfo: (items: MetaItem[], value: number) =>
-    trackEcommerce("add_payment_info", ecommerce(items, value)),
-  purchase: (items: MetaItem[], value: number, orderId: number | string, invoice?: string) =>
+  selectItem: (list: ItemList, item: GtmItem) =>
+    trackEcommerce("select_item", {
+      item_list_id: list.id,
+      item_list_name: list.name,
+      items: [gaItem(item)],
+    }),
+  viewItem: (item: GtmItem, eventId?: string) =>
+    trackEcommerce("view_item", ecommerce([item]), eventId),
+  addToCart: (item: GtmItem, eventId?: string) =>
+    trackEcommerce("add_to_cart", ecommerce([item]), eventId),
+  removeFromCart: (item: GtmItem) => trackEcommerce("remove_from_cart", ecommerce([item])),
+  viewCart: (items: GtmItem[], value: number) => trackEcommerce("view_cart", ecommerce(items, value)),
+  addToWishlist: (item: GtmItem, eventId?: string) =>
+    trackEcommerce("add_to_wishlist", ecommerce([item]), eventId),
+  beginCheckout: (items: GtmItem[], value: number, eventId?: string) =>
+    trackEcommerce("begin_checkout", ecommerce(items, value), eventId),
+  addPaymentInfo: (items: GtmItem[], value: number, paymentType?: string, eventId?: string) =>
+    trackEcommerce(
+      "add_payment_info",
+      { ...ecommerce(items, value), ...(paymentType && { payment_type: paymentType }) },
+      eventId
+    ),
+  purchase: (
+    items: GtmItem[],
+    value: number,
+    orderId: number | string,
+    invoice?: string,
+    extras: PurchaseExtras = {}
+  ) =>
     trackEcommerce(
       "purchase",
-      { ...ecommerce(items, value), transaction_id: invoice || String(orderId) },
+      {
+        ...ecommerce(items, value),
+        transaction_id: invoice || String(orderId),
+        ...(extras.coupon && { coupon: extras.coupon }),
+        ...(extras.shipping !== undefined && { shipping: round(extras.shipping) }),
+        ...(extras.tax !== undefined && { tax: round(extras.tax) }),
+      },
       purchaseEventId(orderId)
     ),
-  search: (query: string) => trackGtm("search", { search_term: query }),
-  signUp: () => trackGtm("sign_up"),
-  generateLead: (source: "newsletter" | "contact") => trackGtm("generate_lead", { lead_source: source }),
+  search: (query: string, eventId?: string) => trackGtm("search", { search_term: query }, eventId),
+  login: (method: string) => trackGtm("login", { method }),
+  signUp: (method: string, eventId?: string) => trackGtm("sign_up", { method }, eventId),
+  generateLead: (source: "newsletter" | "contact", eventId?: string) =>
+    trackGtm("generate_lead", { lead_source: source }, eventId),
 };

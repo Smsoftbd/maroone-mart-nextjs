@@ -18,6 +18,7 @@ import { ShoppingCart, ArrowRight } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
+import { useSelectItem } from "@/components/analytics/ItemListTracker";
 import type { Product } from "@/lib/api/types";
 
 export type ProductCardVariant = "default" | "minimal";
@@ -33,6 +34,11 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
   const router = useRouter();
   const { addItem, isLoading } = useCart();
   const t = useT();
+  const selectItem = useSelectItem(product);
+  // select_item when a product link (image/title) is followed from a tracked list.
+  const onCardClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("a")) selectItem();
+  };
 
   const isVariable = product.type === "variable";
   const defaultBarcode = product.barcodes.find((b) => b.is_active) ?? product.barcodes[0];
@@ -72,7 +78,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
 
   if (variant === "minimal") {
     return (
-      <div className="group product-card-wrap relative flex h-full flex-col">
+      <div className="group product-card-wrap relative flex h-full flex-col" onClickCapture={onCardClick}>
         <div className="relative overflow-hidden bg-surface-100">
           <Link href={href} className="block aspect-[3/4]">
             <Image
@@ -165,7 +171,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
   }
 
   return (
-    <div className="relative product-card-wrap bg-white rounded shadow p-3">
+    <div className="relative product-card-wrap bg-white rounded shadow p-3" onClickCapture={onCardClick}>
       <div className="product-img-action-wrap relative @container">
         <div className="product-img overflow-hidden aspect-[4/5] rounded-t">
           <Link href={href}>

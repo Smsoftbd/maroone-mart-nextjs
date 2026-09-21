@@ -8,7 +8,7 @@ import { isOnlinePaymentGateway } from "@/lib/analytics/purchase-shared";
 import {
   deferServerPurchase,
   trackServerPurchase,
-  withBrowserIds,
+  withBrowserContext,
 } from "@/lib/analytics/server-purchase";
 
 const schema = z.object({
@@ -50,6 +50,8 @@ const schema = z.object({
       external_id: z.string().max(100).optional(),
       event_source_url: z.string().max(2048).optional(),
       payment_gateway: z.string().max(50).optional(),
+      // barcode_id → product name, for GA4 item_name.
+      item_names: z.record(z.string(), z.string().max(255)).optional(),
     })
     .optional(),
 });
@@ -62,16 +64,24 @@ type OrderInput = z.infer<typeof schema>;
  */
 async function trackPurchase(
   req: NextRequest,
-  res: NextResponse,
   input: OrderInput,
   order: { id: number; invoice_number: string; net_total: number }
 ) {
   const store = await getStore().catch(() => null);
-  const purchase = withBrowserIds(req, {
+  const names = input.tracking?.item_names ?? {};
+  const purchase = withBrowserContext(req, {
     orderId: order.id,
     invoice: order.invoice_number || undefined,
     value: Number(order.net_total) || input.summary.net_total,
-    items: input.items.map((i) => ({ id: String(i.barcode_id), qty: i.qty, price: i.price })),
+    items: input.items.map((i) => ({
+      id: String(i.barcode_id),
+      name: names[String(i.barcode_id)],
+      qty: i.qty,
+      price: i.price,
+    })),
+    coupon: input.coupon_code || undefined,
+    shipping: input.summary.customer_delivery_charge,
+    tax: input.summary.tax_total,
     userData: buildMetaUserData({
       name: input.customer.name,
       email: input.customer.email,
@@ -85,9 +95,9 @@ async function trackPurchase(
   });
 
   if (isOnlinePaymentGateway(input.tracking?.payment_gateway)) {
-    deferServerPurchase(res, purchase);
+    await deferServerPurchase(purchase);
   } else {
-    trackServerPurchase(req, purchase);
+    trackServerPurchase(purchase);
   }
 }
 
@@ -103,9 +113,8 @@ export async function POST(req: NextRequest) {
     }
     const { tracking: _tracking, ...orderPayload } = parsed.data; // eslint-disable-line @typescript-eslint/no-unused-vars
     const result = await createOrder(orderPayload);
-    const res = NextResponse.json(result, { status: 201 });
-    await trackPurchase(req, res, parsed.data, result.order).catch(() => {});
-    return res;
+    await trackPurchase(req, parsed.data, result.order).catch(() => {});
+    return NextResponse.json(result, { status: 201 });
   } catch (e) {
     if (e instanceof ApiError) {
       // Propagate backend validation (422) with field errors intact.

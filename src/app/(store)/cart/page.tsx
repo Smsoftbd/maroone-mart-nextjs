@@ -5,10 +5,12 @@ import { CartItem } from "@/components/cart/CartItem";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useCartStore } from "@/lib/stores/cartStore";
+import { useTrackViewCart } from "@/lib/hooks/useTrackViewCart";
 
 export default function CartPage() {
   const { items, totalItems, subTotal } = useCartStore();
   const currency = "৳"; // Will use store currency in a real implementation
+  useTrackViewCart(true);
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

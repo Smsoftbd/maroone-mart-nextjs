@@ -49,10 +49,9 @@ export async function GET(req: NextRequest) {
         ...(orderId ? { order_id: orderId } : {}),
         ...(result.trxID ? { tran_id: result.trxID } : {}),
       });
-      const res = NextResponse.redirect(new URL(`/payment/result?${successParams}`, req.url));
       // Paid — now the order counts as a Purchase.
-      if (orderId) trackPaidPurchase(req, res, Number(orderId), Number(result.amount));
-      return res;
+      if (orderId) trackPaidPurchase(req, Number(orderId), Number(result.amount), "browser");
+      return NextResponse.redirect(new URL(`/payment/result?${successParams}`, req.url));
     }
 
     return NextResponse.redirect(failUrl);

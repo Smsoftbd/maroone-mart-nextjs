@@ -23,17 +23,24 @@ export function readGaIds(cookies: CookieReader, measurementId?: string): GaIds 
   return { clientId, sessionId };
 }
 
+export type Ga4Item = { item_id: string; item_name?: string; quantity: number; price: number };
+
 export type Ga4Purchase = {
   ids: GaIds;
   userId?: string;
   ip?: string;
   userAgent?: string;
   userData: MetaUserData;
+  /** Marketing consent → Consent Mode ad_user_data / ad_personalization. */
+  adConsent: boolean;
   eventId: string;
   transactionId: string;
   value: number;
   currency: string;
-  items: { item_id: string; quantity: number; price: number }[];
+  coupon?: string;
+  shipping?: number;
+  tax?: number;
+  items: Ga4Item[];
 };
 
 /** Hashed user-provided data in Measurement Protocol shape. */
@@ -54,30 +61,11 @@ function mpUserData(ud: MetaUserData) {
   return Object.keys(out).length ? out : undefined;
 }
 
-export async function sendGa4Purchase(config: Ga4MpConfig, p: Ga4Purchase): Promise<void> {
-  // No _ga cookie (blocked/cleared): still record revenue under a fresh client id.
-  const clientId = p.ids.clientId ?? `${randomInt(1_000_000_000, 2_147_483_647)}.${Math.floor(Date.now() / 1000)}`;
-  const body = {
-    client_id: clientId,
-    ...(p.userId && { user_id: p.userId }),
-    ...(p.ip && { ip_override: p.ip }),
-    ...(mpUserData(p.userData) && { user_data: mpUserData(p.userData) }),
-    events: [
-      {
-        name: "purchase",
-        params: {
-          transaction_id: p.transactionId,
-          currency: p.currency,
-          value: p.value,
-          items: p.items,
-          event_id: p.eventId,
-          engagement_time_msec: 1,
-          ...(p.ids.sessionId && { session_id: p.ids.sessionId }),
-        },
-      },
-    ],
-  };
+// No _ga cookie (blocked/cleared, or a backend-triggered refund): a fresh id still records revenue.
+const newClientId = () =>
+  `${randomInt(1_000_000_000, 2_147_483_647)}.${Math.floor(Date.now() / 1000)}`;
 
+async function post(config: Ga4MpConfig, body: Record<string, unknown>, userAgent?: string) {
   const url =
     `${config.endpoint}?measurement_id=${encodeURIComponent(config.measurementId)}` +
     `&api_secret=${encodeURIComponent(config.apiSecret)}`;
@@ -85,7 +73,7 @@ export async function sendGa4Purchase(config: Ga4MpConfig, p: Ga4Purchase): Prom
     const res = await fetch(url, {
       method: "POST",
       // Server-side GTM reads the device from the request's User-Agent.
-      headers: { "Content-Type": "application/json", ...(p.userAgent && { "User-Agent": p.userAgent }) },
+      headers: { "Content-Type": "application/json", ...(userAgent && { "User-Agent": userAgent }) },
       body: JSON.stringify(body),
       cache: "no-store",
     });
@@ -95,4 +83,59 @@ export async function sendGa4Purchase(config: Ga4MpConfig, p: Ga4Purchase): Prom
   } catch (e) {
     console.error("[ga4-mp]", e instanceof Error ? e.message : e);
   }
+}
+
+export async function sendGa4Purchase(config: Ga4MpConfig, p: Ga4Purchase): Promise<void> {
+  const ad = p.adConsent ? "GRANTED" : "DENIED";
+  const userData = mpUserData(p.userData);
+  await post(
+    config,
+    {
+      client_id: p.ids.clientId ?? newClientId(),
+      ...(p.userId && { user_id: p.userId }),
+      ...(p.ip && { ip_override: p.ip }),
+      ...(userData && { user_data: userData }),
+      consent: { ad_user_data: ad, ad_personalization: ad },
+      events: [
+        {
+          name: "purchase",
+          params: {
+            transaction_id: p.transactionId,
+            currency: p.currency,
+            value: p.value,
+            items: p.items,
+            event_id: p.eventId,
+            engagement_time_msec: 1,
+            ...(p.coupon && { coupon: p.coupon }),
+            ...(p.shipping !== undefined && { shipping: p.shipping }),
+            ...(p.tax !== undefined && { tax: p.tax }),
+            ...(p.ids.sessionId && { session_id: p.ids.sessionId }),
+          },
+        },
+      ],
+    },
+    p.userAgent
+  );
+}
+
+/** Full refund when `items` is omitted; partial refund lists the returned items. */
+export async function sendGa4Refund(
+  config: Ga4MpConfig,
+  r: { transactionId: string; value?: number; currency: string; items?: Ga4Item[] }
+): Promise<void> {
+  await post(config, {
+    client_id: newClientId(),
+    events: [
+      {
+        name: "refund",
+        params: {
+          transaction_id: r.transactionId,
+          currency: r.currency,
+          ...(r.value !== undefined && { value: r.value }),
+          ...(r.items?.length && { items: r.items }),
+          engagement_time_msec: 1,
+        },
+      },
+    ],
+  });
 }

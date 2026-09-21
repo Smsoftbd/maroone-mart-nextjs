@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { GtmConfig } from "@/lib/analytics/gtm-config";
+import { CONSENT_COOKIE_JS_RE } from "@/lib/analytics/consent";
 import { GtmEvents } from "./GtmEvents";
 
 const CONSENT_TYPES = ["ad_storage", "ad_user_data", "ad_personalization", "analytics_storage"];
@@ -14,6 +15,12 @@ function consentDefaults(config: GtmConfig): string {
       wait_for_update: 500,
     })});`;
   }
+  // A choice saved by the consent banner overrides the defaults before any tag fires.
+  js +=
+    `var sc=document.cookie.match(${CONSENT_COOKIE_JS_RE});` +
+    "if(sc){var ad=sc[2]==='1'?'granted':'denied';" +
+    "gtag('consent','update',{analytics_storage:sc[1]==='1'?'granted':'denied'," +
+    "ad_storage:ad,ad_user_data:ad,ad_personalization:ad});}";
   return js;
 }
 

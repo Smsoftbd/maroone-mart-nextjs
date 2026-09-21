@@ -1,4 +1,6 @@
 import { ProductCard, type ProductCardVariant } from "./ProductCard";
+import { ItemListTracker } from "@/components/analytics/ItemListTracker";
+import type { ItemList } from "@/lib/analytics/track";
 import type { Product } from "@/lib/api/types";
 
 interface ProductGridProps {
@@ -6,6 +8,8 @@ interface ProductGridProps {
   currency: string;
   showWishlist?: boolean;
   variant?: ProductCardVariant;
+  /** GA4 list for view_item_list / select_item. */
+  list?: ItemList;
 }
 
 export function ProductGrid({
@@ -13,6 +17,7 @@ export function ProductGrid({
   currency,
   showWishlist = true,
   variant = "default",
+  list,
 }: ProductGridProps) {
   if (products.length === 0) {
     return (
@@ -22,7 +27,7 @@ export function ProductGrid({
     );
   }
 
-  return (
+  const grid = (
     <div
       className={
         variant === "minimal"
@@ -40,5 +45,13 @@ export function ProductGrid({
         />
       ))}
     </div>
+  );
+
+  return list ? (
+    <ItemListTracker list={list} products={products}>
+      {grid}
+    </ItemListTracker>
+  ) : (
+    grid
   );
 }

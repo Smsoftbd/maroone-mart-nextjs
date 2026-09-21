@@ -3,7 +3,13 @@
 import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { clearMetaUserData, metaEvents, setMetaUserData, trackMeta } from "@/lib/analytics/meta";
+import {
+  clearMetaUserData,
+  metaEvents,
+  setMetaUserData,
+  sharedEventId,
+  trackMeta,
+} from "@/lib/analytics/meta";
 import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
 export function MetaPixelEvents() {
@@ -17,10 +23,11 @@ export function MetaPixelEvents() {
     const url = `${pathname}?${search}`;
     if (lastUrl.current === url) return; // StrictMode double-run guard
     lastUrl.current = url;
-    trackMeta("PageView");
+    // Same ids as GtmEvents' page_view/search for this URL (server-side GTM dedupe).
+    trackMeta("PageView", {}, { eventId: sharedEventId("PageView", url) });
 
     const q = new URLSearchParams(search).get("search")?.trim();
-    if (pathname === "/products" && q) metaEvents.search(q);
+    if (pathname === "/products" && q) metaEvents.search(q, sharedEventId("Search", url));
   }, [pathname, search]);
 
   // Keep advanced-matching keys in sync with the signed-in customer.

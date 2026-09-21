@@ -1,12 +1,14 @@
 /**
  * Single entry point for storefront tracking: fans each event out to the
- * Meta Pixel/CAPI relay and to the GTM dataLayer. Each side no-ops when its
- * tag isn't configured.
+ * Meta Pixel/CAPI relay and to the GTM dataLayer with one shared event id.
+ * Each side no-ops when its tag isn't configured.
  */
 
-import { getMetaUserData, metaEvents, setMetaUserData, type MetaItem } from "./meta";
+import { getMetaUserData, metaEvents, newMetaEventId, setMetaUserData, type MetaItem } from "./meta";
 import type { MetaUserData } from "./meta-shared";
-import { gtmEvents, setGtmUserData } from "./gtm";
+import { gtmEvents, setGtmUserData, type GtmItem, type ItemList, type PurchaseExtras } from "./gtm";
+
+export type { GtmItem as TrackItem, ItemList, PurchaseExtras };
 
 /** Merge newly learned customer info (login, checkout form, …) into both match-key stores. */
 export function setTrackingUserData(next: MetaUserData) {
@@ -16,40 +18,60 @@ export function setTrackingUserData(next: MetaUserData) {
 
 export const track = {
   viewContent: (item: MetaItem) => {
-    metaEvents.viewContent(item);
-    gtmEvents.viewItem(item);
+    const id = newMetaEventId("ViewContent");
+    metaEvents.viewContent(item, id);
+    gtmEvents.viewItem(item, id);
   },
   addToCart: (item: MetaItem) => {
-    metaEvents.addToCart(item);
-    gtmEvents.addToCart(item);
+    const id = newMetaEventId("AddToCart");
+    metaEvents.addToCart(item, id);
+    gtmEvents.addToCart(item, id);
   },
+  /** GA4 only — Meta has no standard event for these. */
+  removeFromCart: (item: MetaItem) => gtmEvents.removeFromCart(item),
+  viewCart: (items: MetaItem[], value: number) => gtmEvents.viewCart(items, value),
+  viewItemList: (list: ItemList, items: GtmItem[]) => gtmEvents.viewItemList(list, items),
+  selectItem: (list: ItemList, item: GtmItem) => gtmEvents.selectItem(list, item),
+  login: (method: "email" | "otp") => gtmEvents.login(method),
   addToWishlist: (item: MetaItem) => {
-    metaEvents.addToWishlist(item);
-    gtmEvents.addToWishlist(item);
+    const id = newMetaEventId("AddToWishlist");
+    metaEvents.addToWishlist(item, id);
+    gtmEvents.addToWishlist(item, id);
   },
   initiateCheckout: (items: MetaItem[], value: number) => {
-    metaEvents.initiateCheckout(items, value);
-    gtmEvents.beginCheckout(items, value);
+    const id = newMetaEventId("InitiateCheckout");
+    metaEvents.initiateCheckout(items, value, id);
+    gtmEvents.beginCheckout(items, value, id);
   },
-  addPaymentInfo: (items: MetaItem[], value: number) => {
-    metaEvents.addPaymentInfo(items, value);
-    gtmEvents.addPaymentInfo(items, value);
+  addPaymentInfo: (items: MetaItem[], value: number, paymentType?: string) => {
+    const id = newMetaEventId("AddPaymentInfo");
+    metaEvents.addPaymentInfo(items, value, id);
+    gtmEvents.addPaymentInfo(items, value, paymentType, id);
   },
-  purchase: (items: MetaItem[], value: number, orderId: number | string, invoice?: string) => {
+  purchase: (
+    items: MetaItem[],
+    value: number,
+    orderId: number | string,
+    invoice?: string,
+    extras?: PurchaseExtras
+  ) => {
     metaEvents.purchase(items, value, orderId, invoice);
-    gtmEvents.purchase(items, value, orderId, invoice);
+    gtmEvents.purchase(items, value, orderId, invoice, extras);
   },
-  completeRegistration: () => {
-    metaEvents.completeRegistration();
-    gtmEvents.signUp();
+  completeRegistration: (method: "email" | "otp") => {
+    const id = newMetaEventId("CompleteRegistration");
+    metaEvents.completeRegistration(id);
+    gtmEvents.signUp(method, id);
   },
   contact: () => {
-    metaEvents.contact();
-    gtmEvents.generateLead("contact");
+    const id = newMetaEventId("Contact");
+    metaEvents.contact(id);
+    gtmEvents.generateLead("contact", id);
   },
   lead: () => {
-    metaEvents.lead();
-    gtmEvents.generateLead("newsletter");
+    const id = newMetaEventId("Lead");
+    metaEvents.lead(id);
+    gtmEvents.generateLead("newsletter", id);
   },
 };
 
@@ -62,6 +84,7 @@ type PendingPurchase = {
   value: number;
   orderId: number | string;
   invoice?: string;
+  extras?: PurchaseExtras;
 };
 
 /**
@@ -69,11 +92,17 @@ type PendingPurchase = {
  * tab (sessionStorage survives the round trip to the gateway) for
  * trackDeferredPurchase on the payment result page.
  */
-export function deferPurchase(items: MetaItem[], value: number, orderId: number | string, invoice?: string) {
+export function deferPurchase(
+  items: MetaItem[],
+  value: number,
+  orderId: number | string,
+  invoice?: string,
+  extras?: PurchaseExtras
+) {
   try {
     sessionStorage.setItem(
       pendingKey(orderId),
-      JSON.stringify({ items, value, orderId, invoice } satisfies PendingPurchase)
+      JSON.stringify({ items, value, orderId, invoice, extras } satisfies PendingPurchase)
     );
   } catch {
     // storage unavailable — the server half still records the purchase
@@ -91,5 +120,5 @@ export function trackDeferredPurchase(orderId: number | string) {
     return;
   }
   if (!pending || String(pending.orderId) !== String(orderId)) return;
-  track.purchase(pending.items, pending.value, pending.orderId, pending.invoice);
+  track.purchase(pending.items, pending.value, pending.orderId, pending.invoice, pending.extras);
 }

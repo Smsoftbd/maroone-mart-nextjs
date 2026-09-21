@@ -33,22 +33,21 @@ export async function POST(req: NextRequest) {
         ...(orderId ? { order_id: orderId } : {}),
         ...(data.tran_id ? { tran_id: data.tran_id } : {}),
       });
-      const res = NextResponse.redirect(new URL(`/payment/result?${params}`, req.url));
-      // Paid — now the order counts as a Purchase.
-      if (orderId) trackPaidPurchase(req, res, Number(orderId), Number(data.amount));
-      return res;
+      // Paid — now the order counts as a Purchase (unless the IPN got there first).
+      if (orderId) trackPaidPurchase(req, Number(orderId), Number(data.amount), "browser");
+      return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url), 303);
     }
 
     const params = new URLSearchParams({
       status: "failed",
       ...(orderId ? { order_id: orderId } : {}),
     });
-    return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url));
+    return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url), 303);
   } catch {
     const params = new URLSearchParams({
       status: "failed",
       ...(orderId ? { order_id: orderId } : {}),
     });
-    return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url));
+    return NextResponse.redirect(new URL(`/payment/result?${params}`, req.url), 303);
   }
 }

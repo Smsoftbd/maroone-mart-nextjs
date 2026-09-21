@@ -4,6 +4,7 @@ import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { appToast } from "@/lib/utils/toast";
 import { track } from "@/lib/analytics/track";
+import { cartTrackItem } from "@/lib/hooks/useTrackViewCart";
 import type { Attribute } from "@/lib/api/types";
 
 export function useCart() {
@@ -30,8 +31,12 @@ export function useCart() {
   };
 
   const updateItem = async (cartItemId: number, quantity: number) => {
+    const before = store.items.find((i) => i.id === cartItemId);
     try {
       await store.updateItem(cartItemId, quantity, token);
+      const delta = before ? quantity - before.quantity : 0;
+      if (before && delta > 0) track.addToCart(cartTrackItem(before, delta));
+      if (before && delta < 0) track.removeFromCart(cartTrackItem(before, -delta));
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;
       appToast.apiError(msg);
@@ -39,8 +44,10 @@ export function useCart() {
   };
 
   const removeItem = async (cartItemId: number) => {
+    const before = store.items.find((i) => i.id === cartItemId);
     try {
       await store.removeItem(cartItemId, token);
+      if (before) track.removeFromCart(cartTrackItem(before));
       appToast.removedFromCart();
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

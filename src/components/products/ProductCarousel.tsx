@@ -5,6 +5,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard, type ProductCardVariant } from "./ProductCard";
+import { ItemListTracker } from "@/components/analytics/ItemListTracker";
+import type { ItemList } from "@/lib/analytics/track";
 import type { Product } from "@/lib/api/types";
 
 import "swiper/css";
@@ -14,19 +16,22 @@ interface ProductCarouselProps {
   products: Product[];
   currency: string;
   variant?: ProductCardVariant;
+  /** GA4 list for view_item_list / select_item. */
+  list?: ItemList;
 }
 
 export function ProductCarousel({
   products,
   currency,
   variant = "default",
+  list,
 }: ProductCarouselProps) {
   const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
   const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
 
   if (!products.length) return null;
 
-  return (
+  const carousel = (
     <div
       className={
         variant === "minimal" ? "" : "sm:shadow-lg sm:bg-white rounded-xl sm:p-6"
@@ -69,5 +74,13 @@ export function ProductCarousel({
         </button>
       </div>
     </div>
+  );
+
+  return list ? (
+    <ItemListTracker list={list} products={products}>
+      {carousel}
+    </ItemListTracker>
+  ) : (
+    carousel
   );
 }

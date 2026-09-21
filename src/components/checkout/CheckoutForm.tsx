@@ -196,6 +196,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
             external_id: customer?.id ? String(customer.id) : undefined,
             event_source_url: window.location.href,
             payment_gateway: paymentMethod.code,
+            item_names: Object.fromEntries(items.map((i) => [String(i.barcode_id), i.product_name])),
           },
         }),
       });
@@ -224,7 +225,8 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         metaItems(),
         Number(result.order.net_total) || total,
         result.order.id,
-        result.order.invoice_number
+        result.order.invoice_number,
+        { coupon: couponCode || undefined, shipping: shippingCost, tax: 0 }
       );
 
       if (gateway === "sslcommerz") {
@@ -311,7 +313,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
     );
     if (!paymentInfoTracked) {
       setPaymentInfoTracked(true);
-      track.addPaymentInfo(metaItems(), total);
+      track.addPaymentInfo(metaItems(), total, paymentMethod.code);
     }
     // Gate on a modal only when the store requires it and this phone isn't verified yet.
     if (requiresCheckoutOtp && verifiedPhone !== phone) {

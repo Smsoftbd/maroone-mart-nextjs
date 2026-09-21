@@ -14,6 +14,9 @@ import { getPages } from "@/lib/api/content";
 import { getLocale } from "@/lib/i18n/locale";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
 import { getGtmConfig, stripGtmSnippet } from "@/lib/analytics/gtm-config";
+import { getConsentBannerMode, getDefaultConsent } from "@/lib/analytics/consent-server";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
+import { headers } from "next/headers";
 
 export default async function StoreLayout({
   children,
@@ -28,6 +31,8 @@ export default async function StoreLayout({
     getTranslations(locale),
   ]);
   const footerScript = stripGtmSnippet(store.scripts.footer, getGtmConfig()?.id);
+  const consentMode = getConsentBannerMode();
+  const defaultConsent = getDefaultConsent(await headers());
 
   return (
     <I18nProvider locale={locale} dict={dict}>
@@ -47,6 +52,9 @@ export default async function StoreLayout({
         standard={<Footer store={store} pages={pages} />}
       />
       {footerScript && <script dangerouslySetInnerHTML={{ __html: footerScript }} />}
+      {consentMode !== "off" && (
+        <ConsentBanner mode={consentMode} defaultConsent={defaultConsent} />
+      )}
     </I18nProvider>
   );
 }
