@@ -1,80 +1,86 @@
-"use client";
-
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
 import { SectionHeader } from "./SectionHeader";
-import { useT } from "@/lib/i18n/I18nProvider";
-import type { HomepageCategory } from "@/lib/api/types";
-
-import "swiper/css";
-import "swiper/css/pagination";
+import { getServerT } from "@/lib/i18n/server";
+import type { HomepageCategory, StoreThemePage } from "@/lib/api/types";
 
 interface PopularCategoriesProps {
   categories: HomepageCategory[];
+  style: StoreThemePage["category_style"];
+  title?: string | null;
+  subtitle?: string | null;
+  viewAll?: boolean;
 }
 
-export function PopularCategories({ categories }: PopularCategoriesProps) {
-  const t = useT();
-  const [dotsEl, setDotsEl] = useState<HTMLDivElement | null>(null);
-
+/**
+ * Category band (section.category_band_*). page.category_style picks tiles,
+ * circles or chips; page.category_columns sets tiles/circles per row.
+ */
+export async function PopularCategories({ categories, style, title, subtitle, viewAll }: PopularCategoriesProps) {
   if (!categories.length) return null;
+  const t = await getServerT();
+  const bandText = "text-[var(--color-section-category-band-text,var(--color-secondary-text))]";
 
   return (
-    <section className="bg-[var(--color-section-category-band-bg,var(--color-secondary-500))] py-10 lg:py-12">
+    <section className="home-section bg-[var(--color-section-category-band-bg,var(--color-secondary-500))]" data-reveal>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
-          title={t("popular_categories", "Popular Categories")}
-          viewAllHref="/categories"
+          title={title || t("popular_categories", "Popular Categories")}
+          subtitle={subtitle}
+          viewAllHref={viewAll ? "/categories" : undefined}
           viewAllLabel={t("view_all", "View All")}
           inverted
         />
 
-        <Swiper
-          modules={[Autoplay, Pagination]}
-          spaceBetween={16}
-          grabCursor
-          watchOverflow
-          autoplay={{ delay: 4000, disableOnInteraction: false, pauseOnMouseEnter: true }}
-          pagination={{ el: dotsEl, clickable: true }}
-          breakpoints={{
-            0: { slidesPerView: 3.3, slidesPerGroup: 3 },
-            640: { slidesPerView: 4, slidesPerGroup: 4 },
-            1024: { slidesPerView: 6, slidesPerGroup: 6 },
-          }}
-        >
-          {categories.map((cat) => (
-            <SwiperSlide key={cat.id}>
+        {style === "chip" ? (
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:flex-wrap sm:px-0">
+            {categories.map((cat) => (
               <Link
+                key={cat.id}
                 href={`/products?category=${cat.slug}`}
-                className="group flex flex-col items-center gap-3 text-center"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] py-1.5 pl-1.5 pr-4 text-sm font-medium text-[var(--color-text-primary)] transition-transform hover:-translate-y-0.5"
               >
-                <span className="relative flex aspect-square w-full max-w-[140px] items-center justify-center overflow-hidden rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] p-3 shadow-sm ring-4 ring-[color-mix(in_srgb,currentColor_20%,transparent)] transition-transform duration-300 group-hover:-translate-y-1">
+                <span className="relative flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-[var(--color-card-image-bg,var(--color-surface-100))]">
                   {cat.image ? (
-                    <span className="relative block h-full w-full overflow-hidden rounded-full">
+                    <Image src={cat.image} alt="" fill sizes="28px" className="object-cover" />
+                  ) : (
+                    <span className="text-xs font-bold text-brand-ink">{cat.name[0]}</span>
+                  )}
+                </span>
+                {cat.name}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <ul className={`category-grid category-grid-${style}`}>
+            {categories.map((cat) => (
+              <li key={cat.id}>
+                <Link href={`/products?category=${cat.slug}`} className="group flex flex-col items-center gap-2.5 text-center">
+                  <span
+                    className={
+                      style === "circle"
+                        ? "relative flex aspect-square w-full max-w-[140px] items-center justify-center overflow-hidden rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] ring-4 ring-[color-mix(in_srgb,currentColor_20%,transparent)] transition-transform duration-[var(--effects-transition-speed,200ms)] group-hover:-translate-y-1"
+                        : "store-card relative flex aspect-square w-full items-center justify-center overflow-hidden !bg-[var(--color-section-category-card-bg,var(--color-surface))]"
+                    }
+                  >
+                    {cat.image ? (
                       <Image
                         src={cat.image}
                         alt={cat.name}
                         fill
-                        sizes="140px"
-                        className="object-cover"
+                        sizes="(min-width: 1024px) 160px, 30vw"
+                        className={style === "circle" ? "object-cover" : "object-contain p-3"}
                       />
-                    </span>
-                  ) : (
-                    <span className="text-3xl font-bold text-brand-ink">{cat.name[0]}</span>
-                  )}
-                </span>
-                <span className="line-clamp-2 text-xs font-medium text-[var(--color-section-category-band-text,var(--color-secondary-text))] sm:text-sm">
-                  {cat.name}
-                </span>
-              </Link>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-
-        <div ref={setDotsEl} className="home-dots home-dots-secondary mt-6 flex justify-center" />
+                    ) : (
+                      <span className="text-3xl font-bold text-brand-ink">{cat.name[0]}</span>
+                    )}
+                  </span>
+                  <span className={`line-clamp-2 text-xs font-medium sm:text-sm ${bandText}`}>{cat.name}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   );

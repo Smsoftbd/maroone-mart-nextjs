@@ -64,12 +64,16 @@ export interface Store {
     tertiary_text: string;
     default_text: string;
   };
-  /** Full Appearance theme; null when the backend predates it. */
-  theme: StoreTheme | null;
-  /** Server-validated `:root{…}` block for `theme` (safe to inline). */
+  /** Appearance choice tokens, always complete (defaults fill what the API omits). */
+  theme: StoreTheme;
+  /** Server-validated `:root{…}` block incl. dark scheme + custom CSS (safe to inline). */
   theme_css: string | null;
   /** Google Fonts stylesheet for the heading + body fonts. */
   theme_fonts_url: string | null;
+  /** `data-*` attributes for <body> (every choice token). */
+  theme_attributes: Record<string, string>;
+  /** Homepage blocks in the owner's order (disabled ones included). */
+  homepage_sections: HomepageSection[];
   features: {
     wishlist: boolean;
     reviews: boolean;
@@ -103,26 +107,130 @@ export interface Store {
 }
 
 // ─── Appearance theme ───────────────────────────────────────────────────────
-// Only the groups the app reads in TS are typed; every token is available as a
-// CSS variable (see src/lib/utils/theme.ts).
+// Only the choice tokens the app reads in TS are typed; every token (colors,
+// sizes …) is also a CSS variable, and every choice is a <body data-*>
+// attribute (see src/lib/utils/theme.ts).
 
 export type HeaderStyle = "classic" | "centered" | "minimal";
 export type CardStyle = "bordered" | "elevated" | "flat";
 
 export interface StoreThemeLayout {
   container_width: number;
+  container_padding: number;
   header_style: HeaderStyle;
+  header_height: number;
+  logo_height: number;
   sticky_header: boolean;
+  header_divider: "none" | "line" | "shadow";
+  nav_align: "left" | "center";
+  cart_icon: "bag" | "cart" | "basket";
+  mobile_nav: "drawer" | "bottom";
   card_style: CardStyle;
   image_ratio: string;
   products_per_row: number;
   mobile_columns: number;
+  grid_gap: number;
+  filter_position: "left" | "right" | "drawer";
+  pagination: "numbers" | "load_more" | "infinite";
+  shop_banner: boolean;
+}
+
+export interface StoreThemePage {
+  announcement_bar: boolean;
+  announcement_style: "static" | "marquee";
+  hero_style: "split" | "split_reverse" | "centered" | "banner" | "minimal";
+  hero_height: "sm" | "md" | "lg";
+  hero_align: "start" | "center" | "end";
+  category_style: "tile" | "circle" | "chip";
+  category_columns: number;
+  section_spacing: "compact" | "normal" | "relaxed";
+  section_title_align: "left" | "center";
+  section_title_decor: "none" | "underline" | "bar" | "lines";
+  trust_bar: boolean;
+  newsletter_style: "card" | "band" | "minimal" | "hidden";
+  page_pattern: "none" | "dots" | "grid" | "glow";
+  breadcrumbs: boolean;
+  footer_style: "columns" | "centered" | "minimal";
+  footer_newsletter: boolean;
+  payment_icons: boolean;
+  back_to_top: boolean;
+}
+
+export interface StoreThemeProduct {
+  text_align: "left" | "center";
+  title_lines: number;
+  image_fit: "cover" | "contain";
+  hover_image: boolean;
+  add_to_cart: "button" | "icon" | "hover" | "hidden";
+  quick_view: boolean;
+  badge_position: "left" | "right";
+  sale_display: "percent" | "amount" | "label";
+  rating_style: "stars" | "compact";
+  show_brand: boolean;
+  show_swatches: boolean;
+  show_rating: boolean;
+  show_stock: boolean;
+  show_wishlist: boolean;
+  show_old_price: boolean;
+  gallery_layout: "thumbs_bottom" | "thumbs_left" | "grid";
+  info_layout: "tabs" | "accordion" | "stacked";
+  variant_style: "buttons" | "pills" | "dropdown";
+  sticky_cart: boolean;
+  show_trust: boolean;
+}
+
+export interface StoreThemeEffects {
+  animation: "none" | "subtle" | "lively";
+  button_hover: "darken" | "lift" | "glow" | "shine" | "none";
+  card_hover: "none" | "border" | "lift" | "zoom" | "glow" | "tilt";
+  gradient_buttons: boolean;
+  gradient_hero: boolean;
+  glass_header: boolean;
+  page_fade: boolean;
+  skeleton: "shimmer" | "pulse" | "none";
+  toast_position: "top-right" | "top-center" | "bottom-right" | "bottom-center";
+  cart_feedback: "drawer" | "toast" | "bounce";
 }
 
 export interface StoreTheme {
-  version?: number;
   layout: StoreThemeLayout;
-  [group: string]: unknown;
+  page: StoreThemePage;
+  product: StoreThemeProduct;
+  effects: StoreThemeEffects;
+  dark: { mode: "off" | "auto" | "toggle" };
+  typography: { link_underline: "none" | "hover" | "always" };
+  shape: {
+    button_size: "sm" | "md" | "lg";
+    input_style: "outlined" | "filled" | "underlined";
+    badge_style: "solid" | "soft" | "outline";
+  };
+}
+
+export type HomepageSectionKey =
+  | "banner"
+  | "categories"
+  | "featured_products"
+  | "flash_sale"
+  | "new_arrivals"
+  | "top_selling"
+  | "reviews"
+  | "blog"
+  | "newsletter";
+
+/** One homepage block from Appearance → Sections (titles already resolved). */
+export interface HomepageSection {
+  key: HomepageSectionKey | (string & {});
+  enabled: boolean;
+  /** Owner's title in the visitor's language; null → use the storefront's own. */
+  title: string | null;
+  subtitle: string | null;
+  limit: number | null;
+  layout: "grid" | "slider" | null;
+  view_all: boolean;
+  autoplay: boolean;
+  /** Seconds between banner slides. */
+  interval: number;
+  countdown: boolean;
 }
 
 // ─── Categories ─────────────────────────────────────────────────────────────

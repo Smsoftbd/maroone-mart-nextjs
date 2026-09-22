@@ -1,6 +1,7 @@
 import { PackageCheck, Truck, CreditCard, Headphones } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
 
+/** Trust bar under the banner (page.trust_bar; colors section.trust_bar_*). */
 export async function FeatureHighlights() {
   const t = await getServerT();
   const items = [
@@ -11,14 +12,14 @@ export async function FeatureHighlights() {
   ];
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10">
-      <ul className="grid grid-cols-2 gap-y-5 rounded-2xl border border-slate-200 bg-surface px-4 py-5 lg:grid-cols-4 lg:rounded-full lg:px-8 lg:py-6">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-4" data-reveal>
+      <ul className="trust-bar grid grid-cols-2 gap-y-5 px-4 py-5 lg:grid-cols-4 lg:px-8 lg:py-6">
         {items.map(({ icon: Icon, label }, i) => (
           <li
             key={label}
-            className={`flex items-center gap-3 px-2 lg:justify-center lg:px-6 ${i > 0 ? "lg:border-l lg:border-slate-200" : ""}`}
+            className={`flex items-center gap-3 px-2 lg:justify-center lg:px-6 ${i > 0 ? "lg:border-l lg:border-[var(--color-border)]" : ""}`}
           >
-            <Icon className="h-8 w-8 shrink-0 text-slate-700 lg:h-9 lg:w-9" strokeWidth={1.25} />
+            <Icon className="h-8 w-8 shrink-0 lg:h-9 lg:w-9" strokeWidth={1.25} />
             <span className="text-xs font-semibold leading-snug text-[var(--color-text-primary)] sm:text-sm">{label}</span>
           </li>
         ))}

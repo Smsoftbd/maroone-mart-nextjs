@@ -9,22 +9,21 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean;
 }
 
+// Colors, hover effect (effects.button_hover), gradient and size
+// (shape.button_size, for "md") come from the theme classes in globals.css.
 const variants = {
-  primary:
-    "bg-[var(--color-button-primary-bg,var(--color-brand-500))] text-[var(--color-button-primary-text,var(--color-primary-text))] border-[color:var(--color-button-primary-border,transparent)] hover:bg-[var(--color-button-primary-hover-bg,var(--color-brand-600))] active:scale-95 transition-all",
-  secondary:
-    "bg-[var(--color-button-secondary-bg,var(--color-secondary-500))] text-[var(--color-button-secondary-text,var(--color-secondary-text))] border-[color:var(--color-button-secondary-border,transparent)] hover:bg-[var(--color-button-secondary-hover-bg,var(--color-secondary-600))] transition-colors",
+  primary: "btn btn-primary",
+  secondary: "btn btn-secondary",
   // Promotions only (subscribe, claim offer) — at most one per screen.
-  accent:
-    "bg-tertiary-500 text-[var(--color-tertiary-text)] hover:bg-tertiary-600 transition-colors",
+  accent: "btn bg-tertiary-500 text-[var(--color-tertiary-text)] hover:bg-tertiary-600",
   ghost: "text-brand-ink hover:underline transition-colors",
-  danger: "bg-red-600 text-[var(--color-status-error-text,#fff)] hover:opacity-90 transition-opacity",
+  danger: "btn bg-red-600 text-[var(--color-status-error-text,#fff)] hover:opacity-90",
 };
 
 const sizes = {
-  sm: "px-3 py-1.5 text-sm",
-  md: "px-5 py-2.5 text-sm",
-  lg: "px-6 py-3 text-base",
+  sm: "!min-h-0 px-3 py-1.5 text-sm",
+  md: "text-sm",
+  lg: "!min-h-0 px-6 py-3 text-base",
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -45,9 +44,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        "btn-shape inline-flex items-center justify-center gap-2 font-body font-medium",
-        variant !== "ghost" && "border-[length:var(--shape-border-width,1px)] border-transparent",
-        "disabled:cursor-not-allowed disabled:bg-[var(--color-button-disabled-bg,var(--color-surface-100))] disabled:text-[var(--color-button-disabled-text,var(--color-text-muted))] disabled:border-transparent",
+        "btn-shape inline-flex items-center justify-center gap-2 font-body",
+        "disabled:cursor-not-allowed",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
         variants[variant],
         sizes[size],

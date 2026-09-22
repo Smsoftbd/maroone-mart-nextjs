@@ -25,7 +25,7 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
     "flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm tabular-nums transition-colors";
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
       <SectionHeader
         title={t("all_products", "All Products")}
         viewAllHref="/products"

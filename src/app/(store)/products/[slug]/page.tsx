@@ -117,11 +117,13 @@ export default async function ProductPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: breadcrumbSchema(breadcrumbItems) }}
       />
 
+      {store.theme.page.breadcrumbs && (
       <div className="text-xs [&_ol]:text-xs [&_li:last-child]:max-w-[12rem] sm:[&_li:last-child]:max-w-xs [&_li:last-child_span]:truncate [&_li:last-child]:min-w-0">
         <Breadcrumb
           items={breadcrumbItems.map((i) => ({ label: i.name, href: i.url }))}
         />
       </div>
+      )}
 
       <div className="mt-4">
         <ProductInfo

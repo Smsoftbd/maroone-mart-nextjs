@@ -364,6 +364,34 @@ function FilterContent({
   );
 }
 
+/**
+ * Inline filter column for layout.filter_position = left | right (desktop).
+ * Phones, and the "drawer" setting, use the ProductFilters button instead.
+ */
+export function ProductFilterSidebar(props: Omit<ProductFiltersProps, "total">) {
+  const filters = useFilterParams();
+  const t = useT();
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between pb-2">
+        <h2 className="text-base font-semibold">{t("filter", "Filter")}</h2>
+        {filters.activeCount > 0 && (
+          <button type="button" onClick={filters.clearAll} className="text-xs font-medium text-brand-ink hover:underline">
+            {t("clear_all", "Clear all")}
+          </button>
+        )}
+      </div>
+      <ActiveFilters
+        categories={props.categories}
+        brands={props.brands}
+        filterAttributes={props.filterAttributes}
+        currency={props.currency}
+      />
+      <FilterContent {...props} filters={filters} />
+    </div>
+  );
+}
+
 export function ProductFilters({ total, ...props }: ProductFiltersProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const filters = useFilterParams();
@@ -375,7 +403,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
       <button
         type="button"
         onClick={() => setDrawerOpen(true)}
-        className="flex h-[52px] w-full shrink-0 items-center gap-2.5 rounded-lg bg-slate-50 px-4 text-sm text-slate-800 transition-colors hover:bg-slate-100 sm:w-60 lg:w-[210px]"
+        className="filters-button flex h-[52px] w-full shrink-0 items-center gap-2.5 rounded-lg bg-slate-50 px-4 text-sm text-slate-800 transition-colors hover:bg-slate-100 sm:w-60 lg:w-[210px]"
       >
         <Filter className="h-4 w-4" />
         {t("filter", "Filter")}

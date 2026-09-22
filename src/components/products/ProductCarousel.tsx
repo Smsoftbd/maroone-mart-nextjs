@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductCard, type ProductCardVariant } from "./ProductCard";
+import { useTheme } from "@/components/providers/StoreConfigProvider";
 import { ItemListTracker } from "@/components/analytics/ItemListTracker";
 import type { ItemList } from "@/lib/analytics/track";
 import type { Product } from "@/lib/api/types";
@@ -18,8 +19,8 @@ interface ProductCarouselProps {
   variant?: ProductCardVariant;
   /** GA4 list for view_item_list / select_item. */
   list?: ItemList;
-  /** Slides per view from `xl` up. */
-  columns?: 4 | 5;
+  /** Slides per view from `xl` up; defaults to layout.products_per_row. */
+  columns?: number;
 }
 
 export function ProductCarousel({
@@ -27,35 +28,32 @@ export function ProductCarousel({
   currency,
   variant = "default",
   list,
-  columns = 4,
+  columns,
 }: ProductCarouselProps) {
+  const { layout } = useTheme();
+  const perRow = columns ?? layout.products_per_row;
+  const mobile = layout.mobile_columns === 1 ? 1.15 : 2.15;
   const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
   const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
 
   if (!products.length) return null;
 
   const carousel = (
-    <div
-      className={
-        variant === "minimal" || variant === "shop"
-          ? ""
-          : "sm:shadow-lg sm:bg-surface rounded-xl sm:p-6"
-      }
-    >
+    <div>
       <div className="relative">
         <Swiper
           modules={[Navigation]}
-          spaceBetween={variant === "shop" ? 16 : 20}
+          spaceBetween={layout.grid_gap}
           grabCursor
           watchOverflow
           breakpoints={{
-            0: { slidesPerView: 2.15 },
-            640: { slidesPerView: 3 },
-            1024: { slidesPerView: 4 },
-            1280: { slidesPerView: columns },
+            0: { slidesPerView: mobile },
+            640: { slidesPerView: Math.min(3, perRow) },
+            1024: { slidesPerView: Math.min(4, perRow) },
+            1280: { slidesPerView: perRow },
           }}
           navigation={{ prevEl, nextEl }}
-          className={`product-carousel !py-1${columns === 5 ? " product-carousel-5" : ""}`}
+          className="product-carousel !py-1"
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="!h-auto">
@@ -67,14 +65,14 @@ export function ProductCarousel({
         <button
           ref={setPrevEl}
           aria-label="Previous products"
-          className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-surface shadow-md border border-slate-200 text-slate-700 transition-opacity hover:opacity-80 disabled:opacity-0"
+          className="carousel-arrow -left-4"
         >
           <ChevronLeft height={20} width={20} />
         </button>
         <button
           ref={setNextEl}
           aria-label="Next products"
-          className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-surface shadow-md border border-slate-200 text-slate-700 transition-opacity hover:opacity-80 disabled:opacity-0"
+          className="carousel-arrow -right-4"
         >
           <ChevronRight height={20} width={20} />
         </button>

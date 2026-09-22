@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getVideoEmbedSrc, getTweetUrl } from "@/lib/utils/video";
+import { useTheme } from "@/components/providers/StoreConfigProvider";
 
 const ZOOM = 2.2;
 const SWIPE_THRESHOLD = 40;
@@ -59,10 +60,16 @@ function TwitterEmbed({ videoId }: { videoId: string }) {
   );
 }
 
+/**
+ * Product gallery; product.gallery_layout picks thumbnails below, a vertical
+ * strip on the left (below on phones), or every image in a 2-column grid
+ * (desktop; phones keep the swipeable main image).
+ */
 export function ProductImageGallery({
   images,
   productName,
 }: ProductImageGalleryProps) {
+  const layout = useTheme().product.gallery_layout;
   const [activeIndex, setActiveIndex] = useState(0);
   const [origin, setOrigin] = useState<{ x: number; y: number } | null>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -114,19 +121,60 @@ export function ProductImageGallery({
       : null;
 
   const frame =
-    "relative w-full aspect-square rounded-lg overflow-hidden bg-surface-100";
+    "relative w-full aspect-square rounded-[var(--shape-image-radius,0.5rem)] overflow-hidden bg-[var(--color-card-image-bg,var(--color-surface-100))]";
+  const left = layout === "thumbs_left";
+  const grid = layout === "grid" && count > 1;
 
   return (
     <div>
+      {grid && (
+        <div className="hidden lg:grid grid-cols-2 gap-3">
+          {images.map((img, i) =>
+            img.kind === "video" && img.provider ? (
+              <div key={img.id ?? i} className={cn(frame, "bg-black")}>
+                {img.provider === "twitter" ? (
+                  <TwitterEmbed videoId={img.videoId ?? ""} />
+                ) : (
+                  <iframe
+                    src={getVideoEmbedSrc(img.provider, img.videoId ?? "") ?? undefined}
+                    title={`${productName} video`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full"
+                  />
+                )}
+              </div>
+            ) : (
+              <div key={img.id ?? i} className={frame}>
+                <Image
+                  src={img.url}
+                  alt={`${productName} — image ${i + 1}`}
+                  fill
+                  sizes="(max-width: 1024px) 50vw, 240px"
+                  priority={i === 0}
+                  className="object-contain"
+                />
+              </div>
+            )
+          )}
+        </div>
+      )}
       <div
         className={cn(
           "flex flex-col",
-          count > 1 && "lg:grid lg:grid-cols-[64px_1fr] lg:gap-3"
+          grid && "lg:hidden",
+          left && count > 1 && "lg:grid lg:grid-cols-[64px_1fr] lg:gap-3"
         )}
       >
         {/* Thumbnails */}
         {count > 1 && (
-          <div className="order-2 lg:order-1 mt-3 lg:mt-0 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible lg:max-h-[28rem] lg:overflow-y-auto scrollbar-none -mx-4 px-4 lg:mx-0 lg:p-0.5">
+          <div
+            className={cn(
+              "order-2 mt-3 flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0.5 lg:py-0.5",
+              left && "lg:order-1 lg:mt-0 lg:flex-col lg:overflow-x-visible lg:max-h-[28rem] lg:overflow-y-auto"
+            )}
+          >
             {images.map((img, i) => (
               <button
                 key={img.id ?? i}
@@ -137,7 +185,7 @@ export function ProductImageGallery({
                 aria-label={img.kind === "video" ? "Play video" : `View image ${i + 1}`}
                 aria-pressed={i === activeIndex}
                 className={cn(
-                  "relative shrink-0 w-16 h-16 rounded-md overflow-hidden bg-surface-100 border border-[var(--color-border)] transition-all",
+                  "relative shrink-0 w-16 h-16 rounded-[calc(var(--shape-image-radius,0.5rem)*0.6)] overflow-hidden bg-surface-100 border border-[var(--color-border)] transition-all",
                   i === activeIndex
                     ? "ring-2 ring-brand-500"
                     : "opacity-60 hover:opacity-100"
@@ -164,7 +212,7 @@ export function ProductImageGallery({
 
         {/* Main area — image (hover to zoom) or video embed */}
         <div
-          className="order-1 lg:order-2 relative group/main"
+          className={cn("order-1 relative group/main", left && "lg:order-2")}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
           onKeyDown={onKeyDown}

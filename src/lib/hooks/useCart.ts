@@ -7,6 +7,15 @@ import { track } from "@/lib/analytics/track";
 import { cartTrackItem } from "@/lib/hooks/useTrackViewCart";
 import type { Attribute } from "@/lib/api/types";
 
+/** Bounce every header / tab-bar cart icon (effects.cart_feedback = bounce). */
+function bounceCartIcons() {
+  document.querySelectorAll<HTMLElement>(".cart-icon-btn").forEach((el) => {
+    el.classList.remove("is-bouncing");
+    void el.offsetWidth; // restart the animation
+    el.classList.add("is-bouncing");
+  });
+}
+
 export function useCart() {
   const store = useCartStore();
   const token = useAuthStore((s) => s.token);
@@ -18,11 +27,15 @@ export function useCart() {
     unitPrice?: number,
     stock?: number,
     attributes?: Attribute[],
+    /** false for buy-now flows: no drawer, toast or bounce. */
     { openDrawer = true }: { openDrawer?: boolean } = {}
   ) => {
+    // Appearance effects.cart_feedback, mirrored on <body data-cart-feedback>.
+    const feedback = openDrawer ? document.body.dataset.cartFeedback ?? "drawer" : "none";
     try {
-      await store.addItem(barcodeId, quantity, token, unitPrice, stock, attributes, openDrawer);
-      if (productName) appToast.addedToCart(productName);
+      await store.addItem(barcodeId, quantity, token, unitPrice, stock, attributes, feedback === "drawer");
+      if (feedback === "toast" && productName) appToast.addedToCart(productName);
+      if (feedback === "bounce") bounceCartIcons();
       track.addToCart({ id: barcodeId, name: productName, price: unitPrice ?? 0, quantity });
     } catch (e) {
       const msg = e instanceof Error ? e.message : undefined;

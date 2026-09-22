@@ -3,14 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, Search, ShoppingCart, User, ChevronDown, ChevronRight } from "lucide-react";
+import { Menu, Search, ShoppingBag, ShoppingBasket, ShoppingCart, User, ChevronDown, ChevronRight } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
-import { DEFAULT_LAYOUT } from "@/lib/utils/theme";
 import { SearchBox } from "./SearchBox";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { ColorSchemeToggle } from "./ColorSchemeToggle";
 import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Store } from "@/lib/api/types";
 
@@ -21,6 +21,7 @@ interface HomeNavbarProps {
 }
 
 const circleBtn = "header-icon-btn relative flex h-11 w-11 items-center justify-center rounded-full";
+const CART_ICONS = { bag: ShoppingBag, cart: ShoppingCart, basket: ShoppingBasket };
 const iconBtn = "rounded-full p-2 text-[var(--color-header-icon,currentColor)] hover:bg-[color-mix(in_srgb,currentColor_8%,transparent)]";
 
 /**
@@ -28,7 +29,8 @@ const iconBtn = "rounded-full p-2 text-[var(--color-header-icon,currentColor)] h
  * - classic:  logo, nav, search bar, icons
  * - centered: nav left, logo centered, search behind an icon
  * - minimal:  logo, nav, icons; no search bar on desktop
- * `sticky_header` pins it while scrolling.
+ * `sticky_header` pins it while scrolling; height, logo size, menu alignment,
+ * bottom edge and the glass effect come from the theme (see globals.css).
  */
 export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
   const t = useT();
@@ -42,7 +44,9 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
   const navCategories = categories.slice(0, 14);
   const active = navCategories.find((c) => c.id === activeCat);
 
-  const layout = store.theme?.layout ?? DEFAULT_LAYOUT;
+  const layout = store.theme.layout;
+  const CartIcon = CART_ICONS[layout.cart_icon];
+  const bottomNav = layout.mobile_nav === "bottom";
   const style = layout.header_style;
   const centered = style === "centered";
   const navLink = "header-nav-link text-sm";
@@ -55,7 +59,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
           alt={store.name}
           width={200}
           height={60}
-          className="h-9 w-auto max-w-[140px] object-contain lg:h-11 lg:max-w-[180px]"
+          className="site-logo w-auto max-w-[140px] object-contain lg:max-w-[180px]"
           priority
         />
       ) : (
@@ -67,21 +71,21 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
   return (
     <header
       className={cn(
-        "site-header z-40 transition-shadow duration-300",
+        "site-header z-40",
         layout.sticky_header ? "sticky top-0" : "relative",
-        layout.sticky_header && scrolled && "shadow-md"
+        scrolled && "is-scrolled"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={cn(
-            "h-16 items-center gap-3 lg:h-20 lg:gap-6",
+            "header-row items-center gap-3 lg:gap-6",
             centered ? "grid grid-cols-[1fr_auto_1fr]" : "flex"
           )}
         >
           <div className={cn("flex items-center gap-6", !centered && "contents")}>
           <button
-            className={cn("lg:hidden -ml-2", iconBtn)}
+            className={cn("lg:hidden -ml-2", iconBtn, bottomNav && "hidden")}
             onClick={toggleMobileNav}
             aria-label={t("open_menu", "Open menu")}
           >
@@ -91,7 +95,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
           {!centered && logo}
 
           {/* Desktop nav */}
-          <nav className="hidden items-center gap-6 lg:flex">
+          <nav className="header-nav hidden items-center gap-6 lg:flex">
             {navCategories.length > 0 && (
               <div
                 className="relative"
@@ -205,16 +209,18 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
 
             <button
               onClick={openCart}
-              className={cn(circleBtn, "h-10 w-10 lg:h-11 lg:w-11")}
+              className={cn(circleBtn, "cart-icon-btn h-10 w-10 lg:h-11 lg:w-11")}
               aria-label={`Cart, ${totalItems} items`}
             >
-              <ShoppingCart className="h-5 w-5" />
+              <CartIcon className="h-5 w-5" />
               {totalItems > 0 && (
                 <span className="cart-badge absolute -right-1 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-semibold">
                   {totalItems > 99 ? "99+" : totalItems}
                 </span>
               )}
             </button>
+
+            <ColorSchemeToggle className={cn(iconBtn, "flex")} />
 
             <LanguageSwitcher
               languages={store.languages}

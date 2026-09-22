@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { Footer } from "@/components/layout/Footer";
-import { FooterMinimal } from "@/components/layout/FooterMinimal";
-import { FooterSwitch } from "@/components/layout/FooterSwitch";
+import { BottomTabBar } from "@/components/layout/BottomTabBar";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingCart } from "@/components/cart/FloatingCart";
@@ -47,10 +47,9 @@ export default async function StoreLayout({
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <FooterSwitch
-        home={<FooterMinimal store={store} pages={pages} />}
-        standard={<Footer store={store} pages={pages} />}
-      />
+      <Footer store={store} pages={pages} />
+      <ScrollToTop />
+      <BottomTabBar guestOnly={store.auth_mode === "guest_only"} />
       {footerScript && <script dangerouslySetInnerHTML={{ __html: footerScript }} />}
       {consentMode !== "off" && (
         <ConsentBanner mode={consentMode} defaultConsent={defaultConsent} />

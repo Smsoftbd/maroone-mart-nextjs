@@ -13,15 +13,23 @@ import "swiper/css/pagination";
 
 interface SliderProps {
   sliders: SliderType[];
+  /** Homepage section settings (Appearance → Sections → Banner). */
+  autoplay?: boolean;
+  /** Seconds between slides. */
+  interval?: number;
 }
 
-export function Slider({ sliders }: SliderProps) {
+/**
+ * Homepage hero: the banner slider inside `.hero`. page.hero_style,
+ * hero_height and effects.gradient_hero shape the frame (globals.css).
+ */
+export function Slider({ sliders, autoplay = true, interval = 5 }: SliderProps) {
   const [dotsEl, setDotsEl] = useState<HTMLDivElement | null>(null);
 
   if (!sliders.length) return null;
 
   return (
-    <section className="banner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6">
+    <section className="banner hero-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6">
       <div className="relative">
         <Swiper
           modules={[EffectFade, Autoplay, Pagination]}
@@ -29,10 +37,10 @@ export function Slider({ sliders }: SliderProps) {
           fadeEffect={{ crossFade: true }}
           speed={1200}
           loop={sliders.length > 1}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
+          autoplay={autoplay && sliders.length > 1 ? { delay: interval * 1000, disableOnInteraction: false } : false}
           pagination={{ el: dotsEl, clickable: true }}
           watchSlidesProgress
-          className="hero-slider overflow-hidden rounded-2xl bg-[var(--color-section-hero-bg,var(--color-surface-100))]"
+          className="hero-slider hero-frame bg-[var(--color-card-image-bg,var(--color-surface-100))]"
         >
           {sliders.map((slider, i) => {
             const img = slider.image && (
@@ -47,7 +55,7 @@ export function Slider({ sliders }: SliderProps) {
             );
             return (
               <SwiperSlide key={slider.id}>
-                <div className="relative aspect-[16/7] md:aspect-[16/6]">
+                <div className="hero-slide relative">
                   {slider.link ? (
                     <Link href={slider.link} aria-label="Banner" className="absolute inset-0">
                       {img}
@@ -63,7 +71,7 @@ export function Slider({ sliders }: SliderProps) {
 
         {/* Dots sit on a white tab notched into the bottom edge of the banner */}
         {sliders.length > 1 && (
-          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 rounded-t-xl bg-[var(--color-section-hero-bg,var(--color-surface))] px-3 pt-2 pb-1.5">
+          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 rounded-t-xl bg-[var(--color-surface-0)] px-3 pt-2 pb-1.5">
             <div ref={setDotsEl} className="home-dots home-dots-brand flex items-center justify-center" />
           </div>
         )}

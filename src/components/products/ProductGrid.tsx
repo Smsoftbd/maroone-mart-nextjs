@@ -28,16 +28,8 @@ export function ProductGrid({
   }
 
   const grid = (
-    <div
-      // Columns come from the theme (layout.products_per_row / mobile_columns).
-      className={
-        variant === "minimal"
-          ? "product-grid gap-x-4 gap-y-10"
-          : variant === "shop"
-            ? "product-grid gap-3 sm:gap-4"
-            : "product-grid gap-4"
-      }
-    >
+    // Columns + gap come from the theme (layout.products_per_row / mobile_columns / grid_gap).
+    <div className="product-grid">
       {products.map((product) => (
         <ProductCard
           key={product.id}

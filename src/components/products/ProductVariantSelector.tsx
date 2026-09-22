@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { cn } from "@/lib/utils/cn";
+import { useTheme } from "@/components/providers/StoreConfigProvider";
 import type { Barcode } from "@/lib/api/types";
 
 interface ProductVariantSelectorProps {
@@ -11,10 +12,12 @@ interface ProductVariantSelectorProps {
 
 const isHexColor = (code: string) => /^#[0-9a-fA-F]{3,6}$/.test(code);
 
+/** Option pickers; product.variant_style = buttons | pills | dropdown. */
 export function ProductVariantSelector({
   barcodes,
   onChange,
 }: ProductVariantSelectorProps) {
+  const style = useTheme().product.variant_style;
   const [selected, setSelected] = useState<Record<string, string>>({});
 
   const attributeGroups = useMemo(() => {
@@ -75,6 +78,24 @@ export function ProductVariantSelector({
                 <span className="ml-1.5 text-[var(--color-text-muted)]">— select</span>
               )}
             </p>
+            {style === "dropdown" ? (
+              <select
+                value={selected[name] ?? ""}
+                onChange={(e) => e.target.value && handleSelect(name, e.target.value)}
+                aria-label={name}
+                className="input input-shape mt-2.5 h-10 w-full max-w-xs px-3 text-sm"
+              >
+                <option value="" disabled>
+                  — select
+                </option>
+                {entries.map(({ value, label }) => (
+                  <option key={value} value={value} disabled={isOutOfStock(name, value)}>
+                    {label}
+                    {isOutOfStock(name, value) ? " (out of stock)" : ""}
+                  </option>
+                ))}
+              </select>
+            ) : (
             <div className="flex gap-2 flex-wrap mt-2.5">
               {entries.map(({ value, code, label }) => {
                 const oos = isOutOfStock(name, value);
@@ -114,7 +135,8 @@ export function ProductVariantSelector({
                     onClick={() => !oos && handleSelect(name, value)}
                     disabled={oos}
                     className={cn(
-                      "min-w-12 h-10 px-4 rounded-full border text-sm transition-colors",
+                      "min-w-12 h-10 px-4 border text-sm transition-colors",
+                      style === "pills" ? "rounded-full" : "rounded-[var(--shape-button-radius,0.375rem)]",
                       active
                         ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)] font-medium"
                         : "border-[var(--color-border)] bg-surface text-[var(--color-text-primary)] hover:border-brand-500",
@@ -129,6 +151,7 @@ export function ProductVariantSelector({
                 );
               })}
             </div>
+            )}
           </div>
         );
       })}

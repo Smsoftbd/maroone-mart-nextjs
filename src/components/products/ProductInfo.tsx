@@ -26,6 +26,7 @@ import { resolveL10n } from "@/lib/utils/l10n";
 import { splitPhones } from "@/lib/utils/phone";
 import { cn } from "@/lib/utils/cn";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { useTheme } from "@/components/providers/StoreConfigProvider";
 import { track } from "@/lib/analytics/track";
 import type { Product, Barcode, DeliveryCharge } from "@/lib/api/types";
 
@@ -57,6 +58,8 @@ export function ProductInfo({
 }: ProductInfoProps) {
   const router = useRouter();
   const { t, locale } = useI18n();
+  // product.sticky_cart / show_trust; the page always shows rating, stock and old price.
+  const { sticky_cart: stickyCart, show_trust: showTrust } = useTheme().product;
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
     product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
@@ -85,13 +88,13 @@ export function ProductInfo({
   const [showSticky, setShowSticky] = useState(false);
   useEffect(() => {
     const el = ctaRef.current;
-    if (!el) return;
+    if (!el || !stickyCart) return;
     const io = new IntersectionObserver(([entry]) => {
       setShowSticky(!entry.isIntersecting && entry.boundingClientRect.top < 0);
     });
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [stickyCart]);
   useEffect(() => {
     if (showSticky) document.body.dataset.stickyCta = "";
     else delete document.body.dataset.stickyCta;
@@ -140,7 +143,7 @@ export function ProductInfo({
       <button
         onClick={() => addSelected()}
         disabled={disabled}
-        className="h-11 rounded-md bg-secondary-500 text-[var(--color-secondary-text)] text-sm font-semibold flex items-center justify-center gap-2 hover:bg-secondary-600 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
+        className="btn btn-cart text-sm"
       >
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
         {t("add_to_cart", "Add to Cart")}
@@ -148,7 +151,7 @@ export function ProductInfo({
       <button
         onClick={handleBuyNow}
         disabled={disabled}
-        className="h-11 rounded-md bg-brand-500 text-[var(--color-primary-text)] text-sm font-semibold flex items-center justify-center gap-2 hover:bg-brand-600 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
+        className="btn btn-buy text-sm"
       >
         <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
         {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
@@ -307,15 +310,13 @@ export function ProductInfo({
 
         {/* Price */}
         <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1">
-          <span className="text-2xl font-bold text-[var(--color-text-primary)] tabular-nums">
+          <span className={cn("price text-2xl", hasDiscount && "is-sale")}>
             {formatPrice(price, currency)}
           </span>
           {hasDiscount && (
             <>
-              <del className="text-sm text-[var(--color-text-muted)] tabular-nums">
-                {formatPrice(original, currency)}
-              </del>
-              <span className="rounded bg-tertiary-500 px-2 py-0.5 text-xs font-semibold text-[var(--color-tertiary-text)]">
+              <s className="price-old text-sm">{formatPrice(original, currency)}</s>
+              <span className="badge badge-discount">
                 {discountPct}% {t("off", "OFF")}
               </span>
             </>
@@ -326,7 +327,7 @@ export function ProductInfo({
         <p
           className={cn(
             "mt-2 text-sm font-medium",
-            inStock ? (lowStock ? "text-[var(--color-warning)]" : "text-[var(--color-success)]") : "text-[var(--color-error)]"
+            inStock ? (lowStock ? "is-low" : "is-in") : "is-out"
           )}
         >
           {!inStock
@@ -395,7 +396,8 @@ export function ProductInfo({
           {callLine}
         </div>
 
-        {/* Delivery / payment info */}
+        {/* Delivery / payment info (product.show_trust) */}
+        {showTrust && (
         <ul className="mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2">
           {deliveryItems.map(({ key, icon: Icon, title, text }) => (
             <li key={key} className="flex items-start gap-3 text-xs">
@@ -409,14 +411,16 @@ export function ProductInfo({
             </li>
           ))}
         </ul>
+        )}
 
         {children}
       </div>
 
-      {/* Mobile sticky buy bar */}
+      {/* Mobile sticky buy bar (product.sticky_cart) */}
+      {stickyCart && (
       <div
         className={cn(
-          "lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
+          "sticky-buy-bar lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
           showSticky ? "translate-y-0" : "translate-y-full"
         )}
         aria-hidden={!showSticky}
@@ -424,12 +428,10 @@ export function ProductInfo({
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
             <p className="truncate text-xs text-[var(--color-text-secondary)]">{product.name}</p>
-            <p className="font-semibold tabular-nums">
-              {formatPrice(price, currency)}
+            <p>
+              <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
               {hasDiscount && (
-                <del className="ml-2 text-xs font-normal text-[var(--color-text-muted)]">
-                  {formatPrice(original, currency)}
-                </del>
+                <s className="price-old ml-2 text-xs">{formatPrice(original, currency)}</s>
               )}
             </p>
           </div>
@@ -438,7 +440,7 @@ export function ProductInfo({
             disabled={disabled}
             tabIndex={showSticky ? 0 : -1}
             aria-label={t("add_to_cart", "Add to Cart")}
-            className="h-11 w-11 shrink-0 rounded-md bg-secondary-500 text-[var(--color-secondary-text)] flex items-center justify-center disabled:opacity-40"
+            className="btn btn-cart w-11 shrink-0 !px-0"
           >
             <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
           </button>
@@ -446,12 +448,13 @@ export function ProductInfo({
             onClick={handleBuyNow}
             disabled={disabled}
             tabIndex={showSticky ? 0 : -1}
-            className="h-11 shrink-0 rounded-md bg-brand-500 px-6 text-sm font-semibold text-[var(--color-primary-text)] disabled:opacity-40"
+            className="btn btn-buy shrink-0 text-sm"
           >
             {t("buy_now", "Buy Now")}
           </button>
         </div>
       </div>
+      )}
     </div>
   );
 }

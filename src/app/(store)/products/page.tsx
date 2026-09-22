@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { PackageSearch } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { ProductFilters } from "@/components/products/ProductFilters";
+import { ProductFilters, ProductFilterSidebar } from "@/components/products/ProductFilters";
+import { ProductListLoader } from "@/components/products/ProductListLoader";
 import { ProductSort } from "@/components/products/ProductSort";
 import { Pagination } from "@/components/ui/Pagination";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
@@ -117,16 +118,54 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       ]
     : [{ label: t("all_products", "All Products") }];
 
+  const { layout, page: pageOpts } = store.theme;
+  const filterProps = {
+    categories: categoryTree,
+    brands: brandList,
+    filterAttributes: filters.attributes,
+    priceRange: filters.price_range,
+    currency: store.currency_symbol,
+  };
+  const query = {
+    categories,
+    brands,
+    attribute_values,
+    search,
+    sort,
+    price_min: price_min ? Number(price_min) : undefined,
+    price_max: price_max ? Number(price_max) : undefined,
+  };
+
   return (
-    <div className="bg-surface">
-      <div className="border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, ...crumbs]} />
+    <div>
+      {pageOpts.breadcrumbs && (
+        <div className="border-b border-[var(--color-border)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, ...crumbs]} />
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Category banner (layout.shop_banner) */}
+      {layout.shop_banner && currentCategory && (
+        <section className="bg-[var(--color-neutral-surface-alt,var(--color-surface-100))]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+            <h1 className="text-2xl font-bold lg:text-3xl">{currentCategory.name}</h1>
+            {currentCategory.description && (
+              <div
+                className="prose-content mt-2 max-w-3xl text-sm text-[var(--color-text-secondary)] [&_p:last-child]:mb-0"
+                dangerouslySetInnerHTML={{ __html: currentCategory.description }}
+              />
+            )}
+            <p className="mt-2 text-sm text-[var(--color-text-muted)] tabular-nums">
+              {t("x_products", ":count products").replace(":count", String(meta.total))}
+            </p>
+          </div>
+        </section>
+      )}
 
       {topCategories.length > 0 && (
-        <section className="border-b border-slate-200">
+        <section className="border-b border-[var(--color-border)]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <h2 className="mb-5 text-base font-semibold text-[var(--color-text-primary)]">
               {t("top_5_categories", "Top 5 Categories")}
@@ -158,66 +197,78 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:gap-4">
-          <Suspense fallback={null}>
-            <ProductFilters
-              categories={categoryTree}
-              brands={brandList}
-              filterAttributes={filters.attributes}
-              priceRange={filters.price_range}
-              currency={store.currency_symbol}
-              total={meta.total}
-            />
-          </Suspense>
+        {/* layout.filter_position: sidebar left/right on desktop, else the drawer */}
+        <div className="shop">
+          {layout.filter_position !== "drawer" && (
+            <aside className="shop-filters">
+              <Suspense fallback={null}>
+                <ProductFilterSidebar {...filterProps} />
+              </Suspense>
+            </aside>
+          )}
+          <div className="min-w-0">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:gap-4">
+              <Suspense fallback={null}>
+                <ProductFilters {...filterProps} total={meta.total} />
+              </Suspense>
 
-          <div className="flex flex-1 items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:px-3">
-            <p className="text-sm text-slate-800 tabular-nums">
-              {t("x_products", ":count products").replace(":count", String(meta.total))}
-            </p>
-            <Suspense fallback={null}>
-              <ProductSort />
-            </Suspense>
-          </div>
-        </div>
+              <div className="flex flex-1 items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:px-3">
+                <p className="text-sm text-slate-800 tabular-nums">
+                  {t("x_products", ":count products").replace(":count", String(meta.total))}
+                </p>
+                <Suspense fallback={null}>
+                  <ProductSort />
+                </Suspense>
+              </div>
+            </div>
 
-        {products.length === 0 ? (
-          <EmptyState
-            icon={PackageSearch}
-            title={t("no_products_found", "No products found")}
-            description={
-              hasFilters
-                ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
-                : t("no_products_hint", "Check back soon — new products are on the way.")
-            }
-            action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
-            className="py-24"
-          />
-        ) : (
-          <ProductGrid
-            products={products}
-            currency={store.currency_symbol}
-            variant="shop"
-            list={itemList}
-          />
-        )}
-
-        {products.length > 0 && (
-          <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:px-4">
-            <p className="text-sm text-slate-700">
-              {t("showing_x_of_y", "Showing :count of :total")
-                .replace(":count", String(products.length))
-                .replace(":total", String(meta.total))}
-            </p>
-            <Suspense fallback={null}>
-              <Pagination
+            {products.length === 0 ? (
+              <EmptyState
+                icon={PackageSearch}
+                title={t("no_products_found", "No products found")}
+                description={
+                  hasFilters
+                    ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
+                    : t("no_products_hint", "Check back soon — new products are on the way.")
+                }
+                action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
+                className="py-24"
+              />
+            ) : layout.pagination !== "numbers" ? (
+              <ProductListLoader
+                key={JSON.stringify(query)}
+                initial={products}
+                query={query}
                 currentPage={meta.current_page}
                 lastPage={meta.last_page}
+                perPage={PER_PAGE}
                 total={meta.total}
-                variant="boxed"
+                currency={store.currency_symbol}
+                list={itemList}
+                mode={layout.pagination}
               />
-            </Suspense>
+            ) : (
+              <>
+                <ProductGrid products={products} currency={store.currency_symbol} list={itemList} />
+                <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border)] pt-5 sm:flex-row sm:px-4">
+                  <p className="text-sm text-[var(--color-text-secondary)]">
+                    {t("showing_x_of_y", "Showing :count of :total")
+                      .replace(":count", String(products.length))
+                      .replace(":total", String(meta.total))}
+                  </p>
+                  <Suspense fallback={null}>
+                    <Pagination
+                      currentPage={meta.current_page}
+                      lastPage={meta.last_page}
+                      total={meta.total}
+                      variant="boxed"
+                    />
+                  </Suspense>
+                </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

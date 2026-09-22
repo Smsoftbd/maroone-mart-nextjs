@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AuthInitializer } from "@/components/layout/AuthInitializer";
 import { StoreConfigProvider } from "@/components/providers/StoreConfigProvider";
 import { getStore } from "@/lib/api/store";
 import { buildColorStyleBlock } from "@/lib/utils/colors";
-import { DEFAULT_LAYOUT, THEME_BRIDGE_CSS } from "@/lib/utils/theme";
+import { COLOR_SCHEME_SCRIPT, THEME_BRIDGE_CSS, THEME_DEFAULTS_CSS } from "@/lib/utils/theme";
+import { ThemeEffects } from "@/components/layout/ThemeEffects";
 import { getLocale, isRtl } from "@/lib/i18n/locale";
 import { MetaPixelBody, MetaPixelHead, isValidPixelId } from "@/components/analytics/MetaPixel";
 import { GtmBody, GtmHead } from "@/components/analytics/Gtm";
@@ -36,12 +36,13 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const [store, locale, reqHeaders] = await Promise.all([getStore(), getLocale(), headers()]);
-  // Appearance theme (server-validated tokens) + bridge for older variable
-  // names; stores without a theme fall back to the seven legacy colors.
+  // v4 defaults + bridge for older variable names, then the server theme CSS
+  // (dark scheme + owner's custom CSS) last so it wins. Stores without a
+  // theme fall back to the seven legacy colors.
   const themeStyle = store.theme_css
-    ? store.theme_css + THEME_BRIDGE_CSS
-    : buildColorStyleBlock(store.colors);
-  const layout = store.theme?.layout ?? DEFAULT_LAYOUT;
+    ? THEME_DEFAULTS_CSS + THEME_BRIDGE_CSS + store.theme_css
+    : buildColorStyleBlock(store.colors) + THEME_DEFAULTS_CSS;
+  const colorScheme = store.theme_css ? store.theme.dark.mode : "off";
   const pixelId = isValidPixelId(store.tracking.fb_pixel_id) ? store.tracking.fb_pixel_id : null;
   const gtm = getGtmConfig();
   const headerScript = stripGtmSnippet(store.scripts.header, gtm?.id);
@@ -52,6 +53,8 @@ export default async function RootLayout({
       lang={locale}
       dir={isRtl(locale) ? "rtl" : "ltr"}
       className="h-full"
+      // data-theme is set by COLOR_SCHEME_SCRIPT before hydration.
+      suppressHydrationWarning
     >
       <head>
         {store.theme_fonts_url && (
@@ -62,6 +65,9 @@ export default async function RootLayout({
           </>
         )}
         <style id="store-theme" dangerouslySetInnerHTML={{ __html: themeStyle }} />
+        {colorScheme !== "off" && (
+          <script dangerouslySetInnerHTML={{ __html: COLOR_SCHEME_SCRIPT }} />
+        )}
         {gtm && <GtmHead config={gtm} />}
         {pixelId && (
           <MetaPixelHead
@@ -74,8 +80,8 @@ export default async function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        data-header={layout.header_style}
-        data-card={layout.card_style}
+        {...store.theme_attributes}
+        data-color-scheme={colorScheme}
         className="min-h-full font-body text-[var(--color-text-primary)] bg-[var(--color-surface-0)]"
       >
         <a
@@ -92,21 +98,13 @@ export default async function RootLayout({
             authMode: store.auth_mode,
             guestCheckout: store.guest_checkout,
             checkoutOtp: store.checkout_otp,
+            wishlist: store.features.wishlist,
+            theme: store.theme,
           }}
         >
           {children}
+          <ThemeEffects />
         </StoreConfigProvider>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              fontFamily: "var(--font-body)",
-              fontSize: "14px",
-              background: "var(--color-surface)",
-              color: "var(--color-text-primary)",
-            },
-          }}
-        />
       </body>
     </html>
   );

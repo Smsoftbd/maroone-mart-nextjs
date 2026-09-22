@@ -16,7 +16,7 @@ function BannerTile({ banner, className, sizes }: { banner: HeroBanner; classNam
       className="object-cover transition-transform duration-500 group-hover:scale-105"
     />
   );
-  const cls = `group relative block overflow-hidden rounded-2xl bg-surface-100 ${className}`;
+  const cls = `group relative block overflow-hidden rounded-[var(--shape-section-radius,1rem)] bg-surface-100 ${className}`;
   return banner.link ? (
     <Link href={banner.link} aria-label={banner.title || "Banner"} className={cls}>
       {img}
@@ -36,7 +36,7 @@ export function PromoBanners({ banners }: PromoBannersProps) {
 
   if (items.length < 4) {
     return (
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
         <div className={`grid gap-4 ${items.length === 1 ? "" : items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {items.map((b) => (
             <BannerTile key={b.id} banner={b} className="aspect-[16/9]" sizes="(min-width: 768px) 33vw, 100vw" />
@@ -48,7 +48,7 @@ export function PromoBanners({ banners }: PromoBannersProps) {
 
   const [large, top, bottom, tall] = items;
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-[5fr_4fr_2fr] lg:grid-rows-2">
         <BannerTile
           banner={large}

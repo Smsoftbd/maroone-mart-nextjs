@@ -9,7 +9,7 @@ export async function VideoReviewBanner({ youtubeUrl }: VideoReviewBannerProps) 
   const t = await getServerT();
 
   return (
-    <section className="relative my-8 overflow-hidden bg-secondary-500">
+    <section className="relative my-[var(--section-space,2rem)] overflow-hidden bg-secondary-500" data-reveal>
       <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[var(--color-secondary-text)]/10 to-transparent" />
 
       <div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 py-14 text-center text-[var(--color-secondary-text)] md:py-20">
