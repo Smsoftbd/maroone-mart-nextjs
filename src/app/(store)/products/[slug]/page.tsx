@@ -6,7 +6,12 @@ import { ProductInfo } from "@/components/products/ProductInfo";
 import { ProductDetailsSections } from "@/components/products/ProductDetailsSections";
 import { RelatedProducts } from "@/components/products/RelatedProducts";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
-import { getProduct, getProducts } from "@/lib/api/products";
+import {
+  getProduct,
+  getProducts,
+  getProductReviews,
+  getProductQuestions,
+} from "@/lib/api/products";
 import { getStore } from "@/lib/api/store";
 import { getDeliveryCharges } from "@/lib/api/content";
 import { generatePageMetadata } from "@/lib/utils/metadata";
@@ -55,12 +60,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
 
-  let product, store, deliveryCharges;
+  let product, store, deliveryCharges, reviews, questions;
   try {
-    [product, store, deliveryCharges] = await Promise.all([
+    [product, store, deliveryCharges, reviews, questions] = await Promise.all([
       getProduct(slug),
       getStore(),
       getDeliveryCharges().catch(() => []),
+      getProductReviews(slug).catch(() => []),
+      getProductQuestions(slug).catch(() => []),
     ]);
   } catch {
     notFound();
@@ -116,23 +123,24 @@ export default async function ProductPage({ params }: PageProps) {
         />
       </div>
 
-      <div className="mt-4 lg:mt-6 grid gap-8 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
-        <ProductImageGallery images={galleryImages} productName={product.name} />
-        <div className="min-w-0 lg:py-2">
-          <ProductInfo
+      <div className="mt-4">
+        <ProductInfo
+          product={product}
+          currency={store.currency_symbol}
+          shareUrl={shareUrl}
+          phone={store.phone}
+          deliveryCharges={deliveryCharges}
+          questionCount={questions.length}
+          gallery={<ProductImageGallery images={galleryImages} productName={product.name} />}
+        >
+          <ProductDetailsSections
             product={product}
-            currency={store.currency_symbol}
-            shareUrl={shareUrl}
+            store={store}
+            reviews={reviews}
+            questions={questions}
           />
-        </div>
+        </ProductInfo>
       </div>
-
-      <ProductDetailsSections
-        product={product}
-        store={store}
-        deliveryCharges={deliveryCharges}
-        currency={store.currency_symbol}
-      />
 
       <Suspense fallback={null}>
         <RelatedProducts

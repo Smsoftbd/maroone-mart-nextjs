@@ -29,7 +29,7 @@ export function RelatedProducts({
     const fetchRelated = async () => {
       try {
         const res = await fetch(
-          `${BASE_URL}/products?category=${categorySlug}&per_page=8&lang=${encodeURIComponent(locale)}`,
+          `${BASE_URL}/products?category=${categorySlug}&per_page=12&lang=${encodeURIComponent(locale)}`,
           { headers: { "X-Api-Key": PUBLIC_KEY, Accept: "application/json" } }
         );
         if (!res.ok) return;
@@ -37,7 +37,7 @@ export function RelatedProducts({
         const filtered = (data.data as Product[]).filter(
           (p) => p.slug !== excludeSlug
         );
-        setProducts(filtered.slice(0, 4));
+        setProducts(filtered.slice(0, 10));
       } catch {
         // ignore
       } finally {
@@ -50,10 +50,10 @@ export function RelatedProducts({
   if (!isLoading && products.length === 0) return null;
 
   return (
-    <section id="same-category-products" className="mt-16 lg:mt-24 pt-10 border-t border-[var(--color-border)]">
+    <section id="same-category-products" className="mt-14 lg:mt-20">
       <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="font-display text-xl sm:text-2xl font-semibold">
-          {t("you_may_also_like", "You may also like")}
+        <h2 className="font-display text-lg sm:text-xl font-semibold">
+          {t("more_from_category", "More products from this category")}
         </h2>
         <Link
           href={`/products?category=${encodeURIComponent(categorySlug)}`}
@@ -63,8 +63,8 @@ export function RelatedProducts({
         </Link>
       </div>
       {isLoading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+          {[...Array(5)].map((_, i) => (
             <ProductCardSkeleton key={i} />
           ))}
         </div>
@@ -72,6 +72,7 @@ export function RelatedProducts({
         <ProductGrid
           products={products}
           currency={currency}
+          variant="shop"
           list={{ id: "related_products", name: "Related products" }}
         />
       )}

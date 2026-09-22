@@ -114,19 +114,19 @@ export function ProductImageGallery({
       : null;
 
   const frame =
-    "relative w-full aspect-[4/5] lg:aspect-auto lg:h-[min(40rem,calc(100vh-10rem))] rounded-2xl overflow-hidden bg-surface-100";
+    "relative w-full aspect-square rounded-lg overflow-hidden bg-surface-100";
 
   return (
-    <div className="lg:sticky lg:top-32">
+    <div>
       <div
         className={cn(
           "flex flex-col",
-          count > 1 && "lg:grid lg:grid-cols-[72px_1fr] lg:gap-4"
+          count > 1 && "lg:grid lg:grid-cols-[64px_1fr] lg:gap-3"
         )}
       >
         {/* Thumbnails */}
         {count > 1 && (
-          <div className="order-2 lg:order-1 mt-3 lg:mt-0 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible lg:max-h-[min(40rem,calc(100vh-10rem))] lg:overflow-y-auto scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0">
+          <div className="order-2 lg:order-1 mt-3 lg:mt-0 flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible lg:max-h-[28rem] lg:overflow-y-auto scrollbar-none -mx-4 px-4 lg:mx-0 lg:p-0.5">
             {images.map((img, i) => (
               <button
                 key={img.id ?? i}
@@ -137,9 +137,9 @@ export function ProductImageGallery({
                 aria-label={img.kind === "video" ? "Play video" : `View image ${i + 1}`}
                 aria-pressed={i === activeIndex}
                 className={cn(
-                  "relative shrink-0 w-16 h-20 lg:w-[72px] lg:h-[90px] rounded-lg overflow-hidden bg-surface-100 transition-all",
+                  "relative shrink-0 w-16 h-16 rounded-md overflow-hidden bg-surface-100 border border-[var(--color-border)] transition-all",
                   i === activeIndex
-                    ? "ring-2 ring-[var(--color-text-primary)] ring-offset-2 ring-offset-[var(--color-surface-0)]"
+                    ? "ring-2 ring-brand-500"
                     : "opacity-60 hover:opacity-100"
                 )}
               >
@@ -147,7 +147,7 @@ export function ProductImageGallery({
                   src={img.url}
                   alt=""
                   fill
-                  sizes="72px"
+                  sizes="64px"
                   className="object-cover object-top"
                 />
                 {img.kind === "video" && (
@@ -198,8 +198,8 @@ export function ProductImageGallery({
                 src={activeImage.url}
                 alt={`${productName} — image ${activeIndex + 1}`}
                 fill
-                sizes="(max-width: 1024px) 100vw, 640px"
-                className="object-cover object-top transition-transform duration-200 ease-out animate-[fadeIn_.25s_ease-out]"
+                sizes="(max-width: 1024px) 100vw, 480px"
+                className="object-contain transition-transform duration-200 ease-out animate-[fadeIn_.25s_ease-out]"
                 style={{
                   transform: origin ? `scale(${ZOOM})` : "scale(1)",
                   transformOrigin: origin ? `${origin.x}% ${origin.y}%` : "center",

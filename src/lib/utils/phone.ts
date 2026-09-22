@@ -14,3 +14,11 @@ export function isBdPhone(v: string): boolean {
 export function isBangladesh(country: string | null | undefined): boolean {
   return (country ?? "").trim().toLowerCase() === "bangladesh";
 }
+
+/** Split a store phone field that may hold several numbers ("017…, 019…"). */
+export function splitPhones(phone?: string | null): string[] {
+  return (phone ?? "")
+    .split(/[,/|]/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+}
