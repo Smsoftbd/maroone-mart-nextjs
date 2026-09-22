@@ -26,8 +26,8 @@
   --color-surface-900: #000000;
 
   /* Font families */
-  --font-display: var(--font-playfair), Georgia, serif;
-  --font-body: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-poppins), Poppins, sans-serif, Arial, "sans-serif";
+  --font-body: var(--font-poppins), Poppins, sans-serif, Arial, "sans-serif";
   --font-mono: "JetBrains Mono", monospace;
 
   /* Animations */

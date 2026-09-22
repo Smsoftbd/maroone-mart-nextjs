@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 import { AuthInitializer } from "@/components/layout/AuthInitializer";
@@ -13,15 +13,10 @@ import { getGtmConfig, isMetaViaSgtm, stripGtmSnippet } from "@/lib/analytics/gt
 import { getDefaultConsent } from "@/lib/analytics/consent-server";
 import { headers } from "next/headers";
 
-const playfair = Playfair_Display({
+const poppins = Poppins({
   subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
-
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
+  weight: ["100", "300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
   display: "swap",
 });
 
@@ -58,7 +53,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={isRtl(locale) ? "rtl" : "ltr"}
-      className={`${playfair.variable} ${dmSans.variable} h-full`}
+      className={`${poppins.variable} h-full`}
     >
       <head>
         <style dangerouslySetInnerHTML={{ __html: colorStyle }} />
@@ -95,7 +90,7 @@ export default async function RootLayout({
           position="top-right"
           toastOptions={{
             style: {
-              fontFamily: "var(--font-dm-sans)",
+              fontFamily: 'var(--font-poppins), Poppins, sans-serif, Arial, "sans-serif"',
               fontSize: "14px",
             },
           }}
