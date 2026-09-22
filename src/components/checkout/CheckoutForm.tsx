@@ -5,7 +5,6 @@ import { useForm, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
@@ -13,7 +12,9 @@ import { ShippingSelector } from "./ShippingSelector";
 import { PaymentSelector } from "./PaymentSelector";
 import { CouponInput } from "./CouponInput";
 import Link from "next/link";
-import { Lock, Package, ShieldCheck, Tag } from "lucide-react";
+import { HandCoins } from "lucide-react";
+import { CheckoutItem } from "./CheckoutItem";
+import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
@@ -63,29 +64,22 @@ interface CheckoutFormProps {
   currency: string;
   /** Org's country — fixed, non-editable at checkout. */
   country: string;
+  storeName: string;
   /** Render the Coupon Code section only when the org has a usable coupon. */
   showCoupon: boolean;
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section>
-      <h2 className="text-sm font-semibold mb-3">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProps) {
+export function CheckoutForm({ currency, country, storeName, showCoupon }: CheckoutFormProps) {
   const router = useRouter();
   const t = useT();
-  const { items, subTotal, priceOverrides, attributeOverrides, clearCart } = useCartStore();
+  const { items, subTotal, priceOverrides, clearCart } = useCartStore();
   const { customer, token, isAuthenticated } = useAuthStore();
   const { authMode, guestCheckout, checkoutOtp } = useStoreConfig();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
+  const [couponOpen, setCouponOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const schema = useMemo(() => makeSchema(country), [country]);
@@ -373,252 +367,189 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   }
 
 
-  const itemCount = items.reduce((n, i) => n + i.quantity, 0);
+  const fieldCls = (hasError: boolean) =>
+    cn(
+      "w-full rounded-md border bg-white px-4 py-3 text-[15px] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
+      hasError ? "border-red-500" : "border-[var(--color-border-dark)]"
+    );
+  const bd = isBangladesh(country);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] gap-6 lg:gap-10 items-start">
-        {/* ── Left: form ── */}
-        <div className="bg-white border border-[var(--color-border)] rounded-3xl p-5 sm:p-7 space-y-7">
-          <div className="space-y-4">
-            <Input
-              label={`${t("full_name", "Full Name")} *`}
-              autoComplete="name"
-              {...register("name")}
-              error={errors.name?.message}
-            />
-            <Input
-              label={`${t("phone", "Phone")} *`}
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              {...register("phone")}
-              error={errors.phone?.message}
-            />
-            <Input
-              label={`${t("address", "Address")} *`}
-              autoComplete="street-address"
-              placeholder={t("address_ph", "House, road, area")}
-              {...register("address")}
-              error={errors.address?.message}
-            />
-            <Input
-              label={t("email", "Email")}
-              type="email"
-              autoComplete="email"
-              placeholder={t("optional", "Optional")}
-              {...register("email")}
-              error={errors.email?.message}
-            />
-            <input type="hidden" {...register("city")} />
-            <input type="hidden" {...register("state")} />
-            <input type="hidden" {...register("country")} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6 items-start">
+        {/* ── Left: customer details + payment ── */}
+        <div className="lg:col-start-1 lg:row-start-1">
+          <p className="text-[17px] font-medium leading-relaxed pb-4 border-b border-[var(--color-border)]">
+            {t(
+              "checkout_instruction",
+              "To confirm your order, enter your name, address and mobile number, then click the Confirm Order button"
+            )}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+            <div className="flex flex-col gap-2">
+              <label htmlFor="checkout-name" className="text-[15px]">
+                {t("your_name", "Your Name")}
+              </label>
+              <input
+                id="checkout-name"
+                autoComplete="name"
+                placeholder={t("your_name_ph", "Enter your name")}
+                className={fieldCls(!!errors.name)}
+                {...register("name")}
+              />
+              {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label htmlFor="checkout-phone" className="text-[15px]">
+                {t("phone_number", "Phone Number")}
+              </label>
+              <div
+                className={cn(
+                  "flex overflow-hidden rounded-md border bg-white focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent",
+                  errors.phone ? "border-red-500" : "border-[var(--color-border-dark)]"
+                )}
+              >
+                {bd && (
+                  <span className="flex items-center px-2.5 text-[15px] bg-surface-100 border-r border-[var(--color-border-dark)] whitespace-nowrap">
+                    (BD) +88
+                  </span>
+                )}
+                <input
+                  id="checkout-phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder={t("your_phone_ph", "Your mobile number")}
+                  className="flex-1 min-w-0 px-3 py-3 text-[15px] placeholder:text-[var(--color-text-muted)] focus:outline-none"
+                  {...register("phone")}
+                />
+              </div>
+              {errors.phone && <p className="text-xs text-red-600">{errors.phone.message}</p>}
+            </div>
           </div>
 
-          <Section title={t("delivery_method", "Delivery Method")}>
+          <div className="flex flex-col gap-2 mt-4">
+            <label htmlFor="checkout-address" className="text-[15px]">
+              {t("your_address", "Your Address")}
+            </label>
+            <textarea
+              id="checkout-address"
+              rows={5}
+              autoComplete="street-address"
+              placeholder={t("your_address_ph", "Enter your full address")}
+              className={fieldCls(!!errors.address)}
+              {...register("address")}
+            />
+            {errors.address && <p className="text-xs text-red-600">{errors.address.message}</p>}
+          </div>
+          <input type="hidden" {...register("email")} />
+          <input type="hidden" {...register("city")} />
+          <input type="hidden" {...register("state")} />
+          <input type="hidden" {...register("country")} />
+
+          <div className="border-t-2 border-dashed border-[var(--color-border-dark)] mt-10 pt-8">
+            <h2 className="flex items-center gap-2.5 text-xl font-bold mb-10">
+              <HandCoins className="h-7 w-7 text-brand-500" />
+              {t("how_to_pay", "How would you like to pay")}
+            </h2>
+            <PaymentSelector
+              value={resolveL10n(paymentMethod?.name) ?? ""}
+              onChange={setPaymentMethod}
+            />
+          </div>
+        </div>
+
+        {/* ── Right: order summary ── */}
+        <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-lg bg-[#E9EDF4] p-4 sm:p-6">
+          <h2 className="text-lg font-medium mb-4">{t("your_order", "Your Order")}</h2>
+
+          <div className="space-y-4">
+            {items.map((item) => (
+              <CheckoutItem key={item.id} item={item} currency={currency} storeName={storeName} />
+            ))}
+          </div>
+
+          <div className="mt-8 rounded-lg border border-brand-500/25 bg-brand-500/5 px-4 py-5">
+            <p className="text-[15px] text-[var(--color-text-secondary)] mb-4">
+              {t("select_delivery_method", "Select delivery method")}
+            </p>
             <ShippingSelector
               currency={currency}
               methodName={resolveL10n(delivery?.zone_name) ?? ""}
               onChange={setDelivery}
             />
-          </Section>
+          </div>
 
-          <Section title={t("payment_method", "Payment Method")}>
-            <PaymentSelector
-              value={resolveL10n(paymentMethod?.name) ?? ""}
-              onChange={setPaymentMethod}
-            />
-          </Section>
-
-          <Section title={`${t("order_note", "Order Note")} (${t("optional", "Optional")})`}>
-            <textarea
-              {...register("note")}
-              placeholder={t("order_notes_ph", "Special instructions or delivery notes (optional)")}
-              rows={3}
-              className="w-full border border-[var(--color-border)] rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            />
-          </Section>
-        </div>
-
-        {/* ── Right: order summary ── */}
-        <aside className="lg:sticky lg:top-24">
-          <div className="bg-white border border-[var(--color-border)] rounded-3xl p-5 sm:p-7">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-semibold">{t("order_summary", "Order Summary")}</h2>
-              <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-surface-100 text-[var(--color-text-secondary)]">
-                {itemCount} {itemCount === 1 ? t("item", "item") : t("items", "items")}
-              </span>
+          <dl className="mt-2.5 rounded-lg bg-white px-4 py-5 text-[15px] space-y-3">
+            <div className="flex justify-between">
+              <dt>{t("subtotal", "Subtotal")}</dt>
+              <dd className="tabular-nums">{formatPrice(subTotal, currency)}</dd>
             </div>
-
-            <ul className="divide-y divide-[var(--color-border)] max-h-80 overflow-y-auto pr-1 -mr-1 mb-4">
-              {items.map((item) => {
-                const unit = item.unit_price || priceOverrides[item.barcode_id] || 0;
-                const attrs = attributeOverrides[item.barcode_id] ?? [];
-                return (
-                  <li key={item.id} className="flex gap-3 py-3 first:pt-0">
-                    <div className="relative h-16 w-16 shrink-0 rounded-xl overflow-hidden bg-surface-100 border border-[var(--color-border)]">
-                      {item.product_image ? (
-                        <Image
-                          src={item.product_image}
-                          alt={item.product_name}
-                          fill
-                          className="object-cover"
-                          sizes="64px"
-                        />
-                      ) : (
-                        <Package className="absolute inset-0 m-auto h-6 w-6 text-[var(--color-text-muted)]" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-3">
-                        <p className="text-sm font-medium leading-snug line-clamp-2">{item.product_name}</p>
-                        <span className="text-sm font-semibold shrink-0 tabular-nums">
-                          {formatPrice(item.line_total || unit * item.quantity, currency)}
-                        </span>
-                      </div>
-                      {attrs.length > 0 && (
-                        <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-[var(--color-text-secondary)]">
-                          {attrs.map((attr) => {
-                            const isColor = /^#[0-9a-fA-F]{3,6}$/.test(attr.value_code ?? "");
-                            return (
-                              <span
-                                key={attr.name}
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-surface-100"
-                              >
-                                {isColor && (
-                                  <span
-                                    style={{ backgroundColor: attr.value_code }}
-                                    className="inline-block w-2.5 h-2.5 rounded-full ring-1 ring-black/10"
-                                  />
-                                )}
-                                {attr.value}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
-                      <p className="mt-1 text-xs text-[var(--color-text-muted)] tabular-nums">
-                        {item.quantity} × {formatPrice(unit, currency)}
-                      </p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-
+            <div className="flex justify-between">
+              <dt>{t("discount", "Discount")}</dt>
+              <dd className="tabular-nums text-red-500">-{formatPrice(discountAmount, currency)}</dd>
+            </div>
             {showCoupon && (
-              <div className="border-t border-[var(--color-border)] py-4">
-                {!couponCode && (
-                  <p className="flex items-center gap-1.5 text-sm font-medium mb-2">
-                    <Tag className="h-4 w-4 text-brand-500" />
-                    {t("have_coupon", "Have a coupon code?")}
-                  </p>
-                )}
-                <CouponInput
-                  orderTotal={subTotal}
-                  currency={currency}
-                  onApply={(code, amount) => {
-                    setCouponCode(code);
-                    setDiscountAmount(amount);
-                  }}
-                />
-              </div>
-            )}
-
-            <dl className="space-y-2.5 text-sm border-t border-[var(--color-border)] pt-4">
-              <div className="flex justify-between">
-                <dt className="text-[var(--color-text-secondary)]">{t("subtotal", "Subtotal")}</dt>
-                <dd className="tabular-nums">{formatPrice(subTotal, currency)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-[var(--color-text-secondary)]">
-                  {t("shipping", "Shipping")}
-                  {delivery && (
-                    <span className="block text-xs text-[var(--color-text-muted)]">
-                      {resolveL10n(delivery.zone_name)}
-                    </span>
-                  )}
-                </dt>
-                <dd className="tabular-nums">
-                  {delivery ? (
-                    shippingCost === 0 ? (
-                      <span className="text-green-600 font-medium">{t("free", "Free")}</span>
-                    ) : (
-                      formatPrice(shippingCost, currency)
-                    )
-                  ) : (
-                    <span className="text-[var(--color-text-muted)]">{t("select_delivery", "Select delivery")}</span>
-                  )}
-                </dd>
-              </div>
-              {discountAmount > 0 && (
-                <div className="flex justify-between text-green-600">
+              <div>
+                <div className="flex justify-between items-center">
                   <dt>
-                    {t("discount", "Discount")}
-                    {couponCode && <span className="ml-1 text-xs">({couponCode})</span>}
+                    {t("coupon_promo_discount", "Coupon/Promo Discount")}
+                    {couponCode && <span className="ml-1 text-xs text-green-600">({couponCode})</span>}
                   </dt>
-                  <dd className="tabular-nums">−{formatPrice(discountAmount, currency)}</dd>
+                  {!couponCode && (
+                    <dd>
+                      <button
+                        type="button"
+                        onClick={() => setCouponOpen((o) => !o)}
+                        className="text-brand-500 underline underline-offset-4 hover:text-brand-600"
+                      >
+                        {t("coupon_code", "Coupon Code")}
+                      </button>
+                    </dd>
+                  )}
                 </div>
-              )}
-              <div className="flex justify-between items-center rounded-2xl bg-brand-50/60 px-4 py-3.5 mt-3">
-                <dt className="font-semibold">{t("total", "Total")}</dt>
-                <dd className="text-2xl font-bold tabular-nums text-brand-600">{formatPrice(total, currency)}</dd>
+                {(couponOpen || couponCode) && (
+                  <div className="mt-3">
+                    <CouponInput
+                      orderTotal={subTotal}
+                      currency={currency}
+                      onApply={(code, amount) => {
+                        setCouponCode(code);
+                        setDiscountAmount(amount);
+                      }}
+                    />
+                  </div>
+                )}
               </div>
-            </dl>
-
-            {paymentMethod && (
-              <p className="mt-4 flex items-center justify-between text-xs text-[var(--color-text-secondary)]">
-                <span>{t("payment_method", "Payment Method")}</span>
-                <span className="font-medium text-[var(--color-text-primary)]">
-                  {resolveL10n(paymentMethod.name)}
-                </span>
-              </p>
             )}
-
-            <div className="hidden lg:block">
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                className="w-full mt-6 rounded-xl h-13"
-                loading={isSubmitting}
-                disabled={items.length === 0}
-              >
-                <Lock className="h-4 w-4" />
-                {t("place_order", "Place Order")}
-              </Button>
-              {!paymentMethod && (
-                <p className="text-xs text-center text-[var(--color-text-muted)] mt-3">
-                  {t("select_payment_method", "Select a payment method to continue")}
-                </p>
-              )}
+            <div className="flex justify-between border-t border-[var(--color-border)] pt-3">
+              <dt>{t("total_amount", "Total Amount")}</dt>
+              <dd className="tabular-nums">{formatPrice(subTotal - discountAmount, currency)}</dd>
             </div>
-            <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-[var(--color-text-muted)]">
-              <ShieldCheck className="h-3.5 w-3.5 text-green-600" />
-              {t("secure_checkout", "Secure checkout · Your info is safe")}
-            </p>
-          </div>
+            <div className="flex justify-between">
+              <dt>{t("delivery_charge", "Delivery Charge")}</dt>
+              <dd className="tabular-nums">
+                {delivery ? formatPrice(shippingCost, currency) : "—"}
+              </dd>
+            </div>
+            <div className="flex justify-between border-t border-[var(--color-text-primary)] pt-3 font-bold">
+              <dt>{t("payable_amount", "Payable Amount")}</dt>
+              <dd className="tabular-nums">{formatPrice(total, currency)}</dd>
+            </div>
+          </dl>
         </aside>
-      </div>
 
-      {/* ── Mobile: sticky pay bar ── */}
-      <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-[var(--color-border)] px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        <div className="flex items-center gap-4 max-w-6xl mx-auto">
-          <div className="min-w-0">
-            <p className="text-xs text-[var(--color-text-muted)]">
-              {t("total", "Total")} · {itemCount} {itemCount === 1 ? t("item", "item") : t("items", "items")}
-            </p>
-            <p className="text-lg font-bold tabular-nums leading-tight">{formatPrice(total, currency)}</p>
-          </div>
+        <div className="lg:col-start-1 lg:row-start-2">
           <Button
             type="submit"
             variant="primary"
             size="lg"
-            className="flex-1 rounded-xl"
+            className="w-full rounded-md font-bold"
             loading={isSubmitting}
             disabled={items.length === 0}
           >
-            {t("place_order", "Place Order")}
+            {t("confirm_order", "Confirm Order")}
           </Button>
         </div>
       </div>

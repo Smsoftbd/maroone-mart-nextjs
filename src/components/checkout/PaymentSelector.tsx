@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { PaymentMethod } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
@@ -42,26 +41,26 @@ export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="flex flex-wrap gap-4">
         {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+          <Skeleton key={i} className="h-28 w-48 rounded-md" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup">
+    <div className="flex flex-wrap gap-4" role="radiogroup">
       {methods.map((method) => {
         const displayName = resolveL10n(method.name);
         const selected = value === displayName;
         return (
           <label
             key={method.id}
-            className={`relative flex items-center gap-3 px-4 py-3.5 rounded-2xl border cursor-pointer transition-all ${
+            className={`relative flex h-28 w-48 flex-col justify-end gap-2 rounded-md border px-4 py-3 cursor-pointer transition-colors ${
               selected
-                ? "border-brand-500 ring-1 ring-brand-500 bg-brand-50/60"
-                : "border-[var(--color-border)] hover:border-[var(--color-border-dark)] hover:bg-surface-50"
+                ? "border-brand-500 bg-brand-500/5"
+                : "border-[var(--color-border)] hover:border-[var(--color-border-dark)]"
             }`}
           >
             <input
@@ -71,24 +70,22 @@ export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
               checked={selected}
               onChange={() => onChange(method)}
             />
-            <span className="flex h-9 w-12 shrink-0 items-center justify-center rounded-lg bg-white border border-[var(--color-border)]">
-              <Image
-                src={iconFor(method)}
-                alt=""
-                width={36}
-                height={22}
-                className="object-contain"
-              />
-            </span>
-            <span className="flex-1 text-sm font-medium">{displayName}</span>
             <span
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                selected ? "border-brand-500 bg-brand-500" : "border-[var(--color-border-dark)]"
+              className={`absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border bg-white transition-colors ${
+                selected ? "border-brand-500" : "border-[var(--color-border-dark)]"
               }`}
               aria-hidden
             >
-              {selected && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+              {selected && <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />}
             </span>
+            <Image
+              src={iconFor(method)}
+              alt=""
+              width={32}
+              height={24}
+              className="h-6 w-auto object-contain self-start"
+            />
+            <span className="text-[15px]">{displayName}</span>
           </label>
         );
       })}

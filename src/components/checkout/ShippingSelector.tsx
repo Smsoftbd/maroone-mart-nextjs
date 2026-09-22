@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Check } from "lucide-react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { formatPrice } from "@/lib/utils/format";
 import type { DeliveryCharge } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
+import { cn } from "@/lib/utils/cn";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
@@ -41,29 +41,22 @@ export function ShippingSelector({
 
   if (isLoading) {
     return (
-      <div className="space-y-3">
+      <div className="flex gap-6">
         {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-16 w-full rounded-2xl" />
+          <Skeleton key={i} className="h-6 w-36 rounded-md" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="space-y-3" role="radiogroup">
+    <div className="flex flex-wrap items-center gap-x-10 gap-y-3" role="radiogroup">
       {charges.map((charge) => {
         const displayName = resolveL10n(charge.zone_name);
         const cost = parseFloat(charge.charge_amount);
         const selected = methodName === displayName;
         return (
-          <label
-            key={charge.id}
-            className={`flex items-center gap-3 px-4 py-3.5 rounded-2xl border cursor-pointer transition-all ${
-              selected
-                ? "border-brand-500 ring-1 ring-brand-500 bg-brand-50/60"
-                : "border-[var(--color-border)] hover:border-[var(--color-border-dark)] hover:bg-surface-50"
-            }`}
-          >
+          <label key={charge.id} className="flex items-center gap-3 cursor-pointer">
             <input
               type="radio"
               name="delivery"
@@ -72,23 +65,19 @@ export function ShippingSelector({
               onChange={() => onChange(charge)}
             />
             <span
-              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                selected ? "border-brand-500 bg-brand-500" : "border-[var(--color-border-dark)]"
-              }`}
+              className={cn(
+                "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border bg-white transition-colors",
+                selected ? "border-brand-500" : "border-[var(--color-border-dark)]"
+              )}
               aria-hidden
             >
-              {selected && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+              {selected && <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />}
             </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium">{displayName}</p>
-              {charge.free_delivery_above && (
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  Free above {formatPrice(parseFloat(charge.free_delivery_above), currency)}
-                </p>
-              )}
-            </div>
-            <span className={`text-sm font-semibold tabular-nums ${cost === 0 ? "text-green-600" : ""}`}>
-              {cost === 0 ? "Free" : formatPrice(cost, currency)}
+            <span className="text-[15px] font-medium">
+              {displayName}
+              <span className="ml-2 font-semibold tabular-nums">
+                {cost === 0 ? "Free" : formatPrice(cost, currency)}
+              </span>
             </span>
           </label>
         );
