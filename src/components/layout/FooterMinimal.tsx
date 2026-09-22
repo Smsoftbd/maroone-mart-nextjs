@@ -15,13 +15,13 @@ interface FooterMinimalProps {
   pages?: PageSummary[];
 }
 
-const linkClass = "text-[var(--color-secondary-text)]/75 hover:text-[var(--color-secondary-text)] transition-colors";
+const linkClass = "text-[var(--color-footer-text)]/75 hover:text-[var(--color-footer-text)] transition-colors";
 
-const headingClass = "mb-5 text-sm font-semibold text-[var(--color-secondary-text)]";
+const headingClass = "mb-5 text-sm font-semibold text-[var(--color-footer-text)]";
 
 /**
- * Footer used on the homepage only (store secondary color).
- * The brand-ground `Footer` stays in place for every other route.
+ * Footer used on the homepage only (dark ink ground).
+ * The standard `Footer` stays in place for every other route.
  */
 export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
   const t = await getServerT();
@@ -33,7 +33,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
   const phones = store.phone.split(/[,/]/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <footer className="mt-auto bg-secondary-500 text-[var(--color-secondary-text)]">
+    <footer className="mt-auto bg-footer text-[var(--color-footer-text)]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
         <div className="grid grid-cols-2 gap-10 lg:grid-cols-4 lg:gap-12">
           {/* Business info */}
@@ -156,7 +156,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                         className="h-7 w-auto rounded bg-white object-contain p-0.5"
                       />
                     ) : (
-                      <span key={m.id} className="rounded bg-[var(--color-secondary-text)]/10 px-2 py-1 text-xs">
+                      <span key={m.id} className="rounded bg-[var(--color-footer-text)]/10 px-2 py-1 text-xs">
                         {name}
                       </span>
                     );
@@ -168,15 +168,15 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
         </div>
       </div>
 
-      <div className="border-t border-[var(--color-secondary-text)]/15">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs sm:flex-row sm:gap-6 sm:px-6 lg:px-8 text-[var(--color-secondary-text)]/75">
+      <div className="border-t border-[var(--color-footer-text)]/15">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs sm:flex-row sm:gap-6 sm:px-6 lg:px-8 text-[var(--color-footer-text)]/75">
           <span>
             &copy; {year} {store.name} — {t("all_rights_reserved", "All rights reserved")}.
           </span>
           {getConsentBannerMode() !== "off" && (
             <ConsentSettingsLink
               label={t("cookie_settings", "Cookie settings")}
-              className="hover:text-[var(--color-secondary-text)]"
+              className="hover:text-[var(--color-footer-text)]"
             />
           )}
         </div>

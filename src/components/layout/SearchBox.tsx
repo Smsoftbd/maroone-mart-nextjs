@@ -225,7 +225,7 @@ export function SearchBox({
           className={cn(
             "w-full text-sm focus:outline-none",
             isMinimal
-              ? "h-11 rounded-md border border-transparent bg-white pl-4 pr-14 text-[var(--color-text-primary)] placeholder:text-slate-400 focus:border-brand-500 transition-colors"
+              ? "h-11 rounded-md border border-[var(--color-border)] bg-white pl-4 pr-14 text-[var(--color-text-primary)] placeholder:text-slate-400 focus:border-brand-500 transition-colors"
               : "rounded-full bg-white text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
           )}
         />
@@ -235,7 +235,7 @@ export function SearchBox({
           className={cn(
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
             isMinimal
-              ? "right-0 h-11 w-12 rounded-r-md bg-secondary-500 text-[var(--color-secondary-text)] hover:bg-secondary-600"
+              ? "right-0 h-11 w-12 rounded-r-md bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600"
               : "right-1.5 h-8 w-8 rounded-full text-brand-ink hover:bg-brand-50 hover:text-brand-ink"
           )}
           aria-label="Search"

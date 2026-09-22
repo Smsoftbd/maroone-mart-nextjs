@@ -20,9 +20,9 @@ interface HomeNavbarProps {
 }
 
 const circleBtn =
-  "relative flex h-11 w-11 items-center justify-center rounded-full border border-[var(--color-primary-text)]/25 text-[var(--color-primary-text)] transition-colors hover:bg-[var(--color-primary-text)]/10";
+  "relative flex h-11 w-11 items-center justify-center rounded-full border border-[var(--color-border)] text-[var(--color-text-primary)] transition-colors hover:border-brand-500 hover:bg-brand-50 hover:text-brand-ink";
 
-/** Single-row header on the store primary color (text/icons use primary_text). */
+/** Single-row white header; primary is kept to the search button and hover accents. */
 export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
   const t = useT();
   const totalItems = useCartStore((s) => s.totalItems);
@@ -35,19 +35,19 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
   const navCategories = categories.slice(0, 14);
   const active = navCategories.find((c) => c.id === activeCat);
 
-  const navLink = "text-sm text-[var(--color-primary-text)]/85 transition-colors hover:text-[var(--color-primary-text)]";
+  const navLink = "text-sm text-[var(--color-text-secondary)] transition-colors hover:text-brand-ink";
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 bg-brand-500 text-[var(--color-primary-text)] transition-shadow duration-300",
+        "sticky top-0 z-40 border-b border-[var(--color-border)] bg-white text-[var(--color-text-primary)] transition-shadow duration-300",
         scrolled && "shadow-md"
       )}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center gap-3 lg:h-20 lg:gap-6">
           <button
-            className="lg:hidden -ml-2 rounded-lg p-2 hover:bg-[var(--color-primary-text)]/10"
+            className="lg:hidden -ml-2 rounded-lg p-2 hover:bg-brand-50"
             onClick={toggleMobileNav}
             aria-label={t("open_menu", "Open menu")}
           >
@@ -159,7 +159,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
             />
 
             <button
-              className="rounded-full p-2 hover:bg-[var(--color-primary-text)]/10 lg:hidden"
+              className="rounded-full p-2 hover:bg-brand-50 lg:hidden"
               onClick={toggleSearch}
               aria-label={t("search", "Search")}
             >
@@ -191,7 +191,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
 
             <LanguageSwitcher
               languages={store.languages}
-              buttonClassName="h-11 gap-1.5 border border-[var(--color-primary-text)]/25 px-3 text-[var(--color-primary-text)] hover:bg-[var(--color-primary-text)]/10"
+              buttonClassName="h-11 gap-1.5 border border-[var(--color-border)] px-3 text-[var(--color-text-primary)] hover:border-brand-500 hover:bg-brand-50"
             />
           </div>
         </div>

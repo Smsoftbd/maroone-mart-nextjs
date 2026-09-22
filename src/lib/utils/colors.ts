@@ -5,9 +5,13 @@
  *
  * Roles:
  * - primary   → header, main CTAs (Buy Now, Add to Cart on cards, checkout), active states
- * - secondary → hero/banner blocks, footer, second actions, "Best Seller" badges
+ * - secondary → one bold band (popular categories), video banner, second actions, "Best Seller" badges
  * - tertiary  → small highlights only: announcement bar, sale tags, cart count, stars, newsletter button
- * - default   → body text on the white page; all neutrals are mixed from it
+ * - default   → body text on the white page; all neutrals are mixed from it,
+ *               and the footer ground (a dark ink derived from it)
+ *
+ * Page stays mostly white: saturated colors are kept to CTAs, prices, badges
+ * and one band; large areas use the `*-soft` tints.
  *
  * A `*_text` color is only ever used on top of its matching background.
  */
@@ -87,6 +91,15 @@ function textOn(bg: string, preferred: string): string {
   return contrast(bg, WHITE) >= contrast(bg, "#111111") ? WHITE : "#111111";
 }
 
+/** Darken `hex` toward black (keeping its hue) until it reads on white at `min`. */
+function inkOnWhite(hex: string, min = 4.5): string {
+  for (let pct = 100; pct >= 0; pct -= 5) {
+    const shade = mix(hex, "#000000", pct);
+    if (contrast(shade, WHITE) >= min) return shade;
+  }
+  return "#000000";
+}
+
 /** Hover shade: 85% toward black, or toward white for near-black colors. */
 function hover(hex: string): string {
   return luminance(hex) < 0.02 ? mix(hex, WHITE, 80) : mix(hex, "#000000", 85);
@@ -95,7 +108,9 @@ function hover(hex: string): string {
 export function buildColorStyleBlock(input?: Partial<Record<keyof StoreColors, string | null>> | null): string {
   const c = normalizeColors(input);
   const text = accessibleOn(c.default_text, WHITE, "#000000");
-  const link = accessibleOn(c.primary, WHITE, text);
+  const link = inkOnWhite(c.primary);
+  // Footer ground: the text color when it is dark enough, else a slate navy.
+  const footer = luminance(text) < 0.03 ? text : "#0f172a";
 
   const vars: Record<string, string> = {
     // Tokens from the API (doc names)
@@ -111,11 +126,15 @@ export function buildColorStyleBlock(input?: Partial<Record<keyof StoreColors, s
     "--color-primary-hover": hover(c.primary),
     "--color-primary-soft": mix(c.primary, WHITE, 10),
     "--color-secondary-hover": hover(c.secondary),
+    "--color-secondary-soft": mix(c.secondary, WHITE, 10),
     "--color-tertiary-hover": hover(c.tertiary),
+    "--color-tertiary-soft": mix(c.tertiary, WHITE, 10),
     "--color-link": link,
     // Stars and small icons on white: 3:1 is enough for non-text.
     "--color-tertiary-ink": accessibleOn(c.tertiary, WHITE, text, 3),
     "--color-surface": WHITE,
+    "--color-footer": footer,
+    "--color-footer-text": WHITE,
 
     // Tailwind theme keys (bg-brand-500, text-brand-ink, bg-secondary-500, bg-tertiary-500 …)
     "--color-brand-50": mix(c.primary, WHITE, 6),
@@ -123,9 +142,13 @@ export function buildColorStyleBlock(input?: Partial<Record<keyof StoreColors, s
     "--color-brand-500": c.primary,
     "--color-brand-600": hover(c.primary),
     "--color-brand-ink": link,
+    // Bold prices/large numbers: 3:1 keeps them closer to the raw primary.
+    "--color-brand-strong": inkOnWhite(c.primary, 3),
     "--color-secondary-500": c.secondary,
     "--color-secondary-600": hover(c.secondary),
-    "--color-secondary-ink": accessibleOn(c.secondary, WHITE, text),
+    "--color-secondary-50": mix(c.secondary, WHITE, 8),
+    "--color-secondary-ink": inkOnWhite(c.secondary),
+    "--color-tertiary-50": mix(c.tertiary, WHITE, 8),
     "--color-tertiary-500": c.tertiary,
     "--color-tertiary-600": hover(c.tertiary),
 

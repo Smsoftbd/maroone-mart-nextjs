@@ -93,7 +93,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
 
   const priceRow = (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="text-base font-bold text-[var(--color-text-primary)]">{formatPrice(price, currency)}</span>
+      <span className="text-base font-bold text-brand-strong">{formatPrice(price, currency)}</span>
       {hasDiscount && (
         <>
           <del className="text-xs text-[var(--color-text-primary)]/45">{formatPrice(original, currency)}</del>
