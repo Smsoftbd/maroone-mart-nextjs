@@ -83,7 +83,7 @@ export default function LoginPage() {
       {authMode === "email_password" && (
         <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
           {t("no_account", "Don't have an account?")}{" "}
-          <Link href="/register" className="text-brand-500 font-medium hover:text-brand-600">
+          <Link href="/register" className="text-brand-ink font-medium hover:text-brand-ink">
             {t("create_one", "Create one")}
           </Link>
         </p>

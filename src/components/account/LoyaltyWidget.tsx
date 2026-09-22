@@ -10,17 +10,17 @@ export function LoyaltyWidget({ data }: { data: LoyaltyData }) {
   return (
     <div className="space-y-6">
       {/* Balance card */}
-      <div className="bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl p-6 text-white">
+      <div className="bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-2xl p-6 text-[var(--color-secondary-text)]">
         <div className="flex items-center gap-2 mb-2">
           <Star className="h-5 w-5 fill-current" />
           <span className="text-sm font-medium uppercase tracking-wide">{t("loyalty_points", "Loyalty Points")}</span>
         </div>
         <p className="font-display text-4xl font-bold">{data.balance}</p>
-        <p className="text-sm text-white/70 mt-1">
+        <p className="text-sm text-[var(--color-secondary-text)]/70 mt-1">
           ≈ {data.balance * data.point_value} value
         </p>
         {data.can_redeem && (
-          <p className="mt-3 text-xs bg-white/20 rounded-lg px-3 py-1.5 inline-block">
+          <p className="mt-3 text-xs bg-[var(--color-secondary-text)]/20 rounded-lg px-3 py-1.5 inline-block">
             Redeeemable at checkout
           </p>
         )}

@@ -55,7 +55,7 @@ export function CartSummary({
       {onClose && (
         <button
           onClick={onClose}
-          className="w-full py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-brand-500 transition-colors"
+          className="w-full py-2 text-sm font-medium text-[var(--color-text-secondary)] hover:text-brand-ink transition-colors"
         >
           {t("continue_shopping", "Continue shopping")}
         </button>

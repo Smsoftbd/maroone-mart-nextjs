@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils/cn";
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: "brand" | "success" | "warning" | "error" | "neutral";
+  variant?: "brand" | "secondary" | "accent" | "success" | "warning" | "error" | "neutral";
   className?: string;
 }
 
 const variants = {
-  brand: "bg-brand-500 text-white",
+  brand: "bg-brand-500 text-[var(--color-primary-text)]",
+  secondary: "bg-secondary-500 text-[var(--color-secondary-text)]",
+  accent: "bg-tertiary-500 text-[var(--color-tertiary-text)]",
   success: "bg-green-100 text-green-800",
   warning: "bg-yellow-100 text-yellow-800",
   error: "bg-red-100 text-red-800",

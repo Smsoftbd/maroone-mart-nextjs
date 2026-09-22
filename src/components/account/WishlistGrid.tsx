@@ -45,7 +45,7 @@ export function WishlistGrid({ items, onRemove }: WishlistGridProps) {
           <div className="p-3">
             <Link
               href={`/products/${item.product_slug}`}
-              className="font-body text-sm font-medium line-clamp-2 hover:text-brand-500 transition-colors"
+              className="font-body text-sm font-medium line-clamp-2 hover:text-brand-ink transition-colors"
             >
               {item.product_name}
             </Link>

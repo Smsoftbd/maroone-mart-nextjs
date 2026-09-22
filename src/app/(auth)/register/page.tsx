@@ -89,7 +89,7 @@ export default function RegisterPage() {
 
       <p className="mt-6 text-center text-sm text-[var(--color-text-secondary)]">
         {t("have_account", "Already have an account?")}{" "}
-        <Link href="/login" className="text-brand-500 font-medium hover:text-brand-600">
+        <Link href="/login" className="text-brand-ink font-medium hover:text-brand-ink">
           {t("sign_in", "Sign in")}
         </Link>
       </p>

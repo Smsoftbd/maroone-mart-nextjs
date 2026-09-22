@@ -54,7 +54,7 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
   const remove = () => run(() => removeItem(item.id));
 
   const stepperBtn =
-    "w-9 h-9 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 hover:text-[var(--color-tertiary-text)] disabled:hover:bg-transparent";
+    "w-9 h-9 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 hover:text-brand-ink disabled:hover:bg-transparent";
 
   return (
     <div
@@ -84,7 +84,7 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
           <Link
             href={productHref}
             onClick={onNavigate}
-            className="product-title text-sm font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-500 transition-colors"
+            className="product-title text-sm font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-ink transition-colors"
           >
             {productName}
           </Link>
@@ -118,7 +118,7 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
         <p className="text-xs text-[var(--color-text-secondary)] tabular-nums">
           {formatPrice(unitPrice, currency)} {t("each", "each")}
           {lowStock && (
-            <span className="ml-2 font-medium text-amber-600">
+            <span className="ml-2 font-medium text-[var(--color-warning)]">
               {atMax
                 ? t("max_stock_reached", "Max available")
                 : `${t("only", "Only")} ${maxQty} ${t("left", "left")}`}

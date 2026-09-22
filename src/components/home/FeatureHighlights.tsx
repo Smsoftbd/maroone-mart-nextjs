@@ -19,7 +19,7 @@ export async function FeatureHighlights() {
             className={`flex items-center gap-3 px-2 lg:justify-center lg:px-6 ${i > 0 ? "lg:border-l lg:border-slate-200" : ""}`}
           >
             <Icon className="h-8 w-8 shrink-0 text-slate-700 lg:h-9 lg:w-9" strokeWidth={1.25} />
-            <span className="text-xs font-semibold leading-snug text-slate-900 sm:text-sm">{label}</span>
+            <span className="text-xs font-semibold leading-snug text-[var(--color-text-primary)] sm:text-sm">{label}</span>
           </li>
         ))}
       </ul>

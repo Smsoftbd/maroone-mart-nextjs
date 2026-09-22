@@ -102,7 +102,7 @@ export function OtpAuthForm({ collectName = false }: { collectName?: boolean }) 
       <button
         type="button"
         onClick={() => { setStep("phone"); setCode(""); setError(null); }}
-        className="w-full text-center text-sm text-[var(--color-text-secondary)] hover:text-brand-600"
+        className="w-full text-center text-sm text-[var(--color-text-secondary)] hover:text-brand-ink"
       >
         {t("change_number", "Change number")}
       </button>

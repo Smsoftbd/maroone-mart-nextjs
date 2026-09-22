@@ -183,7 +183,7 @@ export default function OrderDetailPage() {
       {order.tracking_number && (
         <div className="bg-surface-50 rounded-xl p-4 text-sm">
           <span className="font-medium">{t("tracking_number", "Tracking Number")}: </span>
-          <span className="text-brand-500 font-mono">{order.tracking_number}</span>
+          <span className="text-brand-ink font-mono">{order.tracking_number}</span>
         </div>
       )}
     </div>

@@ -81,7 +81,7 @@ export function ProductSort() {
                   onClick={() => select(o.value)}
                   className={cn(
                     "flex w-full items-center justify-between px-4 py-2 text-left transition-colors hover:bg-surface-50",
-                    selected ? "font-medium text-brand-500" : "text-slate-700"
+                    selected ? "font-medium text-brand-ink" : "text-slate-700"
                   )}
                 >
                   {o.label}

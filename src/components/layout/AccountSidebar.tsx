@@ -39,7 +39,7 @@ export function AccountSidebar() {
               className={cn(
                 "flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors border-b border-[var(--color-border)] last:border-0",
                 active
-                  ? "bg-brand-50 text-[var(--color-tertiary-text)]"
+                  ? "bg-brand-50 text-brand-ink"
                   : "text-[var(--color-text-secondary)] hover:bg-surface-50"
               )}
             >

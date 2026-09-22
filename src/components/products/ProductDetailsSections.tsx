@@ -47,7 +47,7 @@ export async function ProductDetailsSections({
             <li key={n.id}>
               <a
                 href={`#${n.id}`}
-                className="block whitespace-nowrap px-3 py-3 text-center text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] border-b-2 border-transparent -mb-px hover:text-brand-500 hover:border-brand-500 transition-colors"
+                className="block whitespace-nowrap px-3 py-3 text-center text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] border-b-2 border-transparent -mb-px hover:text-brand-ink hover:border-brand-500 transition-colors"
               >
                 {n.label}
               </a>
@@ -94,7 +94,7 @@ export async function ProductDetailsSections({
                     {i > 0 && <span className="text-[var(--color-text-secondary)]">{t("or", "or")}</span>}
                     <a
                       href={`tel:${p}`}
-                      className="inline-flex items-center gap-1 font-semibold text-brand-500 hover:text-brand-600 tabular-nums"
+                      className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums"
                     >
                       <Phone className="h-3.5 w-3.5 fill-current" />
                       {p}
@@ -125,11 +125,11 @@ export async function ProductDetailsSections({
                   <li key={star} className="flex items-center gap-3 text-xs text-[var(--color-text-secondary)]">
                     <span className="inline-flex w-6 items-center gap-0.5 tabular-nums">
                       {star}
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+                      <Star className="h-3 w-3 fill-[var(--color-tertiary-ink)] text-[var(--color-tertiary-ink)]" />
                     </span>
                     <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-100">
                       <span
-                        className="block h-full rounded-full bg-amber-400"
+                        className="block h-full rounded-full bg-tertiary-500"
                         style={{ width: `${(count / distTotal) * 100}%` }}
                       />
                     </span>
@@ -163,13 +163,13 @@ export async function ProductDetailsSections({
               {questions.map((q) => (
                 <li key={q.id} className="rounded-lg border border-[var(--color-border)] p-4 text-sm">
                   <p className="font-medium text-[var(--color-text-primary)]">
-                    <span className="mr-1.5 font-bold text-brand-500">Q:</span>
+                    <span className="mr-1.5 font-bold text-brand-ink">Q:</span>
                     {q.question}
                   </p>
                   <p className="mt-1 text-xs text-[var(--color-text-muted)]">— {q.customer_name}</p>
                   {q.answer && (
                     <p className="mt-3 border-t border-[var(--color-border)] pt-3 text-[var(--color-text-secondary)]">
-                      <span className="mr-1.5 font-bold text-[#12b3c7]">A:</span>
+                      <span className="mr-1.5 font-bold text-secondary-ink">A:</span>
                       {q.answer}
                     </p>
                   )}

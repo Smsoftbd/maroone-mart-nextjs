@@ -128,7 +128,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
       {topCategories.length > 0 && (
         <section className="border-b border-slate-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h2 className="mb-5 text-base font-semibold text-slate-900">
+            <h2 className="mb-5 text-base font-semibold text-[var(--color-text-primary)]">
               {t("top_5_categories", "Top 5 Categories")}
             </h2>
             <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-5">
@@ -138,15 +138,15 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                   href={`/products?category=${cat.slug}`}
                   className={`flex w-48 shrink-0 items-center gap-3 rounded-lg border px-3 py-3 transition-colors sm:w-auto ${
                     categories.includes(cat.slug)
-                      ? "border-brand-500 bg-brand-50 text-[var(--color-tertiary-text)]"
+                      ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)]"
                       : "border-slate-100 text-slate-800 hover:border-brand-500"
                   }`}
                 >
-                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-amber-50">
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-100">
                     {cat.image ? (
                       <Image src={cat.image} alt="" fill sizes="40px" className="object-contain p-1.5" />
                     ) : (
-                      <span className="text-sm font-bold text-brand-500">{cat.name[0]}</span>
+                      <span className="text-sm font-bold text-brand-ink">{cat.name[0]}</span>
                     )}
                   </span>
                   <span className="truncate text-sm">{cat.name}</span>

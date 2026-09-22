@@ -35,7 +35,7 @@ export default async function FlashSalePage() {
           const Heading = i === 0 ? "h1" : "h2";
           return (
           <section key={sale.id} className="mt-6 mb-12">
-            <div className="bg-brand-500 text-white px-6 py-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="bg-secondary-500 text-[var(--color-secondary-text)] px-6 py-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <Zap className="h-6 w-6 fill-current" />
                 <div>

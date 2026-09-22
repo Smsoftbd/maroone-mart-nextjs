@@ -35,7 +35,7 @@ export function ProductTabs({ product, reviews, questions }: ProductTabsProps) {
               className={cn(
                 "pb-3 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors",
                 activeTab === tab.id
-                  ? "border-brand-500 text-brand-500"
+                  ? "border-brand-500 text-brand-ink"
                   : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
               )}
             >

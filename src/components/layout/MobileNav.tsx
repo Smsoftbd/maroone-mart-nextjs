@@ -149,14 +149,14 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                   </p>
                   <Link
                     href="/account"
-                    className="flex items-center gap-2 py-2 text-sm hover:text-brand-500"
+                    className="flex items-center gap-2 py-2 text-sm hover:text-brand-ink"
                     onClick={closeMobileNav}
                   >
                     <User className="h-4 w-4" /> Account
                   </Link>
                   <Link
                     href="/account/orders"
-                    className="flex items-center gap-2 py-2 text-sm hover:text-brand-500"
+                    className="flex items-center gap-2 py-2 text-sm hover:text-brand-ink"
                     onClick={closeMobileNav}
                   >
                     <Package className="h-4 w-4" /> Orders
@@ -180,7 +180,7 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                   {store.auth_mode === "email_password" && (
                     <Link
                       href="/register"
-                      className="flex-1 text-center py-2.5 bg-brand-500 text-white rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
+                      className="flex-1 text-center py-2.5 bg-brand-500 text-[var(--color-primary-text)] rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors"
                       onClick={closeMobileNav}
                     >
                       Sign Up

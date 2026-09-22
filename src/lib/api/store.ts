@@ -3,6 +3,7 @@ import "server-only";
 import { apiRequest, CACHE_TAGS, REVALIDATE, resolveL10n } from "./client";
 import type { LocalizedString } from "./client";
 import { getLocale } from "@/lib/i18n/locale";
+import { normalizeColors, type StoreColors } from "@/lib/utils/colors";
 import type {
   Store,
   StoreLanguage,
@@ -40,15 +41,7 @@ type ApiStore = {
     twitter?: string | null;
     linkedin?: string | null;
   };
-  colors: {
-    primary: string;
-    primary_text: string;
-    secondary: string;
-    secondary_text: string;
-    tertiary: string;
-    tertiary_text: string;
-    default_text: string;
-  };
+  colors?: Partial<Record<keyof StoreColors, string | null>> | null;
   sections: {
     featured_products: boolean;
     flash_sale: boolean;
@@ -119,15 +112,7 @@ export async function getStore(): Promise<Store> {
       tiktok: res.social?.tiktok ?? undefined,
       pinterest: res.social?.pinterest ?? undefined,
     },
-    colors: {
-      primary: res.colors?.primary ?? "#000000",
-      primary_text: res.colors?.primary_text ?? "#ffffff",
-      secondary: res.colors?.secondary ?? "#000000",
-      secondary_text: res.colors?.secondary_text ?? "#000000",
-      tertiary: res.colors?.tertiary ?? "#f3f4f6",
-      tertiary_text: res.colors?.tertiary_text ?? "#111827",
-      default_text: res.colors?.default_text ?? "#111110",
-    },
+    colors: normalizeColors(res.colors),
     features: {
       wishlist: res.sections?.wishlist ?? false,
       reviews: res.sections?.reviews ?? false,

@@ -9,19 +9,14 @@ export async function VideoReviewBanner({ youtubeUrl }: VideoReviewBannerProps) 
   const t = await getServerT();
 
   return (
-    <section className="relative my-8 overflow-hidden bg-[#2a9aa5]">
-      {/* Orange sweep in the lower-left, echoing the campaign artwork */}
-      <div
-        aria-hidden
-        className="absolute -bottom-1/2 -left-1/4 h-[140%] w-3/4 -rotate-12 rounded-[45%] bg-brand-500/90"
-      />
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
+    <section className="relative my-8 overflow-hidden bg-secondary-500">
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-[var(--color-secondary-text)]/10 to-transparent" />
 
-      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 py-14 text-center text-white md:py-20">
+      <div className="relative mx-auto flex max-w-3xl flex-col items-center px-4 py-14 text-center text-[var(--color-secondary-text)] md:py-20">
         <h2 className="text-2xl font-bold leading-snug md:text-4xl">
           {t("video_reviews_title", "Watch review videos of our latest products")}
         </h2>
-        <p className="mt-4 max-w-md text-sm leading-relaxed text-white/90 md:text-base">
+        <p className="mt-4 max-w-md text-sm leading-relaxed text-[var(--color-secondary-text)]/80 md:text-base">
           {t(
             "video_reviews_subtitle",
             "You'll also find reviews of all our products on our official YouTube channel"
@@ -40,7 +35,7 @@ export async function VideoReviewBanner({ youtubeUrl }: VideoReviewBannerProps) 
           href={youtubeUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="mt-8 inline-flex items-center gap-2 text-xs font-medium text-white/90 underline-offset-4 hover:underline"
+          className="mt-8 inline-flex items-center gap-2 text-xs font-medium text-[var(--color-secondary-text)]/80 underline-offset-4 hover:underline"
         >
           {t("visit_youtube_channel", "Visit our YouTube channel")}
           <ArrowRight className="h-3.5 w-3.5" />

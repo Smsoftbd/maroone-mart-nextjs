@@ -165,7 +165,7 @@ export function ConsentBanner({
           <button
             type="button"
             onClick={() => choose({ analytics: true, marketing: true })}
-            className={`${btn} bg-brand-500 text-white hover:bg-brand-600`}
+            className={`${btn} bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600`}
           >
             {t("cookie_consent_accept", "Accept all")}
           </button>

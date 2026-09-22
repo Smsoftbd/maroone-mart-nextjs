@@ -34,7 +34,7 @@ export async function CategoryGrid({ categories }: CategoryGridProps) {
                     />
                   ) : (
                     <div className="w-full aspect-[4/5] bg-brand-50 flex items-center justify-center">
-                      <span className="font-display font-bold text-5xl text-[var(--color-tertiary-text)]">
+                      <span className="font-display font-bold text-5xl text-brand-ink">
                         {cat.name[0]}
                       </span>
                     </div>

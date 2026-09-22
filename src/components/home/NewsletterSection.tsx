@@ -33,9 +33,9 @@ export function NewsletterSection() {
   };
 
   return (
-    <section className="bg-surface-100 py-16">
+    <section className="bg-[var(--color-primary-soft)] py-16">
       <div className="max-w-2xl mx-auto px-4 text-center">
-        <Mail className="h-10 w-10 text-brand-500 mx-auto mb-4" />
+        <Mail className="h-10 w-10 text-brand-ink mx-auto mb-4" />
         <h2 className="font-display text-3xl font-bold mb-2">
           {t("newsletter_title", "Stay in the Loop")}
         </h2>
@@ -60,7 +60,7 @@ export function NewsletterSection() {
             />
             <Button
               type="submit"
-              variant="primary"
+              variant="accent"
               loading={status === "loading"}
             >
               {t("subscribe", "Subscribe")}

@@ -90,7 +90,7 @@ export function ProductVariantSelector({
                       className={cn(
                         "relative h-9 w-9 rounded-full p-0.5 ring-1 transition-all",
                         active
-                          ? "ring-2 ring-[var(--color-text-primary)]"
+                          ? "ring-2 ring-brand-500"
                           : "ring-[var(--color-border-dark)] hover:ring-[var(--color-text-secondary)]",
                         oos && "opacity-40 cursor-not-allowed"
                       )}
@@ -116,8 +116,8 @@ export function ProductVariantSelector({
                     className={cn(
                       "min-w-12 h-10 px-4 rounded-full border text-sm transition-colors",
                       active
-                        ? "border-[var(--color-text-primary)] bg-[var(--color-text-primary)] text-[var(--color-surface-0)] font-medium"
-                        : "border-[var(--color-border-dark)] text-[var(--color-text-primary)] hover:border-[var(--color-text-primary)]",
+                        ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)] font-medium"
+                        : "border-[var(--color-border)] bg-white text-[var(--color-text-primary)] hover:border-brand-500",
                       oos &&
                         "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)] hover:border-[var(--color-border-dark)]"
                     )}

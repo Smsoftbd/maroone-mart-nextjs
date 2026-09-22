@@ -225,8 +225,8 @@ export function SearchBox({
           className={cn(
             "w-full text-sm focus:outline-none",
             isMinimal
-              ? "h-11 rounded-md border border-slate-300 bg-white pl-4 pr-14 text-slate-900 placeholder:text-slate-400 focus:border-brand-500 transition-colors"
-              : "rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
+              ? "h-11 rounded-md border border-transparent bg-white pl-4 pr-14 text-[var(--color-text-primary)] placeholder:text-slate-400 focus:border-brand-500 transition-colors"
+              : "rounded-full bg-white text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
           )}
         />
         <button
@@ -235,8 +235,8 @@ export function SearchBox({
           className={cn(
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
             isMinimal
-              ? "right-0 h-11 w-12 rounded-r-md bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600"
-              : "right-1.5 h-8 w-8 rounded-full text-brand-500 hover:bg-brand-50 hover:text-[var(--color-tertiary-text)]"
+              ? "right-0 h-11 w-12 rounded-r-md bg-secondary-500 text-[var(--color-secondary-text)] hover:bg-secondary-600"
+              : "right-1.5 h-8 w-8 rounded-full text-brand-ink hover:bg-brand-50 hover:text-brand-ink"
           )}
           aria-label="Search"
         >
@@ -249,7 +249,7 @@ export function SearchBox({
           id="searchbox-listbox"
           role="listbox"
           className={cn(
-            "absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-white text-gray-900 border",
+            "absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-white text-[var(--color-text-primary)] border",
             isMinimal
               ? "border-neutral-200 shadow-[0_24px_48px_-32px_rgba(0,0,0,0.45)]"
               : "rounded-xl shadow-lg border-[var(--color-border)]"
@@ -293,7 +293,7 @@ export function SearchBox({
                         </span>
                         <span className="min-w-0 flex-1 truncate text-sm">{s.name}</span>
                         {s.price > 0 && (
-                          <span className="shrink-0 text-sm font-semibold text-brand-500">
+                          <span className="shrink-0 text-sm font-semibold text-brand-ink">
                             {formatPrice(s.price, currency)}
                           </span>
                         )}
@@ -309,8 +309,8 @@ export function SearchBox({
                 onMouseEnter={() => setActive(suggestions.length)}
                 onClick={() => runSearch(debounced)}
                 className={cn(
-                  "flex w-full items-center gap-2 border-t border-[var(--color-border)] px-4 py-2.5 text-left text-sm font-medium text-brand-500 transition-colors",
-                  active === suggestions.length ? "bg-brand-50 text-[var(--color-tertiary-text)]" : "hover:bg-brand-50 hover:text-[var(--color-tertiary-text)]"
+                  "flex w-full items-center gap-2 border-t border-[var(--color-border)] px-4 py-2.5 text-left text-sm font-medium text-brand-ink transition-colors",
+                  active === suggestions.length ? "bg-brand-50 text-brand-ink" : "hover:bg-brand-50 hover:text-brand-ink"
                 )}
               >
                 <Search className="h-4 w-4" />
@@ -328,7 +328,7 @@ export function SearchBox({
                   <button
                     type="button"
                     onClick={clear}
-                    className="text-xs text-[var(--color-text-muted)] hover:text-brand-500 transition-colors"
+                    className="text-xs text-[var(--color-text-muted)] hover:text-brand-ink transition-colors"
                   >
                     Clear
                   </button>
@@ -346,8 +346,8 @@ export function SearchBox({
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-sm transition-colors",
                       active === i
-                        ? "border-brand-500 bg-brand-50 text-[var(--color-tertiary-text)]"
-                        : "border-[var(--color-border)] hover:border-brand-500 hover:text-brand-500"
+                        ? "border-brand-500 bg-brand-50 text-brand-ink"
+                        : "border-[var(--color-border)] hover:border-brand-500 hover:text-brand-ink"
                     )}
                   >
                     {term}

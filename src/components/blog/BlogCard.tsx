@@ -26,7 +26,7 @@ export function BlogCard({ post }: { post: BlogPost }) {
           <Badge variant="neutral">{post.category.name}</Badge>
         </div>
         <Link href={`/blog/${post.slug}`}>
-          <h3 className="font-display font-semibold text-lg line-clamp-2 hover:text-brand-500 transition-colors mb-2">
+          <h3 className="font-display font-semibold text-lg line-clamp-2 hover:text-brand-ink transition-colors mb-2">
             {post.title}
           </h3>
         </Link>

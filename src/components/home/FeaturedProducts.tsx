@@ -71,7 +71,7 @@ export async function BestSelling({ products, currency }: { products: Product[];
       products={products}
       currency={currency}
       list={{ id: "best_selling", name: "Best selling" }}
-      icon={<Flame className="h-5 w-5 fill-brand-500 text-brand-500" />}
+      icon={<Flame className="h-5 w-5 fill-[var(--color-tertiary-ink)] text-[var(--color-tertiary-ink)]" />}
     />
   );
 }

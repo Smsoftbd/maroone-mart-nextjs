@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils/cn";
 import { Spinner } from "./Spinner";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost" | "danger";
+  variant?: "primary" | "secondary" | "accent" | "ghost" | "danger";
   size?: "sm" | "md" | "lg";
   loading?: boolean;
   fullWidth?: boolean;
@@ -11,10 +11,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants = {
   primary:
-    "bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all",
+    "bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 active:scale-95 transition-all",
   secondary:
-    "border border-surface-900 text-surface-900 hover:bg-surface-100 transition-colors",
-  ghost: "text-brand-500 hover:underline transition-colors",
+    "bg-secondary-500 text-[var(--color-secondary-text)] hover:bg-secondary-600 transition-colors",
+  // Promotions only (subscribe, claim offer) — at most one per screen.
+  accent:
+    "bg-tertiary-500 text-[var(--color-tertiary-text)] hover:bg-tertiary-600 transition-colors",
+  ghost: "text-brand-ink hover:underline transition-colors",
   danger: "bg-red-600 text-white hover:bg-red-700 transition-colors",
 };
 

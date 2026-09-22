@@ -58,7 +58,7 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
                 aria-current={p === 1 ? "page" : undefined}
                 className={
                   p === 1
-                    ? `${pagerBtn} border-brand-500 text-brand-500 font-semibold`
+                    ? `${pagerBtn} border-brand-500 text-brand-ink font-semibold`
                     : `${pagerBtn} border-transparent text-slate-700 hover:border-slate-200`
                 }
               >
@@ -68,7 +68,7 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
             <Link
               href={pageHref(2)}
               aria-label="Next page"
-              className={`${pagerBtn} border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-500`}
+              className={`${pagerBtn} border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-ink`}
             >
               <ChevronRight className="h-4 w-4" />
             </Link>

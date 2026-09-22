@@ -61,7 +61,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <article className="mt-6">
         <header className="mb-8">
           <div className="flex items-center gap-3 mb-4 text-sm text-[var(--color-text-muted)]">
-            <span className="text-brand-500 font-medium">{post.category.name}</span>
+            <span className="text-brand-ink font-medium">{post.category.name}</span>
             <span>·</span>
             <span className="flex items-center gap-1">
               <Calendar className="h-3.5 w-3.5" />

@@ -50,7 +50,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
           </div>
         )}
         {points && Number(points) > 0 && (
-          <div className="flex items-center justify-between text-brand-500">
+          <div className="flex items-center justify-between text-brand-ink">
             <span className="flex items-center gap-2 text-sm">
               <Star className="h-4 w-4" /> {t("points_earned", "Points Earned")}
             </span>
@@ -65,7 +65,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
             href={invoiceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             <Download className="h-4 w-4" /> {t("download_invoice", "Download Invoice")}
           </a>
@@ -73,7 +73,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
         {showMyOrders && (
           <Link
             href="/account/orders"
-            className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             {t("view_my_orders", "View My Orders")}
           </Link>

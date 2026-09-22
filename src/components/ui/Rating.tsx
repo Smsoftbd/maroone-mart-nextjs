@@ -22,10 +22,10 @@ export function Rating({ value, count, size = "sm", className }: RatingProps) {
           className={cn(
             starSize,
             star <= Math.floor(value)
-              ? "fill-yellow-400 text-yellow-400"
+              ? "fill-[var(--color-tertiary-ink)] text-[var(--color-tertiary-ink)]"
               : star - 0.5 <= value
-              ? "fill-yellow-200 text-yellow-400"
-              : "fill-transparent text-yellow-300"
+              ? "fill-[var(--color-tertiary-ink)]/40 text-[var(--color-tertiary-ink)]"
+              : "fill-transparent text-[var(--color-tertiary-ink)]/50"
           )}
         />
       ))}

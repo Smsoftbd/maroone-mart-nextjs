@@ -34,7 +34,7 @@ export async function CategoryProductSections({
             </h2>
             <Link
               href={`/products?category=${category.slug}`}
-              className="text-sm text-brand-500 hover:text-brand-600 font-medium transition-colors"
+              className="text-sm text-brand-ink hover:text-brand-ink font-medium transition-colors"
             >
               {t("see_all", "See All")} →
             </Link>

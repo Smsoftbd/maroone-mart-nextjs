@@ -146,7 +146,7 @@ function Section({
   return (
     <section className="pt-6">
       <div className="flex min-h-10 items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <h3 className="text-sm font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</h3>
         {action}
       </div>
       <div className="pt-3">{children}</div>
@@ -182,7 +182,7 @@ function CategoryNav({
         <button
           type="button"
           onClick={() => setCategory(null)}
-          className="flex items-center gap-1 text-slate-700 hover:text-brand-500"
+          className="flex items-center gap-1 text-slate-700 hover:text-brand-ink"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
           {t("all_categories", "All Categories")}
@@ -195,8 +195,8 @@ function CategoryNav({
           onClick={() => setCategory(cat.slug)}
           style={indent(i + 1)}
           className={cn(
-            "flex items-center gap-1 hover:text-brand-500",
-            cat === current ? "text-brand-500" : "text-slate-700"
+            "flex items-center gap-1 hover:text-brand-ink",
+            cat === current ? "text-brand-ink" : "text-slate-700"
           )}
         >
           <ChevronLeft className="h-3.5 w-3.5" />
@@ -210,8 +210,8 @@ function CategoryNav({
           onClick={() => setCategory(cat.slug)}
           style={indent(path.length ? trail.length + 1.5 : 0)}
           className={cn(
-            "block text-left hover:text-brand-500",
-            cat === current ? "font-medium text-brand-500" : "text-slate-800"
+            "block text-left hover:text-brand-ink",
+            cat === current ? "font-medium text-brand-ink" : "text-slate-800"
           )}
         >
           {cat.name}
@@ -260,7 +260,7 @@ function FilterContent({
               }}
               aria-label={t("search_brands", "Search brands")}
               aria-expanded={brandSearchOpen}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-800 transition-colors hover:border-brand-500 hover:text-brand-500"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-800 transition-colors hover:border-brand-500 hover:text-brand-ink"
             >
               {brandSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
             </button>
@@ -380,7 +380,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
         <Filter className="h-4 w-4" />
         {t("filter", "Filter")}
         {activeCount > 0 && (
-          <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-[11px] font-medium text-white">
+          <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-[11px] font-medium text-[var(--color-primary-text)]">
             {activeCount}
           </span>
         )}
@@ -408,7 +408,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
               <button
                 type="button"
                 onClick={clearAll}
-                className="h-11 rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:border-brand-500 hover:text-brand-500"
+                className="h-11 rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:border-brand-500 hover:text-brand-ink"
               >
                 {t("clear_all", "Clear all")}
               </button>
@@ -416,7 +416,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
             <button
               type="button"
               onClick={() => setDrawerOpen(false)}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-md bg-brand-500 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-md bg-brand-500 text-sm font-medium text-[var(--color-primary-text)] transition-colors hover:bg-brand-600"
             >
               {isPending ? (
                 <Spinner size="sm" />

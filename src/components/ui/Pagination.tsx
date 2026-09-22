@@ -44,7 +44,7 @@ export function Pagination({ currentPage, lastPage, variant = "default" }: Pagin
     const last = Math.max(1, lastPage);
     const box =
       "flex h-10 min-w-10 items-center justify-center rounded-md border px-2 text-sm tabular-nums transition-colors";
-    const arrowBox = "w-16 border-slate-200 text-slate-500 hover:border-brand-500 hover:text-brand-500";
+    const arrowBox = "w-16 border-slate-200 text-slate-500 hover:border-brand-500 hover:text-brand-ink";
     const disabled = "pointer-events-none opacity-50";
 
     return (
@@ -71,8 +71,8 @@ export function Pagination({ currentPage, lastPage, variant = "default" }: Pagin
                   className={cn(
                     box,
                     page === currentPage
-                      ? "border-brand-500 font-medium text-brand-500"
-                      : "border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-500"
+                      ? "border-brand-500 font-medium text-brand-ink"
+                      : "border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-ink"
                   )}
                   aria-current={page === currentPage ? "page" : undefined}
                 >

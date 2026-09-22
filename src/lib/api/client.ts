@@ -11,7 +11,7 @@ const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
 const SECRET_KEY = process.env.API_SECRET_KEY!;
 
 export const REVALIDATE = {
-  STORE: 3600,
+  STORE: 300,
   CATEGORIES: 1800,
   PRODUCTS_LIST: 300,
   PRODUCT_DETAIL: 300,

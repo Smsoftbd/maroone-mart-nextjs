@@ -1,19 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand palette */
-  --color-brand-50: #FFF5F0;
-  --color-brand-100: #FFE0CC;
-  --color-brand-400: #FF6B2B;
-  --color-brand-500: #E8521A;
-  --color-brand-600: #C43F0D;
-  --color-brand-900: #1A0A00;
+  /* Store palette. Fallbacks = API defaults; the real values are injected on
+     :root by buildColorStyleBlock() (src/lib/utils/colors.ts) at render time. */
+  /* Primary: header, main CTAs, active states. brand-ink = safe link color on white. */
+  --color-brand-50: #f0f7ff;
+  --color-brand-100: #e6f2ff;
+  --color-brand-500: #007bff;
+  --color-brand-600: #0069d9;
+  --color-brand-ink: #007bff;
+
+  /* Secondary: hero/banner blocks, footer, second actions, badges. */
+  --color-secondary-500: #6c757d;
+  --color-secondary-600: #5c636a;
+  --color-secondary-ink: #6c757d;
+
+  /* Tertiary: small highlights (announcement bar, sale tags, cart count, stars). */
+  --color-tertiary-500: #28a745;
+  --color-tertiary-600: #228e3b;
 
   /* Surface */
-  --color-surface-0: #FFFFFF;
-  --color-surface-50: #FAFAF9;
-  --color-surface-100: #F5F4F0;
-  --color-surface-900: #111110;
+  --color-surface-0: #ffffff;
+  --color-surface-50: #fafafa;
+  --color-surface-100: #f5f5f5;
+  --color-surface-900: #000000;
 
   /* Font families */
   --font-display: var(--font-playfair), Georgia, serif;
@@ -27,19 +37,28 @@
 }
 
 :root {
-  /* Text */
-  --color-text-primary: #111110;
-  --color-text-secondary: #6B6A65;
-  --color-text-muted: #9E9D98;
-
-  /* Text on brand surfaces (overridden dynamically) */
+  /* Doc tokens (overridden per store) */
+  --color-primary: #007bff;
   --color-primary-text: #ffffff;
-  --color-secondary-text: #881337;
-  --color-tertiary-text: #9d174d;
+  --color-primary-hover: #0069d9;
+  --color-primary-soft: #e6f2ff;
+  --color-secondary: #6c757d;
+  --color-secondary-text: #ffffff;
+  --color-secondary-hover: #5c636a;
+  --color-tertiary: #28a745;
+  --color-tertiary-text: #ffffff;
+  --color-tertiary-hover: #228e3b;
+  --color-tertiary-ink: #28a745;
+  --color-text: #000000;
+  --color-link: #007bff;
+  --color-surface: #ffffff;
 
-  /* Borders */
-  --color-border: #E8E7E2;
-  --color-border-dark: #D0CFC9;
+  /* Text + neutrals, mixed from --color-text */
+  --color-text-primary: #000000;
+  --color-text-secondary: #404040;
+  --color-text-muted: #666666;
+  --color-border: #e6e6e6;
+  --color-border-dark: #d1d1d1;
 
   /* Semantic */
   --color-success: #2D7A3A;
@@ -95,7 +114,7 @@ html {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-brand-50);
+  background: var(--color-surface-100);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-brand-500);
@@ -106,7 +125,7 @@ html {
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-brand-500) var(--color-brand-50);
+  scrollbar-color: var(--color-brand-500) var(--color-surface-100);
 }
 
 body {
@@ -117,19 +136,9 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-text-primary: #F5F4F0;
-    --color-text-secondary: #9E9D98;
-    --color-border: #2A2A28;
-    --color-border-dark: #3A3A38;
-  }
-}
-
 /* Skeleton shimmer utility */
 .shimmer {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background: linear-gradient(90deg, var(--color-surface-100) 25%, var(--color-border) 50%, var(--color-surface-100) 75%);
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
 }
@@ -240,7 +249,7 @@ body {
   opacity: 1;
 }
 .home-dots-brand .swiper-pagination-bullet {
-  background: var(--color-brand-500);
+  background: var(--color-brand-ink);
   opacity: 0.3;
 }
 .home-dots-brand .swiper-pagination-bullet-active {
@@ -248,7 +257,7 @@ body {
 }
 
 /* Hot Deals carousel: pre-init sizing (mirrors breakpoints in FlashSaleBanner)
-   and white pagination bullets on the brand background. */
+   and pagination bullets in secondary_text on the secondary background. */
 .deals-carousel .swiper-wrapper {
   display: flex;
 }
@@ -276,7 +285,7 @@ body {
   margin: 0 !important;
   width: 8px;
   height: 8px;
-  background: var(--color-primary-text);
+  background: var(--color-secondary-text);
   opacity: 0.5;
   transition: width 0.25s, opacity 0.25s;
 }

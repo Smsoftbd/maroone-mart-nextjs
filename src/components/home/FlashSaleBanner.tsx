@@ -31,10 +31,10 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
   if (!sale) return null;
 
   return (
-    <section className="bg-gradient-to-r from-brand-500 to-brand-400 py-8 mb-8">
+    <section className="bg-secondary-500 py-8 mb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-3 text-[var(--color-primary-text)]">
+          <div className="flex items-center gap-3 text-[var(--color-secondary-text)]">
             <Zap className="h-6 w-6 fill-current" />
             <h2 className="font-display text-2xl font-bold">{sale.title}</h2>
             <Link
@@ -44,7 +44,7 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
               View all ({sale.products.length}) →
             </Link>
           </div>
-          <div className="text-[var(--color-primary-text)]">
+          <div className="text-[var(--color-secondary-text)]">
             <p className="text-xs uppercase tracking-widest opacity-80 mb-1">
               Ends in
             </p>
@@ -77,7 +77,7 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
             >
               {sale.products.map((product) => (
                 <SwiperSlide key={product.id} className="!h-auto">
-                  {/* White panel keeps the chrome-less minimal card legible on the brand ground */}
+                  {/* White panel keeps the chrome-less minimal card legible on the secondary ground */}
                   <div className="h-full bg-white p-3 rounded-lg">
                     <ProductCard
                       product={product}
@@ -91,9 +91,9 @@ export function FlashSaleBanner({ sales, currency }: FlashSaleBannerProps) {
               <SwiperSlide className="!h-auto">
                 <Link
                   href="/flash-sale"
-                  className="h-full min-h-48 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-[var(--color-primary-text)]/50 hover:border-[var(--color-primary-text)] hover:bg-[var(--color-primary-text)]/10 text-[var(--color-primary-text)] text-sm font-medium transition-colors"
+                  className="h-full min-h-48 flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-[var(--color-secondary-text)]/50 hover:border-[var(--color-secondary-text)] hover:bg-[var(--color-secondary-text)]/10 text-[var(--color-secondary-text)] text-sm font-medium transition-colors"
                 >
-                  <span className="h-12 w-12 rounded-full bg-[var(--color-primary-text)]/20 flex items-center justify-center">
+                  <span className="h-12 w-12 rounded-full bg-[var(--color-secondary-text)]/20 flex items-center justify-center">
                     <ArrowRight className="h-6 w-6" />
                   </span>
                   View all deals

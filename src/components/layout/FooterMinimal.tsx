@@ -15,22 +15,12 @@ interface FooterMinimalProps {
   pages?: PageSummary[];
 }
 
-const linkClass = "text-slate-200 hover:text-white transition-colors";
+const linkClass = "text-[var(--color-secondary-text)]/75 hover:text-[var(--color-secondary-text)] transition-colors";
 
-const headingClass = "mb-5 text-sm font-semibold text-cyan-400";
-
-/** Brand tint per network for the footer's social row. */
-const socialColors: Record<string, string> = {
-  facebook: "text-[#1877F2]",
-  youtube: "text-[#FF0000]",
-  whatsapp: "text-[#25D366]",
-  instagram: "text-[#E4405F]",
-  tiktok: "text-white",
-  pinterest: "text-[#E60023]",
-};
+const headingClass = "mb-5 text-sm font-semibold text-[var(--color-secondary-text)]";
 
 /**
- * Dark footer used on the homepage only.
+ * Footer used on the homepage only (store secondary color).
  * The brand-ground `Footer` stays in place for every other route.
  */
 export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
@@ -43,7 +33,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
   const phones = store.phone.split(/[,/]/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <footer className="mt-auto bg-[#0f172a] text-slate-200">
+    <footer className="mt-auto bg-secondary-500 text-[var(--color-secondary-text)]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
         <div className="grid grid-cols-2 gap-10 lg:grid-cols-4 lg:gap-12">
           {/* Business info */}
@@ -58,20 +48,20 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                   className="h-auto max-h-12 w-auto object-contain"
                 />
               ) : (
-                <span className="text-2xl font-bold text-white">{store.name}</span>
+                <span className="text-2xl font-bold">{store.name}</span>
               )}
             </Link>
 
             <ul className="space-y-3 text-sm">
               {store.address && (
                 <li className="flex items-start gap-3 leading-relaxed">
-                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 fill-red-500 text-[#0f172a]" />
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0" />
                   {store.address}
                 </li>
               )}
               {phones.length > 0 && (
                 <li className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 shrink-0 fill-white text-white" />
+                  <Phone className="h-4 w-4 shrink-0" />
                   <span className="flex flex-wrap gap-x-3">
                     {phones.map((p) => (
                       <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className={linkClass}>
@@ -129,7 +119,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
           <div className="col-span-2 space-y-8 lg:col-span-1 lg:pt-10">
             {socials.length > 0 && (
               <div>
-                <h6 className="mb-3 text-sm font-medium text-white">{t("social_links", "Social Links")}</h6>
+                <h6 className="mb-3 text-sm font-medium">{t("social_links", "Social Links")}</h6>
                 <div className="flex flex-wrap items-center gap-4">
                   {socials.map(([key, url]) => (
                     <a
@@ -138,7 +128,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={key}
-                      className={`transition-opacity hover:opacity-75 ${socialColors[key] ?? "text-white"}`}
+                      className="transition-opacity hover:opacity-75"
                     >
                       <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                         {socialIcons[key]}
@@ -151,7 +141,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
 
             {paymentMethods.length > 0 && (
               <div>
-                <h6 className="mb-3 text-sm font-medium text-white">{t("payment_methods", "Payment Methods")}</h6>
+                <h6 className="mb-3 text-sm font-medium">{t("payment_methods", "Payment Methods")}</h6>
                 <div className="flex flex-wrap items-center gap-3">
                   {paymentMethods.map((m) => {
                     const name = resolveL10n(m.name);
@@ -163,10 +153,10 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                         title={name}
                         width={56}
                         height={28}
-                        className="h-7 w-auto rounded bg-white/5 object-contain"
+                        className="h-7 w-auto rounded bg-white object-contain p-0.5"
                       />
                     ) : (
-                      <span key={m.id} className="rounded bg-white/10 px-2 py-1 text-xs text-slate-200">
+                      <span key={m.id} className="rounded bg-[var(--color-secondary-text)]/10 px-2 py-1 text-xs">
                         {name}
                       </span>
                     );
@@ -178,15 +168,15 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
         </div>
       </div>
 
-      <div className="border-t border-white/10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs text-slate-400 sm:flex-row sm:gap-6 sm:px-6 lg:px-8">
+      <div className="border-t border-[var(--color-secondary-text)]/15">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs sm:flex-row sm:gap-6 sm:px-6 lg:px-8 text-[var(--color-secondary-text)]/75">
           <span>
             &copy; {year} {store.name} — {t("all_rights_reserved", "All rights reserved")}.
           </span>
           {getConsentBannerMode() !== "off" && (
             <ConsentSettingsLink
               label={t("cookie_settings", "Cookie settings")}
-              className="hover:text-white"
+              className="hover:text-[var(--color-secondary-text)]"
             />
           )}
         </div>

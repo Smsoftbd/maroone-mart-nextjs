@@ -41,11 +41,11 @@ export function OrderTimeline({ status }: OrderTimelineProps) {
           <div key={step.status} className="flex items-center flex-1 last:flex-none">
             <div className="flex flex-col items-center gap-1">
               {done ? (
-                <CheckCircle className="h-6 w-6 text-brand-500 fill-brand-50" />
+                <CheckCircle className="h-6 w-6 text-brand-ink fill-brand-50" />
               ) : (
                 <Circle className="h-6 w-6 text-[var(--color-border)]" />
               )}
-              <span className={`text-xs text-center w-16 ${done ? "text-brand-500 font-medium" : "text-[var(--color-text-muted)]"}`}>
+              <span className={`text-xs text-center w-16 ${done ? "text-brand-ink font-medium" : "text-[var(--color-text-muted)]"}`}>
                 {step.label}
               </span>
             </div>

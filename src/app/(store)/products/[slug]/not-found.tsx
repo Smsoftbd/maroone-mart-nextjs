@@ -14,7 +14,7 @@ export default async function ProductNotFound() {
       <div className="flex gap-3 justify-center">
         <Link
           href="/products"
-          className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+          className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         >
           {t("browse_products", "Browse Products")}
         </Link>

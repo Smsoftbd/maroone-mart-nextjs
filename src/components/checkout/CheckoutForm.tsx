@@ -450,7 +450,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
 
           <div className="border-t-2 border-dashed border-[var(--color-border-dark)] mt-10 pt-8">
             <h2 className="flex items-center gap-2.5 text-xl font-bold mb-10">
-              <HandCoins className="h-7 w-7 text-brand-500" />
+              <HandCoins className="h-7 w-7 text-brand-ink" />
               {t("how_to_pay", "How would you like to pay")}
             </h2>
             <PaymentSelector
@@ -461,7 +461,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
         </div>
 
         {/* ── Right: order summary ── */}
-        <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-lg bg-[#E9EDF4] p-4 sm:p-6">
+        <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-lg bg-surface-100 p-4 sm:p-6">
           <h2 className="text-lg font-medium mb-4">{t("your_order", "Your Order")}</h2>
 
           <div className="space-y-4">
@@ -502,7 +502,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
                       <button
                         type="button"
                         onClick={() => setCouponOpen((o) => !o)}
-                        className="text-brand-500 underline underline-offset-4 hover:text-brand-600"
+                        className="text-brand-ink underline underline-offset-4 hover:text-brand-ink"
                       >
                         {t("coupon_code", "Coupon Code")}
                       </button>
@@ -586,7 +586,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
             type="button"
             disabled={otpSending}
             onClick={() => pendingData && sendOtp(pendingData.phone.trim())}
-            className="w-full text-center text-sm text-[var(--color-text-secondary)] hover:text-brand-600 disabled:opacity-50"
+            className="w-full text-center text-sm text-[var(--color-text-secondary)] hover:text-brand-ink disabled:opacity-50"
           >
             {t("resend_code", "Resend code")}
           </button>

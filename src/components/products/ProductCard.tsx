@@ -84,7 +84,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
     <div className="flex items-center gap-2 text-xs text-slate-700">
       <span className="flex items-center gap-1">
         {Number(product.rating_avg || 0).toFixed(1).replace(/\.0$/, "")}
-        <Star className="h-3 w-3 fill-brand-500 text-brand-500" />
+        <Star className="h-3 w-3 fill-[var(--color-tertiary-ink)] text-[var(--color-tertiary-ink)]" />
       </span>
       <span className="h-3 w-px bg-slate-300" />
       <span>{product.rating_count ?? 0}</span>
@@ -93,11 +93,11 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
 
   const priceRow = (
     <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-      <span className="text-base font-bold text-red-500">{formatPrice(price, currency)}</span>
+      <span className="text-base font-bold text-[var(--color-text-primary)]">{formatPrice(price, currency)}</span>
       {hasDiscount && (
         <>
-          <del className="text-xs text-slate-400">{formatPrice(original, currency)}</del>
-          <span className="rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+          <del className="text-xs text-[var(--color-text-primary)]/45">{formatPrice(original, currency)}</del>
+          <span className="rounded bg-tertiary-500 text-[var(--color-tertiary-text)] px-1.5 py-0.5 text-[10px] font-semibold leading-none">
             {discountPct}% OFF
           </span>
         </>
@@ -122,9 +122,9 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
           />
         </Link>
         <div className="min-w-0 flex-1 space-y-1.5">
-          <p className="truncate text-xs text-brand-500">{brandName}</p>
+          <p className="truncate text-xs text-brand-ink">{brandName}</p>
           <h2>
-            <Link href={href} className="line-clamp-1 text-sm font-medium text-slate-900 hover:text-brand-500">
+            <Link href={href} className="line-clamp-1 text-sm font-medium text-[var(--color-text-primary)] hover:text-brand-ink">
               {product.name}
             </Link>
           </h2>
@@ -153,16 +153,16 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
             />
           </Link>
           {!inStock && (
-            <span className="absolute inset-x-0 bottom-0 bg-white/90 py-1.5 text-center text-[11px] font-medium text-slate-900">
+            <span className="absolute inset-x-0 bottom-0 bg-white/90 py-1.5 text-center text-[11px] font-medium text-[var(--color-text-primary)]">
               {t("out_of_stock", "Out of Stock")}
             </span>
           )}
         </div>
 
         <div className="flex flex-1 flex-col gap-1.5 px-1.5 pb-1.5 pt-3">
-          <p className="truncate text-xs text-brand-500">{brandName}</p>
+          <p className="truncate text-xs text-brand-ink">{brandName}</p>
           <h2>
-            <Link href={href} className="line-clamp-1 text-sm font-medium text-slate-900 hover:text-brand-500">
+            <Link href={href} className="line-clamp-1 text-sm font-medium text-[var(--color-text-primary)] hover:text-brand-ink">
               {product.name}
             </Link>
           </h2>
@@ -174,7 +174,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
               aria-label={t("add_to_cart", "Add to Cart")}
               onClick={handleAddToCart}
               disabled={isLoading || !inStock}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-brand-500 text-brand-500 transition-colors hover:bg-brand-500 hover:text-[var(--color-primary-text)] disabled:opacity-40"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-brand-500 text-brand-ink transition-colors hover:bg-brand-500 hover:text-[var(--color-primary-text)] disabled:opacity-40"
             >
               <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
             </button>
@@ -210,13 +210,13 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
           </Link>
 
           {hasDiscount && (
-            <span className="absolute left-0 top-3 bg-neutral-900 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-white">
+            <span className="absolute left-0 top-3 bg-tertiary-500 text-[var(--color-tertiary-text)] px-2 py-1 text-[10px] font-medium uppercase tracking-[0.14em]">
               −{discountPct}%
             </span>
           )}
 
           {!inStock && (
-            <span className="absolute inset-x-0 bottom-0 bg-white/90 py-2 text-center text-[10px] uppercase tracking-[0.2em] text-neutral-900 backdrop-blur-sm">
+            <span className="absolute inset-x-0 bottom-0 bg-white/90 py-2 text-center text-[10px] uppercase tracking-[0.2em] text-[var(--color-text-primary)] backdrop-blur-sm">
               {t("out_of_stock", "Out of Stock")}
             </span>
           )}
@@ -227,7 +227,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
               <button
                 onClick={handleAddToCart}
                 disabled={isLoading}
-                className="pointer-events-auto w-full bg-white/95 py-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-neutral-900 backdrop-blur-sm transition-colors hover:bg-neutral-900 hover:text-white disabled:opacity-40"
+                className="pointer-events-auto w-full bg-white/95 py-2.5 text-[11px] font-medium uppercase tracking-[0.18em] text-[var(--color-text-primary)] backdrop-blur-sm transition-colors hover:bg-brand-500 hover:text-[var(--color-primary-text)] disabled:opacity-40"
               >
                 {t("add_to_cart", "Add to Cart")}
               </button>
@@ -239,18 +239,18 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
           <h2>
             <Link
               href={href}
-              className="product-title line-clamp-1 text-[13px] leading-snug text-neutral-900 transition-opacity hover:opacity-60"
+              className="product-title line-clamp-1 text-[13px] leading-snug text-[var(--color-text-primary)] transition-opacity hover:opacity-60"
             >
               {product.name}
             </Link>
           </h2>
 
           <div className="product-price mt-1.5 flex items-baseline gap-2">
-            <span className="text-[13px] font-medium tracking-wide text-neutral-900">
+            <span className="text-[13px] font-medium tracking-wide text-[var(--color-text-primary)]">
               {formatPrice(price, currency)}
             </span>
             {hasDiscount && (
-              <del className="old-price text-[11px] font-normal text-neutral-400">
+              <del className="old-price text-[11px] font-normal text-[var(--color-text-primary)]/45">
                 {formatPrice(original, currency)}
               </del>
             )}
@@ -260,7 +260,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
           <button
             onClick={handleBuyNow}
             disabled={isLoading || !inStock}
-            className="mt-2.5 hidden w-fit border-b border-neutral-900 pb-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-neutral-900 transition-opacity hover:opacity-60 disabled:opacity-40 sm:block"
+            className="mt-2.5 hidden w-fit border-b border-neutral-900 pb-0.5 text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--color-text-primary)] transition-opacity hover:opacity-60 disabled:opacity-40 sm:block"
           >
             {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
           </button>
@@ -271,14 +271,14 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
               aria-label={t("add_to_cart", "Add to Cart")}
               onClick={handleAddToCart}
               disabled={isLoading || !inStock}
-              className="action-btn flex h-9 w-9 shrink-0 items-center justify-center border border-neutral-900 text-neutral-900 disabled:opacity-40"
+              className="action-btn flex h-9 w-9 shrink-0 items-center justify-center border border-neutral-900 text-[var(--color-text-primary)] disabled:opacity-40"
             >
               <ShoppingCart className="active:scale-90" height={16} width={16} strokeWidth={1.5} />
             </button>
             <button
               onClick={handleBuyNow}
               disabled={isLoading || !inStock}
-              className="action-btn h-9 w-full border border-neutral-900 text-[10px] font-medium uppercase tracking-[0.16em] text-neutral-900 transition-colors active:bg-neutral-900 active:text-white disabled:opacity-40"
+              className="action-btn h-9 w-full border border-neutral-900 text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--color-text-primary)] transition-colors active:bg-brand-500 active:text-[var(--color-primary-text)] disabled:opacity-40"
             >
               {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
             </button>
@@ -309,7 +309,7 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
         <h2>
           <Link
             href={href}
-            className="product-title text-base text-slate-900 font-body line-clamp-1"
+            className="product-title text-base text-[var(--color-text-primary)] font-body line-clamp-1"
           >
             {product.name}
           </Link>
@@ -319,10 +319,10 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
           <span className="font-semibold">{formatPrice(price, currency)}</span>
           {hasDiscount && (
             <div className="flex items-center gap-2">
-              <del className="old-price text-sm font-normal text-slate-400">
+              <del className="old-price text-sm font-normal text-[var(--color-text-primary)]/45">
                 {formatPrice(original, currency)}
               </del>
-              <span className="absolute md:static bottom-28 left-2 z-20 discount-badge rounded text-white bg-red-500 px-1 ml-1 !text-[12px]">
+              <span className="absolute md:static bottom-28 left-2 z-20 discount-badge rounded bg-tertiary-500 text-[var(--color-tertiary-text)] px-1 ml-1 !text-[12px]">
                 {discountPct}% OFF
               </span>
             </div>
@@ -334,14 +334,14 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
             aria-label={t("add_to_cart", "Add to Cart")}
             onClick={handleAddToCart}
             disabled={isLoading || !inStock}
-            className="action-btn p-1 lg:px-2 text-sm lg:text-lg rounded border border-black bg-transparent text-black disabled:opacity-40"
+            className="action-btn p-1 lg:px-2 text-sm lg:text-lg rounded border border-brand-500 bg-transparent text-brand-ink hover:bg-brand-500 hover:text-[var(--color-primary-text)] transition-colors disabled:opacity-40"
           >
             <ShoppingCart className="active:scale-90" height={20} width={20} strokeWidth={1.5} />
           </button>
           <button
             onClick={handleBuyNow}
             disabled={isLoading || !inStock}
-            className="action-btn p-1 text-sm lg:text-lg lg:px-4 py-1 w-full rounded border border-black bg-transparent text-black disabled:opacity-40 flex items-center justify-center gap-1"
+            className="action-btn p-1 text-sm lg:text-lg lg:px-4 py-1 w-full rounded border border-brand-500 bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 transition-colors disabled:opacity-40 flex items-center justify-center gap-1"
           >
             {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
             {inStock && (

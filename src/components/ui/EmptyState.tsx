@@ -44,7 +44,7 @@ export function EmptyState({
         (action.href ? (
           <Link
             href={action.href}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-600"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-medium text-[var(--color-primary-text)] transition-colors hover:bg-brand-600"
           >
             {action.label}
           </Link>

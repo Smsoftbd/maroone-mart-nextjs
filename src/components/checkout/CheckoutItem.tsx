@@ -70,10 +70,10 @@ export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
       </Link>
 
       <div className="flex-1 min-w-0 pr-6">
-        {storeName && <p className="text-[11px] text-brand-500 leading-none mb-2">{storeName}</p>}
+        {storeName && <p className="text-[11px] text-brand-ink leading-none mb-2">{storeName}</p>}
         <Link
           href={href}
-          className="block text-[15px] font-semibold leading-snug truncate hover:text-brand-500 transition-colors"
+          className="block text-[15px] font-semibold leading-snug truncate hover:text-brand-ink transition-colors"
         >
           {item.product_name}
         </Link>
@@ -82,7 +82,7 @@ export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
             {attrs.map((a) => `${a.name}: ${a.value}`).join(", ")}
           </p>
         )}
-        <p className="mt-1.5 text-xl text-brand-500 tabular-nums">{formatPrice(unit, currency)}</p>
+        <p className="mt-1.5 text-xl text-brand-ink tabular-nums">{formatPrice(unit, currency)}</p>
 
         <div className="mt-2 flex items-center justify-end gap-3">
           <button

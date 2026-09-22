@@ -77,7 +77,7 @@ export default async function PaymentResultPage({ searchParams }: PageProps) {
           <>
             <Link
               href="/account/orders"
-              className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {t("view_my_orders", "View My Orders")}
             </Link>
@@ -92,7 +92,7 @@ export default async function PaymentResultPage({ searchParams }: PageProps) {
           <>
             <Link
               href="/checkout"
-              className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-white hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+              className="inline-flex items-center justify-center gap-2 font-body font-medium px-5 py-2.5 text-sm rounded-lg w-full text-center bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600 active:scale-95 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
             >
               {isCancelled ? t("return_to_checkout", "Return to Checkout") : t("try_again", "Try Again")}
             </Link>

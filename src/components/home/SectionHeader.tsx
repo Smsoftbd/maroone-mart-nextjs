@@ -20,7 +20,7 @@ export function SectionHeader({ title, icon, viewAllHref, viewAllLabel, inverted
       }
     >
       <h2
-        className={`flex items-center gap-2 text-lg font-bold md:text-xl ${inverted ? "text-[var(--color-primary-text)]" : "text-slate-900"}`}
+        className={`flex items-center gap-2 text-lg font-bold md:text-xl ${inverted ? "text-[var(--color-primary-text)]" : "text-[var(--color-text-primary)]"}`}
       >
         {icon}
         {title}
@@ -28,7 +28,7 @@ export function SectionHeader({ title, icon, viewAllHref, viewAllLabel, inverted
       {viewAllHref && viewAllLabel && (
         <Link
           href={viewAllHref}
-          className={`flex shrink-0 items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-75 ${inverted ? "text-[var(--color-primary-text)]" : "text-brand-500"}`}
+          className={`flex shrink-0 items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-75 ${inverted ? "text-[var(--color-primary-text)]" : "text-brand-ink"}`}
         >
           {viewAllLabel}
           <ArrowRight className="h-4 w-4" />

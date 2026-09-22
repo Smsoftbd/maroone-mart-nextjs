@@ -40,7 +40,7 @@ export default async function CategoriesPage() {
       </div>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <h1 className="mb-10 text-center text-2xl font-bold text-slate-900 lg:mb-16 lg:text-4xl">
+        <h1 className="mb-10 text-center text-2xl font-bold text-[var(--color-text-primary)] lg:mb-16 lg:text-4xl">
           {t("all_categories", "All Categories")}
         </h1>
 
@@ -57,7 +57,7 @@ export default async function CategoriesPage() {
                   href={`/products?category=${cat.slug}`}
                   className="group flex flex-col items-center gap-3 text-center"
                 >
-                  <span className="flex aspect-[3/2] w-full items-center justify-center rounded-xl border border-slate-200 bg-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-brand-400 group-hover:shadow-md">
+                  <span className="flex aspect-[3/2] w-full items-center justify-center rounded-xl border border-slate-200 bg-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-brand-500 group-hover:shadow-md">
                     {cat.image ? (
                       <span className="relative block h-1/2 w-1/2">
                         <Image
@@ -72,7 +72,7 @@ export default async function CategoriesPage() {
                       <ImageOff className="h-7 w-7 text-slate-300" aria-hidden />
                     )}
                   </span>
-                  <span className="line-clamp-3 max-w-[10rem] text-sm leading-relaxed text-slate-700 transition-colors group-hover:text-brand-500 sm:text-base lg:text-lg">
+                  <span className="line-clamp-3 max-w-[10rem] text-sm leading-relaxed text-slate-700 transition-colors group-hover:text-brand-ink sm:text-base lg:text-lg">
                     {cat.name}
                   </span>
                 </Link>

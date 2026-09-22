@@ -140,7 +140,7 @@ export function ProductInfo({
       <button
         onClick={() => addSelected()}
         disabled={disabled}
-        className="h-11 rounded-md bg-[#12b3c7] text-white text-sm font-semibold flex items-center justify-center gap-2 hover:bg-[#0e9fb2] active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
+        className="h-11 rounded-md bg-secondary-500 text-[var(--color-secondary-text)] text-sm font-semibold flex items-center justify-center gap-2 hover:bg-secondary-600 active:scale-[0.98] transition disabled:opacity-40 disabled:cursor-not-allowed"
       >
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
         {t("add_to_cart", "Add to Cart")}
@@ -168,7 +168,7 @@ export function ProductInfo({
           )}
           <a
             href={`tel:${p}`}
-            className="inline-flex items-center gap-1 font-semibold text-brand-500 hover:text-brand-600 tabular-nums"
+            className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums"
           >
             <Phone className="h-3.5 w-3.5 fill-current" />
             {p}
@@ -219,7 +219,7 @@ export function ProductInfo({
           {category && (
             <Link
               href={`/products?category=${encodeURIComponent(category.slug)}`}
-              className="text-brand-500 hover:text-brand-600 transition-colors"
+              className="text-brand-ink hover:text-brand-ink transition-colors"
             >
               {category.name}
             </Link>
@@ -257,8 +257,8 @@ export function ProductInfo({
             className={cn(
               "shrink-0 h-9 w-9 rounded-full border flex items-center justify-center transition-colors",
               inWishlist
-                ? "border-red-500 text-red-500"
-                : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-red-500 hover:text-red-500"
+                ? "border-[var(--color-text-primary)] text-[var(--color-text-primary)]"
+                : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-primary)] hover:text-[var(--color-text-primary)]"
             )}
           >
             <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
@@ -277,7 +277,7 @@ export function ProductInfo({
           </a>
           <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
           <a href="#product-questions" className="inline-flex items-center gap-1 hover:text-[var(--color-text-primary)]">
-            <MessageCircleQuestion className="h-4 w-4 text-[#12b3c7]" />
+            <MessageCircleQuestion className="h-4 w-4 text-secondary-ink" />
             {questionCount} {t("questions_answers", "Q&A")}
           </a>
           <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
@@ -315,7 +315,7 @@ export function ProductInfo({
               <del className="text-sm text-[var(--color-text-muted)] tabular-nums">
                 {formatPrice(original, currency)}
               </del>
-              <span className="rounded bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+              <span className="rounded bg-tertiary-500 px-2 py-0.5 text-xs font-semibold text-[var(--color-tertiary-text)]">
                 {discountPct}% {t("off", "OFF")}
               </span>
             </>
@@ -399,7 +399,7 @@ export function ProductInfo({
         <ul className="mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2">
           {deliveryItems.map(({ key, icon: Icon, title, text }) => (
             <li key={key} className="flex items-start gap-3 text-xs">
-              <Icon className="h-5 w-5 shrink-0 text-[var(--color-text-secondary)]" strokeWidth={1.5} />
+              <Icon className="h-5 w-5 shrink-0 text-brand-ink" strokeWidth={1.5} />
               <span className="min-w-0 leading-relaxed">
                 {title && (
                   <span className="block text-[var(--color-text-secondary)]">{title}</span>
@@ -438,7 +438,7 @@ export function ProductInfo({
             disabled={disabled}
             tabIndex={showSticky ? 0 : -1}
             aria-label={t("add_to_cart", "Add to Cart")}
-            className="h-11 w-11 shrink-0 rounded-md bg-[#12b3c7] text-white flex items-center justify-center disabled:opacity-40"
+            className="h-11 w-11 shrink-0 rounded-md bg-secondary-500 text-[var(--color-secondary-text)] flex items-center justify-center disabled:opacity-40"
           >
             <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
           </button>

@@ -51,7 +51,7 @@ export default function TrackOrderPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
       <div className="text-center mb-10">
-        <Package className="h-12 w-12 text-brand-500 mx-auto mb-4" />
+        <Package className="h-12 w-12 text-brand-ink mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold mb-2">{t("track_your_order", "Track Your Order")}</h1>
         <p className="text-[var(--color-text-secondary)]">
           {t("track_order_hint", "Enter your order ID and phone number to track your order.")}
@@ -99,7 +99,7 @@ export default function TrackOrderPage() {
           {order.tracking_number && (
             <div className="bg-surface-50 rounded-xl p-4 text-sm">
               <span className="font-medium">{t("tracking", "Tracking")}: </span>
-              <span className="text-brand-500">{order.tracking_number}</span>
+              <span className="text-brand-ink">{order.tracking_number}</span>
             </div>
           )}
 
