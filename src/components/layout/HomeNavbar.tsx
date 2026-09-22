@@ -101,8 +101,8 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
                               href={`/products?category=${cat.slug}`}
                               onClick={() => setCatOpen(false)}
                               className={cn(
-                                "flex items-center justify-between gap-2 px-4 py-2 text-sm transition-colors hover:bg-brand-50 hover:text-brand-500",
-                                activeCat === cat.id && "bg-brand-50 text-brand-500"
+                                "flex items-center justify-between gap-2 px-4 py-2 text-sm transition-colors hover:bg-brand-50 hover:text-[var(--color-tertiary-text)]",
+                                activeCat === cat.id && "bg-brand-50 text-[var(--color-tertiary-text)]"
                               )}
                             >
                               <span className="truncate">{cat.name}</span>

@@ -30,7 +30,7 @@ export default function AccountDashboard() {
             className="bg-white border border-[var(--color-border)] rounded-xl p-4 hover:shadow-sm transition-shadow text-center"
           >
             <div className="bg-brand-50 rounded-full p-3 w-fit mx-auto mb-3">
-              <Icon className="h-5 w-5 text-brand-500" />
+              <Icon className="h-5 w-5 text-[var(--color-tertiary-text)]" />
             </div>
             <p className="font-medium text-sm">{label}</p>
             <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{desc}</p>

@@ -102,7 +102,7 @@ export default function ContactPage() {
         <div className="space-y-6">
           <div className="flex items-start gap-4">
             <div className="bg-brand-50 p-3 rounded-xl">
-              <MapPin className="h-5 w-5 text-brand-500" />
+              <MapPin className="h-5 w-5 text-[var(--color-tertiary-text)]" />
             </div>
             <div>
               <h3 className="font-semibold mb-1">{t("address", "Address")}</h3>
@@ -113,7 +113,7 @@ export default function ContactPage() {
           </div>
           <div className="flex items-start gap-4">
             <div className="bg-brand-50 p-3 rounded-xl">
-              <Phone className="h-5 w-5 text-brand-500" />
+              <Phone className="h-5 w-5 text-[var(--color-tertiary-text)]" />
             </div>
             <div>
               <h3 className="font-semibold mb-1">{t("phone", "Phone")}</h3>
@@ -124,7 +124,7 @@ export default function ContactPage() {
           </div>
           <div className="flex items-start gap-4">
             <div className="bg-brand-50 p-3 rounded-xl">
-              <Mail className="h-5 w-5 text-brand-500" />
+              <Mail className="h-5 w-5 text-[var(--color-tertiary-text)]" />
             </div>
             <div>
               <h3 className="font-semibold mb-1">{t("email", "Email")}</h3>

@@ -236,7 +236,7 @@ export function SearchBox({
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
             isMinimal
               ? "right-0 h-11 w-12 rounded-r-md bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600"
-              : "right-1.5 h-8 w-8 rounded-full text-brand-500 hover:bg-brand-50"
+              : "right-1.5 h-8 w-8 rounded-full text-brand-500 hover:bg-brand-50 hover:text-[var(--color-tertiary-text)]"
           )}
           aria-label="Search"
         >
@@ -310,7 +310,7 @@ export function SearchBox({
                 onClick={() => runSearch(debounced)}
                 className={cn(
                   "flex w-full items-center gap-2 border-t border-[var(--color-border)] px-4 py-2.5 text-left text-sm font-medium text-brand-500 transition-colors",
-                  active === suggestions.length ? "bg-brand-50" : "hover:bg-brand-50"
+                  active === suggestions.length ? "bg-brand-50 text-[var(--color-tertiary-text)]" : "hover:bg-brand-50 hover:text-[var(--color-tertiary-text)]"
                 )}
               >
                 <Search className="h-4 w-4" />
@@ -346,7 +346,7 @@ export function SearchBox({
                     className={cn(
                       "rounded-full border px-3 py-1.5 text-sm transition-colors",
                       active === i
-                        ? "border-brand-500 bg-brand-50 text-brand-500"
+                        ? "border-brand-500 bg-brand-50 text-[var(--color-tertiary-text)]"
                         : "border-[var(--color-border)] hover:border-brand-500 hover:text-brand-500"
                     )}
                   >

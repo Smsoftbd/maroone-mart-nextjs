@@ -54,7 +54,7 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
   const remove = () => run(() => removeItem(item.id));
 
   const stepperBtn =
-    "w-9 h-9 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 disabled:hover:bg-transparent";
+    "w-9 h-9 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 hover:text-[var(--color-tertiary-text)] disabled:hover:bg-transparent";
 
   return (
     <div

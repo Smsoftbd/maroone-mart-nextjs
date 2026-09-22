@@ -138,8 +138,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                   href={`/products?category=${cat.slug}`}
                   className={`flex w-48 shrink-0 items-center gap-3 rounded-lg border px-3 py-3 transition-colors sm:w-auto ${
                     categories.includes(cat.slug)
-                      ? "border-brand-500 bg-brand-50"
-                      : "border-slate-100 hover:border-brand-500"
+                      ? "border-brand-500 bg-brand-50 text-[var(--color-tertiary-text)]"
+                      : "border-slate-100 text-slate-800 hover:border-brand-500"
                   }`}
                 >
                   <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-amber-50">
@@ -149,7 +149,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                       <span className="text-sm font-bold text-brand-500">{cat.name[0]}</span>
                     )}
                   </span>
-                  <span className="truncate text-sm text-slate-800">{cat.name}</span>
+                  <span className="truncate text-sm">{cat.name}</span>
                 </Link>
               ))}
             </div>
