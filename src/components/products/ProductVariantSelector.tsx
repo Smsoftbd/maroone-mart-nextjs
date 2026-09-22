@@ -135,11 +135,11 @@ export function ProductVariantSelector({
                     onClick={() => !oos && handleSelect(name, value)}
                     disabled={oos}
                     className={cn(
-                      "min-w-12 h-10 px-4 border text-sm transition-colors",
+                      "min-w-12 h-10 px-4 border text-sm transition-colors md:h-[52px] md:min-w-[7rem] md:px-5 md:text-[15px]",
                       style === "pills" ? "rounded-full" : "rounded-[var(--shape-button-radius,0.375rem)]",
                       active
                         ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)] font-medium"
-                        : "border-[var(--color-border)] bg-surface text-[var(--color-text-primary)] hover:border-brand-500",
+                        : "border-[var(--color-border-dark)] bg-surface text-[var(--color-text-primary)] hover:border-brand-500",
                       oos &&
                         "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)] hover:border-[var(--color-border-dark)]"
                     )}

@@ -1191,8 +1191,9 @@ body[data-sticky-cta] .scroll-to-top {
     height: 8px;
     background: var(--band);
   }
-  .info-tabs { margin-top: 20px; }
+  .info-tabs, .info-stacked { margin-top: 20px; }
   .info-tabs [role="tabpanel"] + [role="tabpanel"],
+  .info-stacked > div > div + div,
   .product-page .phone-band {
     margin-inline: -14px;
     margin-top: 28px;
@@ -1212,5 +1213,38 @@ body[data-sticky-cta] .scroll-to-top {
     background: var(--color-button-secondary-bg, var(--color-secondary-500));
     color: var(--color-button-secondary-text, var(--color-secondary-text));
     border-color: transparent;
+  }
+}
+
+/* ── Product page, tablet and up ────────────────────────────────────────────
+   Matches the reference storefront: dark price over a hairline, a grey trust
+   panel split by a divider and a cream "want to know more?" call box. */
+@media (min-width: 768px) {
+  .product-price-row {
+    padding-bottom: 18px;
+    border-bottom: 1px var(--shape-divider-style, solid) var(--color-border);
+  }
+  .product-price-row .price,
+  .product-price-row .price.is-sale {
+    color: var(--color-text-primary);
+    font-size: 26px;
+  }
+  .product-price-row .price-old { font-size: 15px; }
+  .product-price-row .badge-discount { padding: 4px 10px; font-size: 13px; }
+
+  .product-trust > li:nth-child(odd):not(:last-child) {
+    border-right: 1px var(--shape-divider-style, solid) var(--color-border);
+    padding-right: 24px;
+  }
+
+  .product-contact-box {
+    background: var(--color-brand-50);
+    border-color: var(--color-brand-500);
+  }
+
+  /* Description copy reads at body size, in the primary ink. */
+  .product-page .prose-content {
+    color: var(--color-text-primary);
+    font-size: 15px;
   }
 }

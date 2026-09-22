@@ -58,8 +58,14 @@ export function ProductInfo({
 }: ProductInfoProps) {
   const router = useRouter();
   const { t, locale } = useI18n();
-  // product.sticky_cart / show_trust; the page always shows rating, stock and old price.
-  const { sticky_cart: stickyCart, show_trust: showTrust } = useTheme().product;
+  // product.sticky_cart / show_trust / show_stock / show_wishlist; the page
+  // always shows the rating and the old price.
+  const {
+    sticky_cart: stickyCart,
+    show_trust: showTrust,
+    show_stock: showStock,
+    show_wishlist: showWishlist,
+  } = useTheme().product;
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
     product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
@@ -143,7 +149,7 @@ export function ProductInfo({
       <button
         onClick={() => addSelected()}
         disabled={disabled}
-        className="btn btn-cart text-sm max-lg:min-h-[52px] max-lg:text-base"
+        className="btn btn-cart text-sm max-lg:min-h-[52px] max-lg:text-base lg:min-h-[50px] lg:text-[15px]"
       >
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
         {t("add_to_cart", "Add to Cart")}
@@ -151,7 +157,7 @@ export function ProductInfo({
       <button
         onClick={handleBuyNow}
         disabled={disabled}
-        className="btn btn-buy text-sm max-lg:min-h-[52px] max-lg:text-base"
+        className="btn btn-buy text-sm max-lg:min-h-[52px] max-lg:text-base lg:min-h-[50px] lg:text-[15px]"
       >
         <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
         {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
@@ -245,6 +251,7 @@ export function ProductInfo({
           <h1 className="font-display text-[22px] font-bold sm:text-2xl md:font-semibold text-[var(--color-text-primary)] leading-snug">
             {product.name}
           </h1>
+          {showWishlist && (
           <button
             onClick={() =>
               toggle(product.slug, product.id, {
@@ -266,6 +273,7 @@ export function ProductInfo({
           >
             <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
           </button>
+          )}
         </div>
 
         {/* Rating · Q&A · Share (phones: two rows of two) */}
@@ -283,7 +291,11 @@ export function ProductInfo({
           </a>
           <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
           <a href="#product-questions" className="inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)]">
-            <MessageCircleQuestion className="h-5 w-5 fill-current text-secondary-ink md:h-4 md:w-4 md:fill-none" />
+            {/* Teal bubble with a white mark, like the reference storefront. */}
+            <MessageCircleQuestion
+              className="h-5 w-5 fill-[var(--color-secondary-500)] text-[var(--color-secondary-text,#fff)] md:h-[18px] md:w-[18px]"
+              strokeWidth={2}
+            />
             {questionCount} {t("questions_answers", "Q&A")}
           </a>
           <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
@@ -326,7 +338,8 @@ export function ProductInfo({
           )}
         </div>
 
-        {/* Stock */}
+        {/* Stock — product.show_stock; "out"/"low" always warn. */}
+        {(showStock || !inStock || lowStock) && (
         <p
           className={cn(
             "mt-2 text-sm font-medium",
@@ -339,6 +352,7 @@ export function ProductInfo({
             ? `${t("only", "Only")} ${stock} ${t("left_in_stock", "left in stock")}`
             : t("in_stock", "In Stock")}
         </p>
+        )}
 
         {/* Short description */}
         {product.short_description && (
@@ -401,15 +415,15 @@ export function ProductInfo({
 
         {/* Delivery / payment info (product.show_trust) */}
         {showTrust && (
-        <ul className="product-trust mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2">
+        <ul className="product-trust mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2 md:gap-y-7 md:bg-surface-100 md:p-6">
           {deliveryItems.map(({ key, icon: Icon, title, text }) => (
-            <li key={key} className="flex items-start gap-3 text-xs max-md:text-[15px]">
-              <Icon className="h-5 w-5 shrink-0 text-brand-ink max-md:h-7 max-md:w-7 max-md:text-[var(--color-text-primary)]" strokeWidth={1.25} />
+            <li key={key} className="flex items-start gap-3 text-xs max-md:text-[15px] md:text-sm">
+              <Icon className="h-5 w-5 shrink-0 text-brand-ink max-md:h-7 max-md:w-7 max-md:text-[var(--color-text-primary)] md:h-6 md:w-6 md:text-[var(--color-text-secondary)]" strokeWidth={1.25} />
               <span className="min-w-0 leading-relaxed">
                 {title && (
                   <span className="block text-[var(--color-text-secondary)] max-md:text-[var(--color-text-primary)]">{title}</span>
                 )}
-                <span className="text-[var(--color-text-primary)]">{text}</span>
+                <span className="text-[var(--color-text-primary)] md:text-[var(--color-text-secondary)]">{text}</span>
               </span>
             </li>
           ))}

@@ -103,30 +103,45 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
     );
   }
 
+  // Stacked: a jump nav (centered, hairline-separated on desktop) over every
+  // section, exactly like the reference storefront.
   return (
-    <section className="mt-6">
-      <nav className="sticky top-[3.25rem] lg:top-[7.5rem] z-10 bg-[var(--color-surface-0)] border-b border-[var(--color-border)]">
+    <section className="info-stacked mt-6 md:mt-8">
+      <nav className="sticky top-[3.25rem] z-10 bg-[var(--color-surface-0)] border-b border-[var(--color-border)] md:static md:border-b-0">
         <ul className="grid grid-flow-col auto-cols-fr overflow-x-auto scrollbar-none">
-          {panels.map((p) => (
+          {panels.map((p, i) => (
             <li key={p.id}>
               <a
                 href={`#${p.id}`}
-                className="block whitespace-nowrap px-3 py-3 text-center text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] border-b-2 border-transparent -mb-px hover:text-brand-ink hover:border-brand-500 transition-colors"
+                className={cn(
+                  "block whitespace-nowrap px-3 py-3 text-center text-xs sm:text-sm font-medium text-[var(--color-text-secondary)] hover:text-brand-ink transition-colors md:py-4",
+                  i > 0 && "md:border-l md:border-[var(--color-border)]"
+                )}
               >
-                {p.label}
+                <span className="md:hidden">{p.label.replace(/\s*\(\d+\)$/, "")}</span>
+                <span className="hidden md:inline">{p.label}</span>
               </a>
             </li>
           ))}
         </ul>
       </nav>
-      <div className="mt-6 space-y-10">
+      <div className="mt-6">
         {panels.map((p, i) => (
           <div
             key={p.id}
             id={p.id}
-            className={cn("scroll-mt-32 lg:scroll-mt-48", i > 0 && "border-t border-[var(--color-border)] pt-6")}
+            className={cn(
+              "scroll-mt-32 lg:scroll-mt-48",
+              // Phones replace this rule with a grey band (see globals.css).
+              i > 0 && "mt-10 border-t border-[var(--color-border)] pt-8"
+            )}
           >
-            <h2 className="mb-4 text-base font-semibold text-[var(--color-text-primary)]">{p.label}</h2>
+            {/* The description opens with its own heading in the copy. */}
+            {i > 0 && (
+              <h2 className="mb-5 text-lg font-bold text-[var(--color-text-primary)] max-md:text-[22px]">
+                {p.label}
+              </h2>
+            )}
             {p.content}
           </div>
         ))}

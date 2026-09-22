@@ -276,7 +276,7 @@ export function ProductImageGallery({
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
-              <span className="absolute bottom-3 left-3 hidden md:inline rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white tabular-nums pointer-events-none">
+              <span className="absolute bottom-3 left-3 hidden md:inline lg:hidden rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white tabular-nums pointer-events-none">
                 {activeIndex + 1} / {count}
               </span>
             </>
