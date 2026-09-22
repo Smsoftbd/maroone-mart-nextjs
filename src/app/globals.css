@@ -38,6 +38,13 @@
   --font-body: Poppins, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
+  /* Type scale: a step above Tailwind's defaults (Bangla faces like Hind
+     Siliguri read small at 12/14px). Line heights keep Tailwind's ratios. */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+
   /* Animations */
   --animate-slide-in: slideIn 0.3s ease-out;
   --animate-fade-up: fadeUp 0.5s ease-out;
@@ -148,7 +155,7 @@ html {
   body {
     font-family: var(--font-body);
     font-weight: var(--typography-body-weight, 400);
-    font-size: var(--typography-base-size, 16px);
+    font-size: max(16px, var(--typography-base-size, 16px));
     line-height: var(--typography-line-height, 1.5);
     letter-spacing: var(--typography-body-tracking, 0);
     color: var(--color-text-primary);
@@ -190,7 +197,7 @@ html {
    utilities on a heading still win). */
 @layer base {
   @media (max-width: 640px) {
-    body { font-size: var(--typography-mobile-base-size, var(--typography-base-size, 16px)); }
+    body { font-size: max(15px, var(--typography-mobile-base-size, var(--typography-base-size, 16px))); }
     h1 { font-size: var(--font-h2); }
     h2 { font-size: var(--font-h3); }
     h3 { font-size: var(--font-h4); }
@@ -201,7 +208,7 @@ html {
 /* Every `max-w-7xl mx-auto` wrapper is the theme container (width via the
    bridge's --container-7xl, side padding via layout.container_padding). */
 .max-w-7xl.mx-auto {
-  padding-inline: max(12px, min(var(--layout-container-padding, 24px), 5vw));
+  padding-inline: max(16px, min(var(--layout-container-padding, 24px), 5vw));
 }
 
 /* Text links inside content; layout.link_underline. */
@@ -366,7 +373,7 @@ body[data-pattern="glow"] {
     align-items: center;
     padding: 3px 8px;
     border-radius: var(--shape-badge-radius, 999px);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     line-height: 1.2;
   }
@@ -413,9 +420,9 @@ body[data-pattern="glow"] {
     transition: transform calc(var(--effects-transition-speed, 200ms) * 2) var(--easing, ease), opacity var(--effects-transition-speed, 200ms);
   }
   .product-card .card-img-alt { opacity: 0; }
-  .product-card .card-body { padding: 12px; }
+  .product-card .card-body { padding: 14px; }
   .card-brand {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -423,7 +430,7 @@ body[data-pattern="glow"] {
   }
   .card-title {
     font-family: var(--font-body);
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
     font-weight: 500;
     letter-spacing: normal;
     line-height: 1.4;
@@ -689,9 +696,9 @@ body[data-hero="minimal"] .hero { background: transparent; }
 body[data-gradient-hero="true"] .hero { background: var(--gradient-brand); color: var(--color-brand-primary-text); }
 
 /* Section rhythm and titles (page.section_*). */
-body { --section-space: 2rem; }
-body[data-spacing="compact"] { --section-space: 1.2rem; }
-body[data-spacing="relaxed"] { --section-space: 3rem; }
+body { --section-space: 2.5rem; }
+body[data-spacing="compact"] { --section-space: 1.5rem; }
+body[data-spacing="relaxed"] { --section-space: 3.5rem; }
 .home-section { padding-block: var(--section-space); }
 body[data-title-align="center"] .section-head { flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 body[data-title-align="center"] .section-head > div { align-items: center; }
@@ -1025,7 +1032,7 @@ body[data-sticky-cta] .scroll-to-top {
     border-radius: 6px;
     background: var(--color-surface);
     color: var(--color-text-primary);
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   }
@@ -1062,12 +1069,12 @@ body[data-sticky-cta] .scroll-to-top {
 }
 
 @media (max-width: 767px) {
-  body[data-spacing], body { --section-space: 1.25rem; }
-  .max-w-7xl.mx-auto { padding-inline: 12px; }
+  body[data-spacing], body { --section-space: 1.75rem; }
+  .max-w-7xl.mx-auto { padding-inline: 14px; }
 
   /* Header */
   .site-header .header-row { min-height: 72px; }
-  .site-header .max-w-7xl.mx-auto { padding-inline: 12px; }
+  .site-header .max-w-7xl.mx-auto { padding-inline: 14px; }
 
   /* Hero */
   .hero .banner { padding-top: 12px; }
@@ -1089,18 +1096,18 @@ body[data-sticky-cta] .scroll-to-top {
   .product-card > .card-img { margin: 4px 4px 0; border-radius: 8px; }
   .product-card .card-body { padding: 10px 12px 12px; gap: 6px; }
   .product-card .card-brand {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 500;
     letter-spacing: 0;
     text-transform: none;
     color: var(--color-brand-ink);
   }
-  .product-card .card-title { font-size: 14px; font-weight: 600; line-height: 1.45; min-height: 2.9em; }
+  .product-card .card-title { font-size: 15px; font-weight: 600; line-height: 1.45; min-height: 2.9em; }
   .product-card .card-rating { display: none; }
   .product-card .card-badges .badge-discount { display: none; }
   .product-card .card-price { column-gap: 6px; row-gap: 2px; align-items: center; }
   .product-card .price,
-  .product-card .price.is-sale { color: var(--color-tertiary-500); font-size: 16px; }
+  .product-card .price.is-sale { color: var(--color-tertiary-500); font-size: 17px; }
   .product-card .price-old { font-size: 14px; }
   .product-card .card-price-off {
     padding: 2px 6px;
@@ -1120,12 +1127,12 @@ body[data-sticky-cta] .scroll-to-top {
   .product-card .card-actions .btn-buy { font-size: 15px; font-weight: 700; }
   .product-card .card-actions .btn-buy svg { display: none; }
 
-  .product-grid { gap: 12px; }
+  .product-grid { gap: 14px; }
 
   /* Home rails: grid sections scroll sideways, bleeding off the right edge */
   :is(.mobile-rail, .mobile-list) .product-grid,
   .mobile-carousel .product-carousel {
-    margin-right: -12px;
+    margin-right: -14px;
   }
   .mobile-rail .product-grid {
     display: grid;
@@ -1136,7 +1143,7 @@ body[data-sticky-cta] .scroll-to-top {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    padding-right: 12px;
+    padding-right: 14px;
   }
   .mobile-rail .product-card { scroll-snap-align: start; }
   .flash-sale .product-grid { margin-right: -16px; padding-right: 16px; }
@@ -1152,7 +1159,7 @@ body[data-sticky-cta] .scroll-to-top {
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
-    padding-right: 12px;
+    padding-right: 14px;
   }
   .mobile-list .product-card {
     flex-direction: row;
@@ -1179,21 +1186,21 @@ body[data-sticky-cta] .scroll-to-top {
     content: "";
     position: absolute;
     top: -23px;
-    left: -13px;
-    right: -13px;
+    left: -15px;
+    right: -15px;
     height: 8px;
     background: var(--band);
   }
   .info-tabs { margin-top: 20px; }
   .info-tabs [role="tabpanel"] + [role="tabpanel"],
   .product-page .phone-band {
-    margin-inline: -12px;
+    margin-inline: -14px;
     margin-top: 28px;
-    padding-inline: 12px;
+    padding-inline: 14px;
     padding-top: 24px;
     border-top: 8px solid var(--band);
   }
-  .product-page .prose-content { color: var(--color-text-primary); font-size: 15px; }
+  .product-page .prose-content { color: var(--color-text-primary); font-size: 16px; }
   body:has(.sticky-buy-bar.is-phone) { padding-bottom: calc(118px + env(safe-area-inset-bottom)); }
   /* Checkout: fixed confirm bar replaces the tab bar; no footer. */
   body:has(.checkout-bar) { padding-bottom: calc(80px + env(safe-area-inset-bottom)); }

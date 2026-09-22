@@ -409,7 +409,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
         <span className="sm:hidden">{t("filter_products", "Filter")}</span>
         <span className="hidden sm:inline">{t("filter", "Filter")}</span>
         {activeCount > 0 && (
-          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 sm:ml-auto px-1.5 text-[11px] font-medium text-[var(--color-primary-text)]">
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 sm:ml-auto px-1.5 text-xs font-medium text-[var(--color-primary-text)]">
             {activeCount}
           </span>
         )}

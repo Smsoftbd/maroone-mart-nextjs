@@ -55,7 +55,7 @@ export function BrandsCarousel({ brands }: BrandsCarouselProps) {
                 ) : (
                   <span className="flex flex-col items-center gap-1 px-2 text-center text-slate-400">
                     <ImageOff className="h-6 w-6" strokeWidth={1.25} />
-                    <span className="line-clamp-2 text-[11px] font-medium">{brand.name}</span>
+                    <span className="line-clamp-2 text-xs font-medium">{brand.name}</span>
                   </span>
                 )}
               </Link>

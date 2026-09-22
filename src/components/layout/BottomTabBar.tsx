@@ -32,7 +32,7 @@ export function BottomTabBar({ chatUrl, phone }: BottomTabBarProps) {
   if (pathname.startsWith("/checkout") || /^\/products\/[^/]+/.test(pathname)) return null;
 
   const CartIcon = CART_ICONS[layout.cart_icon];
-  const item = "flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium";
+  const item = "flex flex-1 flex-col items-center justify-center gap-1 text-xs font-medium";
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
   const tel = phone?.split(/[,/]/)[0]?.replace(/[^\d+]/g, "");
 
@@ -53,7 +53,7 @@ export function BottomTabBar({ chatUrl, phone }: BottomTabBarProps) {
         <span className="relative">
           <CartIcon className="h-[22px] w-[22px]" strokeWidth={1.5} />
           {totalItems > 0 && (
-            <span className="cart-badge absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold">
+            <span className="cart-badge absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[11px] font-semibold">
               {totalItems > 99 ? "99+" : totalItems}
             </span>
           )}

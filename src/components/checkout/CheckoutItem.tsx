@@ -70,7 +70,7 @@ export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
       </Link>
 
       <div className="flex-1 min-w-0 pr-6">
-        {storeName && <p className="text-[11px] text-brand-ink leading-none mb-2">{storeName}</p>}
+        {storeName && <p className="text-xs text-brand-ink leading-none mb-2">{storeName}</p>}
         <Link
           href={href}
           className="block text-[15px] font-semibold leading-snug truncate hover:text-brand-ink transition-colors"

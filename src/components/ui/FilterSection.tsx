@@ -31,7 +31,7 @@ export function FilterSection({
         <span className="flex items-center gap-2 text-sm font-medium">
           {title}
           {activeCount > 0 && (
-            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] px-1.5 text-[11px] font-medium text-[var(--color-surface-0)]">
+            <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--color-text-primary)] px-1.5 text-xs font-medium text-[var(--color-surface-0)]">
               {activeCount}
             </span>
           )}
