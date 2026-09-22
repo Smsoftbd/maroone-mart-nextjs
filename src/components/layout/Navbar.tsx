@@ -21,6 +21,7 @@ import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
 import { SearchBox } from "./SearchBox";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { HomeNavbar } from "./HomeNavbar";
 import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Store } from "@/lib/api/types";
 
@@ -50,6 +51,11 @@ export function Navbar({ store, categories }: NavbarProps) {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Homepage gets its own single-row white header.
+  if (pathname === "/") {
+    return <HomeNavbar store={store} categories={categories} scrolled={scrolled} />;
+  }
 
   const navCategories = categories.slice(0, 14);
 

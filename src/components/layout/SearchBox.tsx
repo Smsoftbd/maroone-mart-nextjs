@@ -32,7 +32,7 @@ interface SearchBoxProps {
   /** Called after a search commits — mobile uses it to close the collapsible bar. */
   onNavigate?: () => void;
   className?: string;
-  /** "minimal" = underline field for the homepage's light header. */
+  /** "minimal" = boxed field with a solid brand search button, for the homepage's white header. */
   variant?: "default" | "minimal";
 }
 
@@ -225,7 +225,7 @@ export function SearchBox({
           className={cn(
             "w-full text-sm focus:outline-none",
             isMinimal
-              ? "rounded-none border-b border-neutral-300 bg-transparent pl-0 pr-10 py-2 text-neutral-900 placeholder:text-neutral-400 placeholder:uppercase placeholder:tracking-[0.16em] placeholder:text-[11px] focus:border-neutral-900 transition-colors"
+              ? "h-11 rounded-md border border-slate-300 bg-white pl-4 pr-14 text-slate-900 placeholder:text-slate-400 focus:border-brand-500 transition-colors"
               : "rounded-full bg-white text-gray-900 placeholder:text-gray-400 pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
           )}
         />
@@ -235,7 +235,7 @@ export function SearchBox({
           className={cn(
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
             isMinimal
-              ? "right-0 h-8 w-8 text-neutral-900 hover:opacity-60"
+              ? "right-0 h-11 w-12 rounded-r-md bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600"
               : "right-1.5 h-8 w-8 rounded-full text-brand-500 hover:bg-brand-50"
           )}
           aria-label="Search"

@@ -62,6 +62,14 @@ export async function apiRequest<T>(
   path: string,
   options: ApiOptions = {}
 ): Promise<T> {
+  // A missing base URL yields fetch("undefined/..."), which hangs static
+  // generation until the 60s page timeout instead of failing. Fail fast.
+  if (!BASE_URL) {
+    throw new Error(
+      "NEXT_PUBLIC_API_BASE_URL is not set. Copy .env.example to .env.local and fill in the API settings."
+    );
+  }
+
   const {
     keyType = "public",
     bearerToken,

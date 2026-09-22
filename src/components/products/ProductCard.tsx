@@ -7,21 +7,23 @@
  * <ProductCard product={product} currency="৳" variant="minimal" />
  * Used in: ProductGrid, FeaturedProducts, NewArrivals, TopSelling, RelatedProducts
  *
- * `variant="minimal"` is the editorial, chrome-less card used by the homepage
- * sections only. Every other page keeps the default boxed card.
+ * `variant="minimal"` is the editorial, chrome-less card.
+ * `variant="shop"` is the bordered marketplace card used by the homepage grids/carousels.
+ * `variant="compact"` is the horizontal (image-left) card used by the homepage New Arrivals list.
+ * Every other page keeps the default boxed card.
  */
 
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ShoppingCart, ArrowRight } from "lucide-react";
+import { ShoppingCart, ArrowRight, Star } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
 import { useSelectItem } from "@/components/analytics/ItemListTracker";
 import type { Product } from "@/lib/api/types";
 
-export type ProductCardVariant = "default" | "minimal";
+export type ProductCardVariant = "default" | "minimal" | "shop" | "compact";
 
 interface ProductCardProps {
   product: Product;
@@ -75,6 +77,122 @@ export function ProductCard({ product, currency, variant = "default" }: ProductC
     });
     router.push("/checkout");
   };
+
+  const brandName = product.brand?.name || t("no_brand", "No Brand");
+
+  const ratingRow = (
+    <div className="flex items-center gap-2 text-xs text-slate-700">
+      <span className="flex items-center gap-1">
+        {Number(product.rating_avg || 0).toFixed(1).replace(/\.0$/, "")}
+        <Star className="h-3 w-3 fill-brand-500 text-brand-500" />
+      </span>
+      <span className="h-3 w-px bg-slate-300" />
+      <span>{product.rating_count ?? 0}</span>
+    </div>
+  );
+
+  const priceRow = (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span className="text-base font-bold text-red-500">{formatPrice(price, currency)}</span>
+      {hasDiscount && (
+        <>
+          <del className="text-xs text-slate-400">{formatPrice(original, currency)}</del>
+          <span className="rounded bg-red-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white">
+            {discountPct}% OFF
+          </span>
+        </>
+      )}
+    </div>
+  );
+
+  if (variant === "compact") {
+    return (
+      <div
+        className="group flex h-full items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 transition-shadow hover:shadow-md"
+        onClickCapture={onCardClick}
+      >
+        <Link href={href} className="relative block h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-surface-100 sm:h-28 sm:w-28">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            sizes="112px"
+            loading="lazy"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </Link>
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <p className="truncate text-xs text-brand-500">{brandName}</p>
+          <h2>
+            <Link href={href} className="line-clamp-1 text-sm font-medium text-slate-900 hover:text-brand-500">
+              {product.name}
+            </Link>
+          </h2>
+          {ratingRow}
+          {priceRow}
+        </div>
+      </div>
+    );
+  }
+
+  if (variant === "shop") {
+    return (
+      <div
+        className="group flex h-full flex-col rounded-xl border border-slate-200 bg-white p-1.5 transition-shadow hover:shadow-md"
+        onClickCapture={onCardClick}
+      >
+        <div className="relative overflow-hidden rounded-lg bg-surface-100">
+          <Link href={href} className="block aspect-square">
+            <Image
+              src={product.image}
+              alt={product.name}
+              width={300}
+              height={300}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          </Link>
+          {!inStock && (
+            <span className="absolute inset-x-0 bottom-0 bg-white/90 py-1.5 text-center text-[11px] font-medium text-slate-900">
+              {t("out_of_stock", "Out of Stock")}
+            </span>
+          )}
+        </div>
+
+        <div className="flex flex-1 flex-col gap-1.5 px-1.5 pb-1.5 pt-3">
+          <p className="truncate text-xs text-brand-500">{brandName}</p>
+          <h2>
+            <Link href={href} className="line-clamp-1 text-sm font-medium text-slate-900 hover:text-brand-500">
+              {product.name}
+            </Link>
+          </h2>
+          {ratingRow}
+          {priceRow}
+
+          <div className="mt-auto flex items-center gap-2 pt-1.5">
+            <button
+              aria-label={t("add_to_cart", "Add to Cart")}
+              onClick={handleAddToCart}
+              disabled={isLoading || !inStock}
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-brand-500 text-brand-500 transition-colors hover:bg-brand-500 hover:text-[var(--color-primary-text)] disabled:opacity-40"
+            >
+              <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </button>
+            <button
+              onClick={handleBuyNow}
+              disabled={isLoading || !inStock}
+              className="flex h-9 w-full items-center justify-center gap-1.5 rounded-md bg-brand-500 px-2 text-sm font-semibold text-[var(--color-primary-text)] transition-colors hover:bg-brand-600 disabled:opacity-40"
+            >
+              <span className="truncate">
+                {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
+              </span>
+              {inStock && <ArrowRight className="hidden h-4 w-4 shrink-0 sm:block" />}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (variant === "minimal") {
     return (

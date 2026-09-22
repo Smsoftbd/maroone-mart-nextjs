@@ -19,8 +19,16 @@ export const revalidate = 300;
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  const { data } = await getProducts({ per_page: 100 });
-  return data.map((p) => ({ slug: p.slug }));
+  // Pre-rendering is best effort: without API env/connectivity at build time,
+  // pages render on demand (dynamicParams = true).
+  if (!process.env.NEXT_PUBLIC_API_BASE_URL) return [];
+  try {
+    const { data } = await getProducts({ per_page: 100 });
+    return data.map((p) => ({ slug: p.slug }));
+  } catch (err) {
+    console.warn("generateStaticParams(products): skipping pre-render", err);
+    return [];
+  }
 }
 
 interface PageProps {

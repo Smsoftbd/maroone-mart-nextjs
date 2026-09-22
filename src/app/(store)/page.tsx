@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
 import { Slider } from "@/components/home/Slider";
-import { CategoryGrid } from "@/components/home/CategoryGrid";
+import { FeatureHighlights } from "@/components/home/FeatureHighlights";
+import { PopularCategories } from "@/components/home/PopularCategories";
 import { FlashSaleBanner } from "@/components/home/FlashSaleBanner";
-import { FeaturedProducts, NewArrivals, BestSelling } from "@/components/home/FeaturedProducts";
-import { CategoryProductSections } from "@/components/home/CategoryProductSections";
-import { NewsletterSection } from "@/components/home/NewsletterSection";
-import { getStore, getSliders, getHomepageCategories } from "@/lib/api/store";
+import { BestSelling } from "@/components/home/FeaturedProducts";
+import { PromoBanners } from "@/components/home/PromoBanners";
+import { AllProducts } from "@/components/home/AllProducts";
+import { NewArrivalsList } from "@/components/home/NewArrivalsList";
+import { VideoReviewBanner } from "@/components/home/VideoReviewBanner";
+import { BrandsCarousel } from "@/components/home/BrandsCarousel";
+import { getStore, getSliders, getHomepageCategories, getHeroBanners } from "@/lib/api/store";
 import {
-  getFeaturedProducts,
   getFlashSales,
   getNewArrivals,
   getBestSelling,
   getProducts,
+  getBrands,
 } from "@/lib/api/products";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { organizationSchema, websiteSchema } from "@/lib/utils/structured-data";
@@ -39,35 +43,24 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const [store, sliders, categories, featured, flashSales, newArrivals, bestSelling] =
+  const [store, sliders, categories, flashSales, newArrivals, bestSelling, banners, allProducts, brands] =
     await Promise.all([
       getStore(),
       getSliders(),
       getHomepageCategories(),
-      getFeaturedProducts(),
       getFlashSales(),
       getNewArrivals(12),
       getBestSelling(12),
+      // Optional sections: a failing endpoint hides the section, not the page.
+      getHeroBanners().catch(() => []),
+      getProducts({ per_page: 20 }).catch(() => null),
+      getBrands().catch(() => []),
     ]);
 
   const currency = store.currency_symbol;
 
-  const categoryProducts = await Promise.all(
-    categories.map(async (category) => {
-      try {
-        const { data } = await getProducts({
-          category: category.slug,
-          per_page: 8,
-        });
-        return { category, products: data };
-      } catch {
-        return { category, products: [] };
-      }
-    })
-  );
-
   return (
-    <>
+    <div className="bg-slate-50/60">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: organizationSchema(store) }}
@@ -77,24 +70,30 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: websiteSchema(store) }}
       />
 
-      {store.sections.banner && <Slider sliders={sliders} />}
-      {store.sections.categories && <CategoryGrid categories={categories} />}
+      <div className="bg-white">
+        {store.sections.banner && <Slider sliders={sliders} />}
+        <FeatureHighlights />
+      </div>
+      {store.sections.categories && <PopularCategories categories={categories} />}
       {store.sections.flash_sale && flashSales.length > 0 && (
         <FlashSaleBanner sales={flashSales} currency={currency} />
       )}
       {store.sections.top_selling && (
         <BestSelling products={bestSelling} currency={currency} />
       )}
+      {store.sections.banner && <PromoBanners banners={banners} />}
+      {allProducts && (
+        <AllProducts
+          products={allProducts.data}
+          total={allProducts.meta.total}
+          currency={currency}
+        />
+      )}
       {store.sections.new_arrivals && (
-        <NewArrivals products={newArrivals} currency={currency} />
+        <NewArrivalsList products={newArrivals} currency={currency} />
       )}
-      {store.sections.featured_products && (
-        <FeaturedProducts products={featured} currency={currency} />
-      )}
-      {store.sections.categories && (
-        <CategoryProductSections sections={categoryProducts} currency={currency} />
-      )}
-      {store.sections.newsletter && <NewsletterSection />}
-    </>
+      {store.social.youtube && <VideoReviewBanner youtubeUrl={store.social.youtube} />}
+      <BrandsCarousel brands={brands} />
+    </div>
   );
 }

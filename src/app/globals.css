@@ -215,6 +215,38 @@ body {
   }
 }
 
+@media (min-width: 1280px) {
+  .product-carousel-5 .swiper-slide {
+    width: calc((100% - 64px) / 5);
+    margin-right: 16px;
+  }
+}
+
+/* Homepage category band pagination (PopularCategories.tsx). */
+.home-dots {
+  gap: 6px;
+}
+.home-dots .swiper-pagination-bullet {
+  margin: 0 !important;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  opacity: 0.5;
+  transition: width 0.25s, opacity 0.25s;
+}
+.home-dots .swiper-pagination-bullet-active {
+  width: 24px;
+  border-radius: 9999px;
+  opacity: 1;
+}
+.home-dots-brand .swiper-pagination-bullet {
+  background: var(--color-brand-500);
+  opacity: 0.3;
+}
+.home-dots-brand .swiper-pagination-bullet-active {
+  opacity: 1;
+}
+
 /* Hot Deals carousel: pre-init sizing (mirrors breakpoints in FlashSaleBanner)
    and white pagination bullets on the brand background. */
 .deals-carousel .swiper-wrapper {

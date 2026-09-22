@@ -18,6 +18,8 @@ interface ProductCarouselProps {
   variant?: ProductCardVariant;
   /** GA4 list for view_item_list / select_item. */
   list?: ItemList;
+  /** Slides per view from `xl` up. */
+  columns?: 4 | 5;
 }
 
 export function ProductCarousel({
@@ -25,6 +27,7 @@ export function ProductCarousel({
   currency,
   variant = "default",
   list,
+  columns = 4,
 }: ProductCarouselProps) {
   const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
   const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
@@ -34,22 +37,25 @@ export function ProductCarousel({
   const carousel = (
     <div
       className={
-        variant === "minimal" ? "" : "sm:shadow-lg sm:bg-white rounded-xl sm:p-6"
+        variant === "minimal" || variant === "shop"
+          ? ""
+          : "sm:shadow-lg sm:bg-white rounded-xl sm:p-6"
       }
     >
       <div className="relative">
         <Swiper
           modules={[Navigation]}
-          spaceBetween={20}
+          spaceBetween={variant === "shop" ? 16 : 20}
           grabCursor
           watchOverflow
           breakpoints={{
             0: { slidesPerView: 2.15 },
             640: { slidesPerView: 3 },
             1024: { slidesPerView: 4 },
+            1280: { slidesPerView: columns },
           }}
           navigation={{ prevEl, nextEl }}
-          className="product-carousel !py-1"
+          className={`product-carousel !py-1${columns === 5 ? " product-carousel-5" : ""}`}
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="!h-auto">

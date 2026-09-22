@@ -10,9 +10,11 @@ import type { StoreLanguage } from "@/lib/api/types";
 
 interface LanguageSwitcherProps {
   languages: StoreLanguage[];
+  /** Overrides the trigger's default (brand-bar) styling. */
+  buttonClassName?: string;
 }
 
-export function LanguageSwitcher({ languages }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ languages, buttonClassName }: LanguageSwitcherProps) {
   const { locale } = useI18n();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -50,7 +52,10 @@ export function LanguageSwitcher({ languages }: LanguageSwitcherProps) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         disabled={isPending}
-        className="inline-flex items-center gap-1 px-1.5 py-1 rounded-md text-sm font-medium hover:bg-white/15 transition-colors disabled:opacity-60"
+        className={cn(
+          "inline-flex items-center gap-1 px-1.5 py-1 rounded-md text-sm font-medium hover:bg-white/15 transition-colors disabled:opacity-60",
+          buttonClassName
+        )}
         aria-label="Change language"
         aria-haspopup="listbox"
         aria-expanded={open}

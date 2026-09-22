@@ -1,9 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
-import type { Store, PageSummary } from "@/lib/api/types";
+import { MapPin, Phone, Mail } from "lucide-react";
+import type { Store, PageSummary, PaymentMethod } from "@/lib/api/types";
 import { ScrollToTop } from "./ScrollToTop";
 import { socialIcons } from "./social-icons";
 import { getServerT } from "@/lib/i18n/server";
+import { getPaymentMethods } from "@/lib/api/content";
+import { resolveL10n } from "@/lib/utils/l10n";
 import { ConsentSettingsLink } from "@/components/analytics/ConsentSettingsLink";
 import { getConsentBannerMode } from "@/lib/analytics/consent-server";
 
@@ -12,14 +15,22 @@ interface FooterMinimalProps {
   pages?: PageSummary[];
 }
 
-const linkClass =
-  "text-neutral-500 hover:text-neutral-900 transition-colors";
+const linkClass = "text-slate-200 hover:text-white transition-colors";
 
-const headingClass =
-  "mb-5 text-[10px] font-medium uppercase tracking-[0.22em] text-neutral-900";
+const headingClass = "mb-5 text-sm font-semibold text-cyan-400";
+
+/** Brand tint per network for the footer's social row. */
+const socialColors: Record<string, string> = {
+  facebook: "text-[#1877F2]",
+  youtube: "text-[#FF0000]",
+  whatsapp: "text-[#25D366]",
+  instagram: "text-[#E4405F]",
+  tiktok: "text-white",
+  pinterest: "text-[#E60023]",
+};
 
 /**
- * Editorial, light-ground footer used on the homepage only.
+ * Dark footer used on the homepage only.
  * The brand-ground `Footer` stays in place for every other route.
  */
 export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
@@ -28,10 +39,12 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
   const socials = Object.entries(store.social).filter(
     ([key, url]) => url && socialIcons[key],
   );
+  const paymentMethods: PaymentMethod[] = await getPaymentMethods().catch(() => []);
+  const phones = store.phone.split(/[,/]/).map((p) => p.trim()).filter(Boolean);
 
   return (
-    <footer className="mt-auto border-t border-neutral-200 bg-white text-neutral-900">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+    <footer className="mt-auto bg-[#0f172a] text-slate-200">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
         <div className="grid grid-cols-2 gap-10 lg:grid-cols-4 lg:gap-12">
           {/* Business info */}
           <div className="col-span-2 lg:col-span-1">
@@ -42,32 +55,35 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                   alt={store.name}
                   width={200}
                   height={48}
-                  className="h-auto max-h-10 w-auto object-contain"
+                  className="h-auto max-h-12 w-auto object-contain"
                 />
               ) : (
-                <span className="font-display text-lg uppercase tracking-[0.28em]">
-                  {store.name}
-                </span>
+                <span className="text-2xl font-bold text-white">{store.name}</span>
               )}
             </Link>
 
-            {store.tagline && (
-              <p className="mb-6 max-w-xs text-sm leading-relaxed text-neutral-500">
-                {store.tagline}
-              </p>
-            )}
-
-            <ul className="space-y-2 text-sm text-neutral-500">
-              {store.address && <li className="leading-relaxed">{store.address}</li>}
-              {store.phone && (
-                <li>
-                  <a href={`tel:${store.phone}`} className={linkClass}>
-                    {store.phone}
-                  </a>
+            <ul className="space-y-3 text-sm">
+              {store.address && (
+                <li className="flex items-start gap-3 leading-relaxed">
+                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 fill-red-500 text-[#0f172a]" />
+                  {store.address}
+                </li>
+              )}
+              {phones.length > 0 && (
+                <li className="flex items-center gap-3">
+                  <Phone className="h-4 w-4 shrink-0 fill-white text-white" />
+                  <span className="flex flex-wrap gap-x-3">
+                    {phones.map((p) => (
+                      <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className={linkClass}>
+                        {p}
+                      </a>
+                    ))}
+                  </span>
                 </li>
               )}
               {store.email && (
-                <li>
+                <li className="flex items-center gap-3">
+                  <Mail className="h-4 w-4 shrink-0" />
                   <a href={`mailto:${store.email}`} className={`${linkClass} break-all`}>
                     {store.email}
                   </a>
@@ -76,23 +92,10 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
             </ul>
           </div>
 
-          {/* Customer Service */}
-          <div>
-            <h6 className={headingClass}>{t("customer_service", "Customer Service")}</h6>
-            <ul className="space-y-2.5 text-sm">
-              <li><Link href="/contact" className={linkClass}>{t("contact", "Contact")}</Link></li>
-              <li><Link href="/support" className={linkClass}>{t("support", "Support")}</Link></li>
-              <li><Link href="/track-order" className={linkClass}>{t("track_order", "Track Order")}</Link></li>
-              {store.features.blog && (
-                <li><Link href="/blog" className={linkClass}>{t("blog", "Blog")}</Link></li>
-              )}
-            </ul>
-          </div>
-
           {/* Company */}
           <div>
             <h6 className={headingClass}>{t("company", "Company")}</h6>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-3 text-sm">
               {pages.length > 0 ? (
                 pages.map((page) => (
                   <li key={page.id}>
@@ -105,45 +108,85 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                 <>
                   <li><Link href="/products" className={linkClass}>{t("all_products", "All Products")}</Link></li>
                   <li><Link href="/account" className={linkClass}>{t("my_account", "My Account")}</Link></li>
-                  <li><Link href="/account/orders" className={linkClass}>{t("orders", "Orders")}</Link></li>
                 </>
               )}
             </ul>
           </div>
 
-          {/* Follow Us */}
+          {/* Help */}
           <div>
-            <h6 className={headingClass}>{t("follow_us", "Follow Us")}</h6>
+            <h6 className={headingClass}>{t("help", "Help")}</h6>
+            <ul className="space-y-3 text-sm">
+              <li><Link href="/contact" className={linkClass}>{t("contact_us", "Contact Us")}</Link></li>
+              <li><Link href="/track-order" className={linkClass}>{t("track_order", "Track Order")}</Link></li>
+              {store.features.blog && (
+                <li><Link href="/blog" className={linkClass}>{t("blog", "Blog")}</Link></li>
+              )}
+            </ul>
+          </div>
+
+          {/* Social + payments */}
+          <div className="col-span-2 space-y-8 lg:col-span-1 lg:pt-10">
             {socials.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
-                {socials.map(([key, url]) => (
-                  <a
-                    key={key}
-                    href={url as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={key}
-                    className="inline-flex h-9 w-9 items-center justify-center border border-neutral-200 text-neutral-500 transition-colors hover:border-neutral-900 hover:text-neutral-900"
-                  >
-                    <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                      {socialIcons[key]}
-                    </svg>
-                  </a>
-                ))}
+              <div>
+                <h6 className="mb-3 text-sm font-medium text-white">{t("social_links", "Social Links")}</h6>
+                <div className="flex flex-wrap items-center gap-4">
+                  {socials.map(([key, url]) => (
+                    <a
+                      key={key}
+                      href={url as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={key}
+                      className={`transition-opacity hover:opacity-75 ${socialColors[key] ?? "text-white"}`}
+                    >
+                      <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                        {socialIcons[key]}
+                      </svg>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {paymentMethods.length > 0 && (
+              <div>
+                <h6 className="mb-3 text-sm font-medium text-white">{t("payment_methods", "Payment Methods")}</h6>
+                <div className="flex flex-wrap items-center gap-3">
+                  {paymentMethods.map((m) => {
+                    const name = resolveL10n(m.name);
+                    return m.icon && !m.icon.includes("no_image") ? (
+                      <Image
+                        key={m.id}
+                        src={m.icon}
+                        alt={name}
+                        title={name}
+                        width={56}
+                        height={28}
+                        className="h-7 w-auto rounded bg-white/5 object-contain"
+                      />
+                    ) : (
+                      <span key={m.id} className="rounded bg-white/10 px-2 py-1 text-xs text-slate-200">
+                        {name}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
         </div>
+      </div>
 
-        <div className="mt-14 flex flex-col items-center gap-2 border-t border-neutral-200 pt-6 text-[10px] uppercase tracking-[0.18em] text-neutral-400 sm:flex-row sm:justify-between">
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs text-slate-400 sm:flex-row sm:gap-6 sm:px-6 lg:px-8">
           <span>
-            &copy; {year} {store.name}
+            &copy; {year} {store.name} — {t("all_rights_reserved", "All rights reserved")}.
           </span>
-          <span>{t("all_rights_reserved_by", "All Rights Reserved By")} {store.name}</span>
           {getConsentBannerMode() !== "off" && (
             <ConsentSettingsLink
               label={t("cookie_settings", "Cookie settings")}
-              className="uppercase tracking-[0.18em] hover:text-neutral-900"
+              className="hover:text-white"
             />
           )}
         </div>
