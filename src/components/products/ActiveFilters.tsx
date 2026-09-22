@@ -87,24 +87,18 @@ export function ActiveFilters({
   };
 
   return (
-    <div className="mt-4 mb-6 lg:mt-0 flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2 pt-5">
       {chips.map((chip) => (
         <button
           key={`${chip.key}:${chip.value}`}
           onClick={() => remove(chip)}
           aria-label={`${t("remove", "Remove")} ${chip.label}`}
-          className="group inline-flex items-center gap-1.5 rounded-full border border-[var(--color-border)] py-1 pl-3 pr-2 text-xs font-medium text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-text-primary)]"
+          className="group inline-flex items-center gap-1.5 rounded bg-slate-100 py-1 pl-2 pr-1.5 text-xs text-slate-800 transition-colors hover:bg-slate-200"
         >
           {chip.label}
-          <X className="h-3 w-3 text-[var(--color-text-muted)] group-hover:text-[var(--color-text-primary)]" />
+          <X className="h-4 w-4 text-red-500" />
         </button>
       ))}
-      <button
-        onClick={() => router.push("/products", { scroll: false })}
-        className="ml-1 text-xs font-medium text-[var(--color-text-secondary)] underline underline-offset-4 transition-colors hover:text-[var(--color-text-primary)]"
-      >
-        {t("clear_all", "Clear all")}
-      </button>
     </div>
   );
 }

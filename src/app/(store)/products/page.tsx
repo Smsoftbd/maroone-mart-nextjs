@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { PackageSearch } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductFilters } from "@/components/products/ProductFilters";
-import { ActiveFilters } from "@/components/products/ActiveFilters";
 import { ProductSort } from "@/components/products/ProductSort";
 import { Pagination } from "@/components/ui/Pagination";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getProducts, getCategories, getBrands, getProductFilters } from "@/lib/api/products";
-import { getStore } from "@/lib/api/store";
+import { getStore, getHomepageCategories } from "@/lib/api/store";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { getServerT } from "@/lib/i18n/server";
+import type { Category } from "@/lib/api/types";
 
 export const revalidate = 300;
+
+const PER_PAGE = 20;
+const TOP_CATEGORY_COUNT = 5;
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
@@ -42,6 +47,14 @@ interface PageProps {
 const toArray = (v: RawParam): string[] =>
   v === undefined ? [] : Array.isArray(v) ? v : [v];
 
+function findCategory(cats: Category[], slug: string): Category | undefined {
+  for (const c of cats) {
+    if (c.slug === slug) return c;
+    const hit = c.children?.length ? findCategory(c.children, slug) : undefined;
+    if (hit) return hit;
+  }
+}
+
 export default async function ProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const { search, sort, price_min, price_max, page = "1" } = params;
@@ -50,7 +63,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const brands = toArray(params.brands);
   const attribute_values = toArray(params.attribute_values);
 
-  const [{ data: products, meta }, categoryTree, brandList, filters, store] =
+  const [{ data: products, meta }, categoryTree, brandList, filters, store, homepageCategories] =
     await Promise.all([
       getProducts({
         categories,
@@ -61,29 +74,30 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         price_min: price_min ? Number(price_min) : undefined,
         price_max: price_max ? Number(price_max) : undefined,
         page: Number(page),
-        per_page: 24,
+        per_page: PER_PAGE,
       }),
       getCategories(),
       getBrands(),
       getProductFilters(),
       getStore(),
+      getHomepageCategories().catch(() => []),
     ]);
 
   const t = await getServerT();
-  const heading = search
-    ? `${t("search", "Search")}: "${search}"`
-    : categories.length === 1
-    ? categoryTree.find((c) => c.slug === categories[0])?.name || t("products", "Products")
-    : t("all_products", "All Products");
+  const currentCategory =
+    categories.length === 1 ? findCategory(categoryTree, categories[0]) : undefined;
+
+  const topCategories = (
+    homepageCategories.length
+      ? homepageCategories
+      : categoryTree.map(({ id, name, slug, image }) => ({ id, name, slug, image }))
+  ).slice(0, TOP_CATEGORY_COUNT);
 
   // GA4 list names stay untranslated so reports don't split by language.
   const itemList = search
     ? { id: "search_results", name: "Search results" }
     : categories.length === 1
-    ? {
-        id: `category_${categories[0]}`,
-        name: categoryTree.find((c) => c.slug === categories[0])?.name || categories[0],
-      }
+    ? { id: `category_${categories[0]}`, name: currentCategory?.name || categories[0] }
     : { id: "all_products", name: "All products" };
 
   const hasFilters =
@@ -94,96 +108,116 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     !!price_max ||
     !!search;
 
+  const crumbs = search
+    ? [{ label: `${t("search", "Search")}: "${search}"` }]
+    : currentCategory
+    ? [
+        { label: t("categories", "Categories"), href: "/categories" },
+        { label: currentCategory.name },
+      ]
+    : [{ label: t("all_products", "All Products") }];
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-16 lg:pt-10">
-      <header className="mb-8 lg:mb-10">
-        <Breadcrumb
-          items={[
-            { label: t("home", "Home"), href: "/" },
-            { label: t("products", "Products"), href: "/products" },
-            ...(heading !== t("all_products", "All Products") ? [{ label: heading }] : []),
-          ]}
-        />
-        <div className="mt-4 flex items-end justify-between gap-4">
-          <h1 className="font-display text-3xl sm:text-4xl font-semibold tracking-tight">
-            {heading}
-          </h1>
-          <p className="hidden sm:block shrink-0 pb-1 text-sm text-[var(--color-text-muted)] tabular-nums">
-            {meta.total} {meta.total !== 1 ? t("products_lc", "products") : t("product_lc", "product")}
-          </p>
+    <div className="bg-white">
+      <div className="border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, ...crumbs]} />
         </div>
-      </header>
+      </div>
 
-      <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
-        <Suspense fallback={null}>
-          <ProductFilters
-            categories={categoryTree}
-            brands={brandList}
-            filterAttributes={filters.attributes}
-            priceRange={filters.price_range}
-            currency={store.currency_symbol}
-            total={meta.total}
-            toolbarSlot={
-              <Suspense fallback={null}>
-                <ProductSort />
-              </Suspense>
-            }
-          />
-        </Suspense>
+      {topCategories.length > 0 && (
+        <section className="border-b border-slate-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <h2 className="mb-5 text-base font-semibold text-slate-900">
+              {t("top_5_categories", "Top 5 Categories")}
+            </h2>
+            <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-5">
+              {topCategories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/products?category=${cat.slug}`}
+                  className={`flex w-48 shrink-0 items-center gap-3 rounded-lg border px-3 py-3 transition-colors sm:w-auto ${
+                    categories.includes(cat.slug)
+                      ? "border-brand-500 bg-brand-50"
+                      : "border-slate-100 hover:border-brand-500"
+                  }`}
+                >
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-amber-50">
+                    {cat.image ? (
+                      <Image src={cat.image} alt="" fill sizes="40px" className="object-contain p-1.5" />
+                    ) : (
+                      <span className="text-sm font-bold text-brand-500">{cat.name[0]}</span>
+                    )}
+                  </span>
+                  <span className="truncate text-sm text-slate-800">{cat.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
-        <div className="flex-1 min-w-0">
-          <div className="hidden lg:flex items-center justify-between gap-3 border-b border-[var(--color-border)] pb-4 mb-6">
-            <p className="text-sm text-[var(--color-text-secondary)] tabular-nums">
-              {t("showing", "Showing")}{" "}
-              <span className="font-medium text-[var(--color-text-primary)]">
-                {meta.total === 0 ? 0 : (meta.current_page - 1) * 24 + 1}–
-                {Math.min(meta.current_page * 24, meta.total)}
-              </span>{" "}
-              {t("of", "of")} {meta.total}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:gap-4">
+          <Suspense fallback={null}>
+            <ProductFilters
+              categories={categoryTree}
+              brands={brandList}
+              filterAttributes={filters.attributes}
+              priceRange={filters.price_range}
+              currency={store.currency_symbol}
+              total={meta.total}
+            />
+          </Suspense>
+
+          <div className="flex flex-1 items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:px-3">
+            <p className="text-sm text-slate-800 tabular-nums">
+              {t("x_products", ":count products").replace(":count", String(meta.total))}
             </p>
             <Suspense fallback={null}>
               <ProductSort />
             </Suspense>
           </div>
-
-          <Suspense fallback={null}>
-            <ActiveFilters
-              categories={categoryTree}
-              brands={brandList}
-              filterAttributes={filters.attributes}
-              currency={store.currency_symbol}
-            />
-          </Suspense>
-
-          {products.length === 0 ? (
-            <EmptyState
-              icon={PackageSearch}
-              title={t("no_products_found", "No products found")}
-              description={
-                hasFilters
-                  ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
-                  : t("no_products_hint", "Check back soon — new products are on the way.")
-              }
-              action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
-              className="py-24"
-            />
-          ) : (
-            <ProductGrid
-              products={products}
-              currency={store.currency_symbol}
-              variant="minimal"
-              list={itemList}
-            />
-          )}
-
-          <Suspense fallback={null}>
-            <Pagination
-              currentPage={meta.current_page}
-              lastPage={meta.last_page}
-              total={meta.total}
-            />
-          </Suspense>
         </div>
+
+        {products.length === 0 ? (
+          <EmptyState
+            icon={PackageSearch}
+            title={t("no_products_found", "No products found")}
+            description={
+              hasFilters
+                ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
+                : t("no_products_hint", "Check back soon — new products are on the way.")
+            }
+            action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
+            className="py-24"
+          />
+        ) : (
+          <ProductGrid
+            products={products}
+            currency={store.currency_symbol}
+            variant="shop"
+            list={itemList}
+          />
+        )}
+
+        {products.length > 0 && (
+          <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-5 sm:flex-row sm:px-4">
+            <p className="text-sm text-slate-700">
+              {t("showing_x_of_y", "Showing :count of :total")
+                .replace(":count", String(products.length))
+                .replace(":total", String(meta.total))}
+            </p>
+            <Suspense fallback={null}>
+              <Pagination
+                currentPage={meta.current_page}
+                lastPage={meta.last_page}
+                total={meta.total}
+                variant="boxed"
+              />
+            </Suspense>
+          </div>
+        )}
       </div>
     </div>
   );

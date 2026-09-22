@@ -50,19 +50,19 @@ export function ProductSort() {
   };
 
   return (
-    <div ref={rootRef} className="relative text-sm">
+    <div ref={rootRef} className="relative flex items-center gap-3 text-sm">
+      <span className="hidden text-slate-600 sm:inline">{t("sort_by", "Sort by")}:</span>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("sort_products", "Sort products")}
-        className="inline-flex items-center gap-1.5 py-1 font-medium"
+        className="flex h-11 w-40 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-4 text-slate-800 transition-colors hover:border-brand-500 sm:w-[288px]"
       >
-        <span className="text-[var(--color-text-muted)] font-normal">{t("sort_by", "Sort by")}:</span>
-        {currentLabel}
+        <span className="truncate">{currentLabel}</span>
         <ChevronDown
-          className={cn("h-4 w-4 transition-transform duration-200", open && "rotate-180")}
+          className={cn("h-4 w-4 shrink-0 transition-transform duration-200", open && "rotate-180")}
         />
       </button>
 
@@ -70,7 +70,7 @@ export function ProductSort() {
         <ul
           role="listbox"
           aria-label={t("sort_products", "Sort products")}
-          className="absolute right-0 z-30 mt-2 w-56 overflow-hidden rounded-lg border border-[var(--color-border)] bg-white py-1 shadow-lg shadow-black/5"
+          className="absolute right-0 top-full z-30 mt-1 w-full min-w-56 sm:w-[288px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-white py-1 shadow-lg shadow-black/5"
         >
           {sortOptions.map((o) => {
             const selected = o.value === current;
@@ -81,9 +81,7 @@ export function ProductSort() {
                   onClick={() => select(o.value)}
                   className={cn(
                     "flex w-full items-center justify-between px-4 py-2 text-left transition-colors hover:bg-surface-50",
-                    selected
-                      ? "font-medium text-[var(--color-text-primary)]"
-                      : "text-[var(--color-text-secondary)]"
+                    selected ? "font-medium text-brand-500" : "text-slate-700"
                   )}
                 >
                   {o.label}

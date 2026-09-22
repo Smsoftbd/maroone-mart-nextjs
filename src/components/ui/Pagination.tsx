@@ -9,6 +9,8 @@ interface PaginationProps {
   currentPage: number;
   lastPage: number;
   total: number;
+  /** "boxed": square bordered buttons, rendered even for a single page. */
+  variant?: "default" | "boxed";
 }
 
 /** Page numbers to render, with `null` marking a gap: 1 … 4 5 6 … 20 */
@@ -24,11 +26,11 @@ function pageItems(current: number, last: number): (number | null)[] {
   return items;
 }
 
-export function Pagination({ currentPage, lastPage }: PaginationProps) {
+export function Pagination({ currentPage, lastPage, variant = "default" }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  if (lastPage <= 1) return null;
+  if (variant === "default" && lastPage <= 1) return null;
 
   const buildHref = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -37,6 +39,61 @@ export function Pagination({ currentPage, lastPage }: PaginationProps) {
     const qs = params.toString();
     return qs ? `${pathname}?${qs}` : pathname;
   };
+
+  if (variant === "boxed") {
+    const last = Math.max(1, lastPage);
+    const box =
+      "flex h-10 min-w-10 items-center justify-center rounded-md border px-2 text-sm tabular-nums transition-colors";
+    const arrowBox = "w-16 border-slate-200 text-slate-500 hover:border-brand-500 hover:text-brand-500";
+    const disabled = "pointer-events-none opacity-50";
+
+    return (
+      <nav className="flex items-center gap-2" aria-label="Pagination">
+        <Link
+          href={buildHref(currentPage - 1)}
+          aria-disabled={currentPage <= 1}
+          tabIndex={currentPage <= 1 ? -1 : undefined}
+          className={cn(box, arrowBox, currentPage <= 1 && disabled)}
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Link>
+        <ol className="flex items-center gap-2">
+          {pageItems(currentPage, last).map((page, i) =>
+            page === null ? (
+              <li key={`gap-${i}`} className={cn(box, "border-slate-200 text-slate-500")}>
+                …
+              </li>
+            ) : (
+              <li key={page} className={cn(page !== currentPage && page !== 1 && page !== last && "hidden sm:block")}>
+                <Link
+                  href={buildHref(page)}
+                  className={cn(
+                    box,
+                    page === currentPage
+                      ? "border-brand-500 font-medium text-brand-500"
+                      : "border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-500"
+                  )}
+                  aria-current={page === currentPage ? "page" : undefined}
+                >
+                  {page}
+                </Link>
+              </li>
+            )
+          )}
+        </ol>
+        <Link
+          href={buildHref(currentPage + 1)}
+          aria-disabled={currentPage >= last}
+          tabIndex={currentPage >= last ? -1 : undefined}
+          className={cn(box, arrowBox, currentPage >= last && disabled)}
+          aria-label="Next page"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      </nav>
+    );
+  }
 
   const arrow =
     "inline-flex h-10 items-center gap-1 rounded-full px-3 text-sm font-medium transition-colors hover:bg-surface-100";

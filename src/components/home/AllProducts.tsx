@@ -6,7 +6,7 @@ import { getServerT } from "@/lib/i18n/server";
 import type { Product } from "@/lib/api/types";
 
 /** Page size of the /products listing the pager hands off to. */
-const LISTING_PER_PAGE = 24;
+const LISTING_PER_PAGE = 20;
 
 interface AllProductsProps {
   products: Product[];

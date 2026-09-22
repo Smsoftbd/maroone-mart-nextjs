@@ -207,7 +207,9 @@ export async function getTranslations(
       }
     );
     // Endpoint may return the map directly or wrapped in { data }.
-    return (res && typeof res === "object" && "data" in res ? res.data : res) as Record<string, string>;
+    const dict = res && typeof res === "object" && "data" in res ? res.data : res;
+    // An empty map is serialized by the backend as `[]`.
+    return dict && typeof dict === "object" && !Array.isArray(dict) ? (dict as Record<string, string>) : {};
   } catch {
     return {};
   }
