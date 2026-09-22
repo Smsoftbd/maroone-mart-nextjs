@@ -145,11 +145,11 @@ export function ProductInfo({
   const disabled = isLoading || !inStock;
 
   const ctaButtons = (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="pdp-cta grid grid-cols-2 gap-4">
       <button
         onClick={() => addSelected()}
         disabled={disabled}
-        className="btn btn-cart text-sm max-lg:min-h-[52px] max-lg:text-base lg:min-h-[50px] lg:text-[15px]"
+        className="btn btn-cart"
       >
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
         {t("add_to_cart", "Add to Cart")}
@@ -157,7 +157,7 @@ export function ProductInfo({
       <button
         onClick={handleBuyNow}
         disabled={disabled}
-        className="btn btn-buy text-sm max-lg:min-h-[52px] max-lg:text-base lg:min-h-[50px] lg:text-[15px]"
+        className="btn btn-buy"
       >
         <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
         {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}

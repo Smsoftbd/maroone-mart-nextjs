@@ -613,6 +613,20 @@ body[data-gradient-buttons="true"] :is(.btn-primary, .btn-buy):not(:disabled) {
   border-color: transparent;
 }
 
+/* Product page CTA pair: fixed size and colors, independent of the palette. */
+body .pdp-cta .btn {
+  min-height: 56px;
+  padding: 0.8em 1.25em;
+  border-radius: 8px;
+  border-width: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+body .pdp-cta .btn-cart:not(:disabled) { background: #00b5cc; color: #fff; }
+body .pdp-cta .btn-buy:not(:disabled) { background: #f5951f; color: #fff; }
+body .pdp-cta .btn-cart:hover:not(:disabled) { background: #009cb0; }
+body .pdp-cta .btn-buy:hover:not(:disabled) { background: #dd8315; }
+
 /* Header edge, glass, menu alignment. */
 body[data-header-divider="none"] .site-header { border-bottom-color: transparent; }
 body[data-header-divider="shadow"] .site-header { border-bottom-color: transparent; box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.18); }
