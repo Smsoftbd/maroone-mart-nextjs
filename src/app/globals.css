@@ -230,7 +230,7 @@ body {
   margin: 0 !important;
   width: 8px;
   height: 8px;
-  background: #fff;
+  background: var(--color-primary-text);
   opacity: 0.5;
   transition: width 0.25s, opacity 0.25s;
 }
@@ -276,7 +276,7 @@ body {
   margin: 0 !important;
   width: 8px;
   height: 8px;
-  background: #fff;
+  background: var(--color-primary-text);
   opacity: 0.5;
   transition: width 0.25s, opacity 0.25s;
 }

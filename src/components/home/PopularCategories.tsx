@@ -23,7 +23,7 @@ export function PopularCategories({ categories }: PopularCategoriesProps) {
   if (!categories.length) return null;
 
   return (
-    <section className="bg-gradient-to-r from-[#12b3cf] to-[#1fcb87] py-10 lg:py-12">
+    <section className="bg-gradient-to-r from-brand-500 to-brand-400 py-10 lg:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
           inverted
@@ -66,7 +66,7 @@ export function PopularCategories({ categories }: PopularCategoriesProps) {
                     <span className="text-3xl font-bold text-brand-500">{cat.name[0]}</span>
                   )}
                 </span>
-                <span className="line-clamp-2 text-xs font-medium text-white sm:text-sm">
+                <span className="line-clamp-2 text-xs font-medium text-[var(--color-primary-text)] sm:text-sm">
                   {cat.name}
                 </span>
               </Link>
