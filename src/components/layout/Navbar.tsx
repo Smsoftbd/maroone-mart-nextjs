@@ -8,7 +8,7 @@ import {
   Menu,
   Search,
   Heart,
-  ShoppingBag,
+  ShoppingCart,
   User,
   LogOut,
   Package,
@@ -51,7 +51,7 @@ export function Navbar({ store, categories }: NavbarProps) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const navCategories = categories.slice(0, 8);
+  const navCategories = categories.slice(0, 14);
 
   // Minimal (home) vs brand (everywhere else) tokens.
   const iconHover = isHome ? "hover:bg-neutral-900/[0.06]" : "hover:bg-white/15";
@@ -123,14 +123,14 @@ export function Navbar({ store, categories }: NavbarProps) {
           {/* Desktop: search + call us */}
           <div
             className={cn(
-              "hidden lg:flex items-center flex-1 justify-end",
-              isHome ? "gap-10" : "gap-8"
+              "hidden lg:flex items-center flex-1",
+              isHome ? "justify-end gap-10" : "justify-center gap-10 px-6"
             )}
           >
             <SearchBox
               categories={categories}
               currency={store.currency_symbol}
-              className="max-w-sm"
+              className={isHome ? "max-w-sm" : "max-w-xl"}
               variant={isHome ? "minimal" : "default"}
             />
 
@@ -257,12 +257,14 @@ export function Navbar({ store, categories }: NavbarProps) {
               className={cn("relative p-2 rounded-full transition-colors", iconHover)}
               aria-label={`Cart, ${totalItems} items`}
             >
-              <ShoppingBag className="h-6 w-6" strokeWidth={iconStroke} />
+              <ShoppingCart className="h-6 w-6" strokeWidth={iconStroke} />
               {totalItems > 0 && (
                 <span
                   className={cn(
-                    "absolute -top-0.5 -right-0.5 text-[10px] rounded-full h-4 min-w-4 px-1 flex items-center justify-center font-bold",
-                    isHome ? "bg-neutral-900 text-white" : "bg-white text-brand-500"
+                    "absolute -top-1 -right-1 text-[10px] rounded-full h-[18px] min-w-[18px] px-1 flex items-center justify-center",
+                    isHome
+                      ? "bg-neutral-900 text-white font-bold"
+                      : "border border-current bg-brand-500 font-medium"
                   )}
                 >
                   {totalItems > 99 ? "99+" : totalItems}
@@ -307,7 +309,7 @@ export function Navbar({ store, categories }: NavbarProps) {
                 "flex items-center overflow-hidden whitespace-nowrap",
                 isHome
                   ? "justify-center gap-8 py-3.5 text-[11px] font-medium tracking-[0.18em]"
-                  : "gap-5 py-3 text-sm font-semibold"
+                  : "gap-4 py-3 text-sm font-semibold"
               )}
             >
               {navCategories.map((cat) => {
