@@ -121,12 +121,13 @@ export function ProductImageGallery({
       : null;
 
   const frame =
-    "relative w-full aspect-square rounded-[var(--shape-image-radius,0.5rem)] overflow-hidden bg-[var(--color-card-image-bg,var(--color-surface-100))]";
+    "relative w-full aspect-square md:rounded-[var(--shape-image-radius,0.5rem)] overflow-hidden bg-[var(--color-card-image-bg,var(--color-surface-100))]";
   const left = layout === "thumbs_left";
   const grid = layout === "grid" && count > 1;
 
   return (
-    <div>
+    // Phones: edge-to-edge image with dots; thumbnails and arrows from `md`.
+    <div className="max-md:-mx-3">
       {grid && (
         <div className="hidden lg:grid grid-cols-2 gap-3">
           {images.map((img, i) =>
@@ -171,7 +172,7 @@ export function ProductImageGallery({
         {count > 1 && (
           <div
             className={cn(
-              "order-2 mt-3 flex gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 lg:mx-0 lg:px-0.5 lg:py-0.5",
+              "order-2 mt-3 hidden gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 md:flex lg:mx-0 lg:px-0.5 lg:py-0.5",
               left && "lg:order-1 lg:mt-0 lg:flex-col lg:overflow-x-visible lg:max-h-[28rem] lg:overflow-y-auto"
             )}
           >
@@ -263,7 +264,7 @@ export function ProductImageGallery({
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
+                className="absolute left-3 top-1/2 -translate-y-1/2 hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -271,16 +272,37 @@ export function ProductImageGallery({
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
+                className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
-              <span className="absolute bottom-3 left-3 rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white tabular-nums pointer-events-none">
+              <span className="absolute bottom-3 left-3 hidden md:inline rounded-full bg-black/55 px-2.5 py-1 text-xs font-medium text-white tabular-nums pointer-events-none">
                 {activeIndex + 1} / {count}
               </span>
             </>
           )}
         </div>
+
+        {count > 1 && (
+          <div className="order-3 flex items-center justify-center gap-1.5 py-3 md:hidden">
+            {images.map((img, i) => (
+              <button
+                key={img.id ?? i}
+                type="button"
+                onClick={() => {
+                  setOrigin(null);
+                  setActiveIndex(i);
+                }}
+                aria-label={`View image ${i + 1}`}
+                aria-pressed={i === activeIndex}
+                className={cn(
+                  "h-2 rounded-full transition-all",
+                  i === activeIndex ? "w-6 bg-brand-500" : "w-2 bg-[var(--color-border-dark)]"
+                )}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

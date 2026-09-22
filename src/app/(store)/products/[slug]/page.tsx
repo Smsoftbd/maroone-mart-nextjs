@@ -105,7 +105,7 @@ export default async function ProductPage({ params }: PageProps) {
   const shareUrl = `${SITE_URL}/products/${product.slug}`;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-16 lg:pt-6">
+    <div className="product-page max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-8 md:pt-4 md:pb-16 lg:pt-6">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -118,14 +118,14 @@ export default async function ProductPage({ params }: PageProps) {
       />
 
       {store.theme.page.breadcrumbs && (
-      <div className="text-xs [&_ol]:text-xs [&_li:last-child]:max-w-[12rem] sm:[&_li:last-child]:max-w-xs [&_li:last-child_span]:truncate [&_li:last-child]:min-w-0">
+      <div className="hidden md:block text-xs [&_ol]:text-xs [&_li:last-child]:max-w-[12rem] sm:[&_li:last-child]:max-w-xs [&_li:last-child_span]:truncate [&_li:last-child]:min-w-0">
         <Breadcrumb
           items={breadcrumbItems.map((i) => ({ label: i.name, href: i.url }))}
         />
       </div>
       )}
 
-      <div className="mt-4">
+      <div className="md:mt-4">
         <ProductInfo
           product={product}
           currency={store.currency_symbol}

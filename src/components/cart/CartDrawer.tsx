@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, ShoppingBag, Trash2 } from "lucide-react";
+import { Loader2, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { Drawer } from "@/components/ui/Drawer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CartItem } from "./CartItem";
@@ -105,10 +105,18 @@ export function CartDrawer({ currency }: CartDrawerProps) {
               </button>
             )}
           </div>
-          <div className="flex-1 px-4">
+          <div className="flex-1 px-4 max-md:px-3 max-md:pt-1">
             {items.map((item) => (
               <CartItem key={item.id} item={item} currency={currency} onNavigate={closeCart} />
             ))}
+            <button
+              type="button"
+              onClick={closeCart}
+              className="mx-auto mb-4 mt-2 flex items-center gap-2 text-[15px] font-medium text-[var(--color-brand-secondary,var(--color-secondary-500))] md:hidden"
+            >
+              <Plus className="h-5 w-5" />
+              {t("shop_more", "Shop more")}
+            </button>
           </div>
           <div className="sticky bottom-0 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
             <CartSummary

@@ -36,9 +36,17 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
   }, [layout, panels]);
 
   if (layout === "tabs") {
+    // Phones: the tabs become a jump nav and every panel is shown, stacked
+    // between grey bands (see .info-tabs in globals.css).
+    const select = (id: string) => {
+      setActive(id);
+      if (window.matchMedia("(max-width: 767px)").matches) {
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    };
     return (
-      <section className="mt-8">
-        <div role="tablist" className="flex gap-6 overflow-x-auto scrollbar-none border-b [border-bottom-style:var(--shape-divider-style,solid)] border-[var(--color-border)]">
+      <section className="info-tabs mt-8">
+        <div role="tablist" className="flex gap-6 overflow-x-auto scrollbar-none border-b [border-bottom-style:var(--shape-divider-style,solid)] border-[var(--color-border)] max-md:grid max-md:grid-flow-col max-md:auto-cols-fr max-md:gap-0">
           {panels.map((p) => (
             <button
               key={p.id}
@@ -47,27 +55,31 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
               id={`${p.id}-tab`}
               aria-selected={active === p.id}
               aria-controls={p.id}
-              onClick={() => setActive(p.id)}
+              onClick={() => select(p.id)}
               className={cn(
-                "-mb-px whitespace-nowrap border-b-2 pb-3 text-sm font-medium transition-colors",
+                "-mb-px whitespace-nowrap border-b-2 pb-3 text-sm font-medium transition-colors max-md:whitespace-normal max-md:border-b-0 max-md:px-1 max-md:py-3 max-md:text-sm max-md:font-normal max-md:!text-[var(--color-text-primary)] max-md:[&:not(:first-child)]:border-l max-md:[&:not(:first-child)]:border-l-[var(--color-border-dark)]",
                 active === p.id
                   ? "border-brand-500 text-brand-ink"
                   : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
               )}
             >
-              {p.label}
+              <span className="md:hidden">{p.label.replace(/\s*\(\d+\)$/, "")}</span>
+              <span className="hidden md:inline">{p.label}</span>
             </button>
           ))}
         </div>
-        {panels.map((p) => (
+        {panels.map((p, i) => (
           <div
             key={p.id}
             id={p.id}
             role="tabpanel"
             aria-labelledby={`${p.id}-tab`}
-            hidden={active !== p.id}
-            className="scroll-mt-32 pt-6"
+            // Class, not `hidden`: phones show every panel (preflight's [hidden] is !important).
+            className={cn("scroll-mt-32 pt-6", active !== p.id && "md:hidden")}
           >
+            {i > 0 && (
+              <h2 className="mb-4 text-[22px] font-bold text-[var(--color-text-primary)] md:hidden">{p.label}</h2>
+            )}
             {p.content}
           </div>
         ))}

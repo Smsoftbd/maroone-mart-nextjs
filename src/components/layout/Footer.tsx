@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, Phone, Mail } from "lucide-react";
+import { MapPin, Phone, Mail, ChevronDown } from "lucide-react";
 import type { Store, PageSummary, PaymentMethod } from "@/lib/api/types";
 import { socialIcons } from "./social-icons";
 import { FooterNewsletter } from "./FooterNewsletter";
@@ -17,6 +17,17 @@ interface FooterProps {
 
 const linkClass = "footer-link transition-colors";
 const headingClass = "mb-5 text-sm font-semibold text-[var(--color-footer-heading,var(--color-footer-text))]";
+/** Brand colors for the phone footer's social row. */
+const SOCIAL_COLORS: Record<string, string> = {
+  facebook: "#1877F2",
+  youtube: "#FF0000",
+  whatsapp: "#25D366",
+  twitter: "#1DA1F2",
+  linkedin: "#0A66C2",
+  instagram: "#E4405F",
+  tiktok: "#FFFFFF",
+  pinterest: "#E60023",
+};
 
 /**
  * Site footer, driven by page.footer_style:
@@ -94,41 +105,129 @@ export async function Footer({ store, pages = [] }: FooterProps) {
     />
   );
 
+
+  const payments = paymentMethods.length > 0 && (
+    <div className="flex flex-wrap items-center gap-2" aria-label={t("payment_methods", "Payment Methods")}>
+      {paymentMethods.map((m) => {
+        const name = resolveL10n(m.name);
+        return m.icon && !m.icon.includes("no_image") ? (
+          <Image
+            key={m.id}
+            src={m.icon}
+            alt={name}
+            title={name}
+            width={56}
+            height={28}
+            className="h-6 w-auto rounded bg-white object-contain p-0.5"
+          />
+        ) : (
+          <span key={m.id} className="rounded bg-[color-mix(in_srgb,currentColor_12%,transparent)] px-2 py-1">
+            {name}
+          </span>
+        );
+      })}
+    </div>
+  );
+
+  const contactList = (
+    <ul className="space-y-3 text-[15px] md:text-sm">
+      {store.address && (
+        <li className="flex items-start gap-3 leading-relaxed">
+          <MapPin className="mt-0.5 h-5 w-5 shrink-0 max-md:fill-[var(--color-tertiary-500)] max-md:text-[var(--color-footer-bg,var(--color-footer))]" />
+          {store.address}
+        </li>
+      )}
+      {phones.length > 0 && (
+        <li className="flex items-center gap-3">
+          <Phone className="h-4 w-4 shrink-0" />
+          <span className="flex flex-wrap gap-x-3">
+            {phones.map((p) => (
+              <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className={linkClass}>
+                {p}
+              </a>
+            ))}
+          </span>
+        </li>
+      )}
+      {store.email && (
+        <li className="flex items-center gap-3">
+          <Mail className="h-4 w-4 shrink-0" />
+          <a href={`mailto:${store.email}`} className={`${linkClass} break-all`}>
+            {store.email}
+          </a>
+        </li>
+      )}
+    </ul>
+  );
+
+  const accordion = (title: string, links: { href: string; label: string }[]) => (
+    <details className="footer-accordion group">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-2 text-[15px] font-medium text-[var(--color-brand-secondary,var(--color-secondary-500))] [&::-webkit-details-marker]:hidden">
+        {title}
+        <ChevronDown className="h-5 w-5 text-[var(--color-footer-text)] opacity-70 transition-transform group-open:rotate-180" />
+      </summary>
+      <ul className="space-y-2.5 pb-3 pt-1 text-sm">
+        {links.map((l) => (
+          <li key={l.href}>
+            <Link href={l.href} className={linkClass}>
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
+
+  /** Phones: contact, collapsible link groups, brand-colored socials, payments. */
+  const mobileFooter = (
+    <div className="space-y-5 px-4 pb-6 pt-6 md:hidden">
+      {logo}
+      {contactList}
+      <div>
+        {accordion(t("company", "Company"), companyLinks)}
+        {accordion(t("help", "Help"), helpLinks)}
+      </div>
+      {socials.length > 0 && (
+        <div>
+          <h6 className="mb-3 text-[15px] font-medium">{t("social_links", "Social Links")}</h6>
+          <div className="flex flex-wrap items-center gap-5">
+            {socials.map(([key, url]) => (
+              <a
+                key={key}
+                href={url as string}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={key}
+                style={{ color: SOCIAL_COLORS[key] }}
+                className="transition-opacity hover:opacity-75"
+              >
+                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                  {socialIcons[key]}
+                </svg>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+      {payments && (
+        <div>
+          <h6 className="mb-3 text-[15px] font-medium">{t("payment_methods", "Payment Methods")}</h6>
+          {payments}
+        </div>
+      )}
+      {newsletter}
+    </div>
+  );
+
   return (
-    <footer className="site-footer mt-auto">
+    <footer className="site-footer mt-auto max-md:rounded-t-2xl">
+      {style !== "minimal" && mobileFooter}
       {style === "columns" && (
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
+        <div className="mx-auto hidden max-w-7xl px-4 py-12 md:block sm:px-6 lg:px-8 lg:py-14">
           <div className="grid grid-cols-2 gap-10 lg:grid-cols-4 lg:gap-12">
             <div className="col-span-2 space-y-6 lg:col-span-1">
               {logo}
-              <ul className="space-y-3 text-sm">
-                {store.address && (
-                  <li className="flex items-start gap-3 leading-relaxed">
-                    <MapPin className="mt-0.5 h-5 w-5 shrink-0" />
-                    {store.address}
-                  </li>
-                )}
-                {phones.length > 0 && (
-                  <li className="flex items-center gap-3">
-                    <Phone className="h-4 w-4 shrink-0" />
-                    <span className="flex flex-wrap gap-x-3">
-                      {phones.map((p) => (
-                        <a key={p} href={`tel:${p.replace(/\s+/g, "")}`} className={linkClass}>
-                          {p}
-                        </a>
-                      ))}
-                    </span>
-                  </li>
-                )}
-                {store.email && (
-                  <li className="flex items-center gap-3">
-                    <Mail className="h-4 w-4 shrink-0" />
-                    <a href={`mailto:${store.email}`} className={`${linkClass} break-all`}>
-                      {store.email}
-                    </a>
-                  </li>
-                )}
-              </ul>
+              {contactList}
               {newsletter}
             </div>
 
@@ -168,7 +267,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
       )}
 
       {style === "centered" && (
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 py-12 text-center sm:px-6">
+        <div className="mx-auto hidden max-w-3xl md:flex flex-col items-center gap-6 px-4 py-12 text-center sm:px-6">
           {logo}
           {store.tagline && <p className="max-w-xl text-sm leading-relaxed">{store.tagline}</p>}
           <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
@@ -194,28 +293,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
             )}
           </span>
           {style === "minimal" && socialRow}
-          {paymentMethods.length > 0 && (
-            <div className="flex flex-wrap items-center justify-center gap-2" aria-label={t("payment_methods", "Payment Methods")}>
-              {paymentMethods.map((m) => {
-                const name = resolveL10n(m.name);
-                return m.icon && !m.icon.includes("no_image") ? (
-                  <Image
-                    key={m.id}
-                    src={m.icon}
-                    alt={name}
-                    title={name}
-                    width={56}
-                    height={28}
-                    className="h-6 w-auto rounded bg-white object-contain p-0.5"
-                  />
-                ) : (
-                  <span key={m.id} className="rounded bg-[color-mix(in_srgb,currentColor_12%,transparent)] px-2 py-1">
-                    {name}
-                  </span>
-                );
-              })}
-            </div>
-          )}
+          {paymentMethods.length > 0 && <div className="hidden md:block">{payments}</div>}
         </div>
       </div>
     </footer>

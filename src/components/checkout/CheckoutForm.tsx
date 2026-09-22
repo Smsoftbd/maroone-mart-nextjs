@@ -12,7 +12,7 @@ import { ShippingSelector } from "./ShippingSelector";
 import { PaymentSelector } from "./PaymentSelector";
 import { CouponInput } from "./CouponInput";
 import Link from "next/link";
-import { HandCoins } from "lucide-react";
+import { HandCoins, Plus } from "lucide-react";
 import { CheckoutItem } from "./CheckoutItem";
 import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/stores/cartStore";
@@ -77,6 +77,8 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
   const { authMode, guestCheckout, checkoutOtp } = useStoreConfig();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
+  // Phones list two items, then fade the third behind a "+N more" button.
+  const [showAllItems, setShowAllItems] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
   const [couponOpen, setCouponOpen] = useState(false);
@@ -379,7 +381,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6 items-start">
         {/* ── Left: customer details + payment ── */}
         <div className="lg:col-start-1 lg:row-start-1">
-          <p className="text-[17px] font-medium leading-relaxed pb-4 border-b border-[var(--color-border)]">
+          <p className="text-[17px] font-medium leading-relaxed pb-4 border-b border-[var(--color-border)] max-md:font-semibold">
             {t(
               "checkout_instruction",
               "To confirm your order, enter your name, address and mobile number, then click the Confirm Order button"
@@ -448,8 +450,8 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
           <input type="hidden" {...register("state")} />
           <input type="hidden" {...register("country")} />
 
-          <div className="border-t-2 border-dashed border-[var(--color-border-dark)] mt-10 pt-8">
-            <h2 className="flex items-center gap-2.5 text-xl font-bold mb-10">
+          <div className="border-t-2 border-dashed border-[var(--color-border-dark)] mt-10 pt-8 max-md:-mx-3 max-md:mt-6 max-md:border-t-8 max-md:border-solid max-md:border-[var(--color-neutral-surface-alt,var(--color-surface-100))] max-md:px-3 max-md:pt-5">
+            <h2 className="flex items-center gap-2.5 text-xl font-bold mb-10 max-md:mb-6">
               <HandCoins className="h-7 w-7 text-brand-ink" />
               {t("how_to_pay", "How would you like to pay")}
             </h2>
@@ -461,13 +463,37 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
         </div>
 
         {/* ── Right: order summary ── */}
-        <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-lg bg-surface-100 p-4 sm:p-6">
-          <h2 className="text-lg font-medium mb-4">{t("your_order", "Your Order")}</h2>
+        <div className="-mx-3 -mb-3 h-2 bg-[var(--color-neutral-surface-alt,var(--color-surface-100))] md:hidden" aria-hidden />
+        <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-lg bg-surface-100 p-4 sm:p-6 max-md:rounded-xl max-md:bg-slate-200/70 max-md:p-3">
+          <h2 className="text-lg font-medium mb-4 max-md:mb-3 max-md:mt-1 max-md:px-1">{t("your_order", "Your Order")}</h2>
 
-          <div className="space-y-4">
-            {items.map((item) => (
-              <CheckoutItem key={item.id} item={item} currency={currency} storeName={storeName} />
-            ))}
+          <div className="space-y-4 max-md:space-y-3">
+            {items.map((item, i) => {
+              const collapsed = !showAllItems && items.length > 3;
+              return (
+                <div
+                  key={item.id}
+                  className={cn(
+                    collapsed && i === 2 && "relative max-md:max-h-[110px] max-md:overflow-hidden",
+                    collapsed && i > 2 && "max-md:hidden"
+                  )}
+                >
+                  <div className={cn(collapsed && i === 2 && "max-md:pointer-events-none max-md:opacity-30")}>
+                    <CheckoutItem item={item} currency={currency} storeName={storeName} />
+                  </div>
+                  {collapsed && i === 2 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllItems(true)}
+                      className="absolute inset-0 flex items-center justify-center gap-1.5 text-[15px] font-medium text-brand-ink md:hidden"
+                    >
+                      <Plus className="h-4 w-4" />
+                      {t("more_items", "More")} {items.length - 2}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
 
           <div className="mt-8 rounded-lg border border-brand-500/25 bg-brand-500/5 px-4 py-5">
@@ -540,7 +566,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
           </dl>
         </aside>
 
-        <div className="lg:col-start-1 lg:row-start-2">
+        <div className="hidden md:block lg:col-start-1 lg:row-start-2">
           <Button
             type="submit"
             variant="primary"
@@ -552,6 +578,24 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
             {t("confirm_order", "Confirm Order")}
           </Button>
         </div>
+      </div>
+
+      {/* Phones: payable total + confirm, pinned to the bottom. */}
+      <div className="checkout-bar fixed inset-x-0 bottom-0 z-40 flex items-center gap-4 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] md:hidden">
+        <div className="shrink-0 leading-tight">
+          <p className="text-[15px] text-[var(--color-text-primary)]">{t("total", "Total")}:</p>
+          <p className="text-[17px] font-bold tabular-nums">{formatPrice(total, currency)}</p>
+        </div>
+        <Button
+          type="submit"
+          variant="primary"
+          size="lg"
+          className="min-h-[52px] flex-1 rounded-lg font-bold"
+          loading={isSubmitting}
+          disabled={items.length === 0}
+        >
+          {t("confirm_order", "Confirm Order")}
+        </Button>
       </div>
 
       <Modal

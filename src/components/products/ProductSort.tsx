@@ -2,11 +2,12 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { ArrowDownWideNarrow, Check, ChevronDown } from "lucide-react";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils/cn";
 
-export function ProductSort() {
+/** `select` = labelled dropdown; `button` = the phone's grey "Sort" button (same menu). */
+export function ProductSort({ variant = "select" }: { variant?: "select" | "button" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const t = useT();
@@ -50,27 +51,46 @@ export function ProductSort() {
   };
 
   return (
-    <div ref={rootRef} className="relative flex items-center gap-3 text-sm">
-      <span className="hidden text-slate-600 sm:inline">{t("sort_by", "Sort by")}:</span>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={t("sort_products", "Sort products")}
-        className="flex h-11 w-40 items-center justify-between gap-2 rounded-md border border-slate-300 bg-surface px-4 text-slate-800 transition-colors hover:border-brand-500 sm:w-[288px]"
-      >
-        <span className="truncate">{currentLabel}</span>
-        <ChevronDown
-          className={cn("h-4 w-4 shrink-0 transition-transform duration-200", open && "rotate-180")}
-        />
-      </button>
+    <div ref={rootRef} className={cn("relative flex items-center gap-3 text-sm", variant === "button" && "min-w-0 flex-1")}>
+      {variant === "button" ? (
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-label={t("sort_products", "Sort products")}
+          className={cn(
+            "flex h-12 w-full items-center justify-center gap-2.5 rounded-lg bg-slate-200/70 px-4 text-[15px] text-slate-800 transition-colors hover:bg-slate-200",
+            current && "text-brand-ink"
+          )}
+        >
+          <ArrowDownWideNarrow className="h-5 w-5" strokeWidth={1.75} />
+          <span className="truncate">{t("sort_button", "Sort")}</span>
+        </button>
+      ) : (
+        <>
+          <span className="hidden text-slate-600 sm:inline">{t("sort_by", "Sort by")}:</span>
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            aria-label={t("sort_products", "Sort products")}
+            className="flex h-11 w-40 items-center justify-between gap-2 rounded-md border border-slate-300 bg-surface px-4 text-slate-800 transition-colors hover:border-brand-500 sm:w-[288px]"
+          >
+            <span className="truncate">{currentLabel}</span>
+            <ChevronDown
+              className={cn("h-4 w-4 shrink-0 transition-transform duration-200", open && "rotate-180")}
+            />
+          </button>
+        </>
+      )}
 
       {open && (
         <ul
           role="listbox"
           aria-label={t("sort_products", "Sort products")}
-          className="absolute right-0 top-full z-30 mt-1 w-full min-w-56 sm:w-[288px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-surface py-1 shadow-lg shadow-black/5"
+          className="absolute left-0 top-full z-30 mt-1 w-full min-w-56 sm:left-auto sm:right-0 sm:w-[288px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-surface py-1 shadow-lg shadow-black/5"
         >
           {sortOptions.map((o) => {
             const selected = o.value === current;

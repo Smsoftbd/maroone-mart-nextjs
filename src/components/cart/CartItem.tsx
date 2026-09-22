@@ -54,12 +54,12 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
   const remove = () => run(() => removeItem(item.id));
 
   const stepperBtn =
-    "w-9 h-9 flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 hover:text-brand-ink disabled:hover:bg-transparent";
+    "w-9 h-9 max-md:w-7 max-md:h-7 max-md:rounded-md max-md:border max-md:border-[var(--color-border-dark)] flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 hover:text-brand-ink disabled:hover:bg-transparent";
 
   return (
     <div
       className={cn(
-        "cart-card flex gap-3 py-4 border-b border-[var(--color-border)] last:border-b-0 transition-opacity",
+        "cart-card relative flex gap-3 py-4 border-b border-[var(--color-border)] last:border-b-0 transition-opacity max-md:mb-3 max-md:rounded-xl max-md:border max-md:bg-[var(--color-surface)] max-md:p-3 max-md:last:border-b",
         pending && "opacity-60"
       )}
     >
@@ -70,7 +70,7 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
             alt={productName}
             width={88}
             height={88}
-            className="h-[88px] w-[88px] object-cover rounded-lg border border-[var(--color-border)]"
+            className="h-[88px] w-[88px] object-cover rounded-lg border border-[var(--color-border)] max-md:h-[72px] max-md:w-[72px] max-md:rounded-md max-md:border-0"
           />
         ) : (
           <div className="h-[88px] w-[88px] rounded-lg border border-[var(--color-border)] bg-surface-100 flex items-center justify-center text-xs text-[var(--color-text-muted)]">
@@ -84,11 +84,11 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
           <Link
             href={productHref}
             onClick={onNavigate}
-            className="product-title text-sm font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-ink transition-colors"
+            className="product-title text-sm font-semibold text-[var(--color-text-primary)] font-body line-clamp-2 hover:text-brand-ink transition-colors max-md:line-clamp-1 max-md:pr-7 max-md:text-[15px]"
           >
             {productName}
           </Link>
-          <p className="shrink-0 font-bold text-[var(--color-text-primary)] tabular-nums">
+          <p className="shrink-0 font-bold text-[var(--color-text-primary)] tabular-nums max-md:hidden">
             {formatPrice(lineTotal, currency)}
           </p>
         </div>
@@ -115,8 +115,8 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
           </div>
         )}
 
-        <p className="text-xs text-[var(--color-text-secondary)] tabular-nums">
-          {formatPrice(unitPrice, currency)} {t("each", "each")}
+        <p className="text-xs text-[var(--color-text-secondary)] tabular-nums max-md:text-base max-md:text-[var(--color-tertiary-500)]">
+          {formatPrice(unitPrice, currency)} <span className="max-md:hidden">{t("each", "each")}</span>
           {lowStock && (
             <span className="ml-2 font-medium text-[var(--color-warning)]">
               {atMax
@@ -126,15 +126,22 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
           )}
         </p>
 
-        <div className="flex items-center justify-between mt-auto pt-1">
-          <div className="inline-flex items-center border border-[var(--color-border)] rounded-lg overflow-hidden text-[var(--color-text-primary)]">
+        <div className="flex items-center justify-between mt-auto pt-1 max-md:flex-row-reverse max-md:pt-0">
+          <div className="inline-flex items-center border border-[var(--color-border)] rounded-lg overflow-hidden text-[var(--color-text-primary)] max-md:gap-1.5 max-md:overflow-visible max-md:border-0">
             <button
               onClick={decrease}
               disabled={pending}
               aria-label={atMin ? t("remove_item", "Remove item") : t("decrease_qty", "Decrease quantity")}
-              className={cn(stepperBtn, atMin && "text-red-500 hover:bg-red-50")}
+              className={cn(stepperBtn, atMin && "text-red-500 hover:bg-red-50 max-md:text-[var(--color-text-muted)]")}
             >
-              {atMin ? <Trash2 className="h-4 w-4" /> : <Minus className="h-4 w-4" strokeWidth={2} />}
+              {atMin ? (
+                <>
+                  <Trash2 className="h-4 w-4 max-md:hidden" />
+                  <Minus className="h-4 w-4 md:hidden" strokeWidth={2} />
+                </>
+              ) : (
+                <Minus className="h-4 w-4" strokeWidth={2} />
+              )}
             </button>
             <span className="w-9 text-center font-semibold tabular-nums" aria-live="polite">
               {pending ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : item.quantity}
@@ -144,7 +151,7 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
               disabled={pending || atMax}
               aria-label={t("increase_qty", "Increase quantity")}
               title={atMax ? t("max_stock_reached", "Max available") : undefined}
-              className={stepperBtn}
+              className={cn(stepperBtn, "max-md:border-[var(--color-text-primary)]")}
             >
               <Plus className="h-4 w-4" strokeWidth={2} />
             </button>
@@ -153,10 +160,11 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
           <button
             onClick={remove}
             disabled={pending}
-            className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-red-500 transition-colors disabled:opacity-50"
+            aria-label={t("remove", "Remove")}
+            className="inline-flex items-center gap-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-red-500 transition-colors disabled:opacity-50 max-md:absolute max-md:right-3 max-md:top-3 max-md:text-red-500"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-            {t("remove", "Remove")}
+            <Trash2 className="h-3.5 w-3.5 max-md:h-[18px] max-md:w-[18px]" />
+            <span className="max-md:hidden">{t("remove", "Remove")}</span>
           </button>
         </div>
       </div>

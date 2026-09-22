@@ -56,7 +56,7 @@ export function Drawer({
             className={cn(
               "absolute top-0 bottom-0 bg-surface shadow-xl flex flex-col",
               side === "right" ? "right-0" : "left-0",
-              "w-full max-w-md",
+              "w-[85%] max-w-md sm:w-full",
               className
             )}
             variants={slideVariants}
@@ -68,16 +68,16 @@ export function Drawer({
             aria-modal="true"
             aria-label={title}
           >
-            <div className="flex items-center justify-between px-5 py-4 border-b border-surface-100">
+            <div className="flex items-center justify-between border-b border-[var(--color-border)] px-3 py-3.5 sm:px-5 sm:py-4">
               {title && (
-                <h2 className="font-display text-lg font-semibold">{title}</h2>
+                <h2 className="font-display text-lg font-bold sm:font-semibold">{title}</h2>
               )}
               <button
                 onClick={onClose}
-                className="ml-auto p-1.5 rounded-full hover:bg-surface-100 transition-colors"
+                className="ml-auto flex h-8 w-8 items-center justify-center rounded-full bg-slate-500 text-white transition-colors hover:bg-slate-600"
                 aria-label="Close"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5" strokeWidth={2.5} />
               </button>
             </div>
             <div className="flex-1 overflow-y-auto">{children}</div>

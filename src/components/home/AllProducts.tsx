@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { SectionHeader } from "./SectionHeader";
+import { MobileViewAll, SectionHeader } from "./SectionHeader";
 import { getServerT } from "@/lib/i18n/server";
 import type { Product } from "@/lib/api/types";
 
@@ -22,7 +22,7 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
   const pageHref = (p: number) => (p <= 1 ? "/products" : `/products?page=${p}`);
 
   const pagerBtn =
-    "flex h-8 min-w-8 items-center justify-center rounded-md border px-2 text-sm tabular-nums transition-colors";
+    "flex h-11 min-w-11 items-center justify-center rounded-md border px-2 text-base tabular-nums transition-colors md:h-8 md:min-w-8 md:text-sm";
 
   return (
     <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
@@ -39,8 +39,8 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
         list={{ id: "home_all_products", name: "All products" }}
       />
 
-      <div className="mt-8 flex flex-col items-center justify-between gap-4 sm:flex-row">
-        <p className="text-sm text-slate-600">
+      <div className="mt-4 flex flex-col items-start justify-between gap-4 border-t border-[var(--color-border)] pt-3 sm:flex-row sm:items-center md:mt-8 md:border-0 md:pt-0">
+        <p className="text-sm text-[var(--color-text-primary)] md:text-slate-600">
           {t("showing_x_of_y", "Showing :count of :total")
             .replace(":count", String(products.length))
             .replace(":total", String(total))}
@@ -48,7 +48,7 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
 
         {lastPage > 1 && (
           <nav aria-label="Pagination" className="flex items-center gap-1.5">
-            <span className={`${pagerBtn} pointer-events-none border-slate-200 text-slate-300`} aria-hidden>
+            <span className={`${pagerBtn} pointer-events-none border-slate-200 text-slate-300 max-md:min-w-16`} aria-hidden>
               <ChevronLeft className="h-4 w-4" />
             </span>
             {pages.map((p) => (
@@ -59,7 +59,7 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
                 className={
                   p === 1
                     ? `${pagerBtn} border-brand-500 text-brand-ink font-semibold`
-                    : `${pagerBtn} border-transparent text-slate-700 hover:border-slate-200`
+                    : `${pagerBtn} border-slate-200 text-slate-700 md:border-transparent hover:border-slate-200`
                 }
               >
                 {p}
@@ -68,13 +68,14 @@ export async function AllProducts({ products, total, currency }: AllProductsProp
             <Link
               href={pageHref(2)}
               aria-label="Next page"
-              className={`${pagerBtn} border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-ink`}
+              className={`${pagerBtn} border-slate-200 text-slate-700 hover:border-brand-500 hover:text-brand-ink max-md:min-w-16`}
             >
               <ChevronRight className="h-4 w-4" />
             </Link>
           </nav>
         )}
       </div>
+      <MobileViewAll href="/products" label={t("view_all", "View All")} />
     </section>
   );
 }

@@ -20,12 +20,12 @@ export function SectionHeader({ title, subtitle, icon, viewAllHref, viewAllLabel
   const ink = inverted ? "text-[var(--color-section-category-band-text,var(--color-secondary-text))]" : "";
   return (
     <div
-      className={`section-head mb-6 flex items-end justify-between gap-x-4 gap-y-2 ${
-        inverted ? "" : "border-b [border-bottom-style:var(--shape-divider-style,solid)] border-[var(--color-border)] pb-4"
+      className={`section-head mb-4 flex items-end justify-between gap-x-4 gap-y-2 md:mb-6 ${
+        inverted ? "" : "md:border-b [border-bottom-style:var(--shape-divider-style,solid)] border-[var(--color-border)] md:pb-4"
       }`}
     >
       <div className="flex min-w-0 flex-col gap-1">
-        <h2 className={`section-title flex items-center gap-2 text-lg font-bold md:text-xl ${ink}`}>
+        <h2 className={`section-title flex items-center gap-2 text-xl font-bold ${ink}`}>
           {icon}
           {title}
         </h2>
@@ -34,12 +34,23 @@ export function SectionHeader({ title, subtitle, icon, viewAllHref, viewAllLabel
       {viewAllHref && viewAllLabel && (
         <Link
           href={viewAllHref}
-          className={`section-link flex shrink-0 items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-75 ${ink}`}
+          className={`section-link hidden shrink-0 items-center gap-1.5 text-sm md:flex font-medium transition-opacity hover:opacity-75 ${ink}`}
         >
           {viewAllLabel}
           <ArrowRight className="h-4 w-4" />
         </Link>
       )}
     </div>
+  );
+}
+
+/** Phones: full-width outlined "View all" under a section (the header link is desktop-only). */
+export function MobileViewAll({ href, label, inverted }: { href?: string; label?: string; inverted?: boolean }) {
+  if (!href || !label) return null;
+  return (
+    <Link href={href} className={`mobile-view-all md:hidden ${inverted ? "is-inverted" : ""}`}>
+      {label}
+      <ArrowRight className="h-5 w-5" strokeWidth={1.75} />
+    </Link>
   );
 }

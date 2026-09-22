@@ -27,6 +27,7 @@ import { getServerT } from "@/lib/i18n/server";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { organizationSchema, websiteSchema } from "@/lib/utils/structured-data";
 import type { HomepageSection } from "@/lib/api/types";
+import Link from "next/link";
 
 export const revalidate = 300;
 
@@ -150,6 +151,7 @@ export default async function HomePage() {
             currency={currency}
             layout={layout}
             list={{ id: "new_arrivals", name: "New arrivals" }}
+            mobile="list"
           />
         );
       case "top_selling":
@@ -216,6 +218,19 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: websiteSchema(store) }}
       />
+
+      {/* Phones: quick links under the header (desktop has them in the nav). */}
+      <nav className="home-quick-links md:hidden" aria-label={t("quick_links", "Quick links")}>
+        {[
+          { href: "/categories", label: t("categories", "Categories") },
+          { href: "/flash-sale", label: t("flash_sale", "Flash Sale") },
+          { href: "/products", label: t("all_products", "All Products") },
+        ].map((l) => (
+          <Link key={l.href} href={l.href}>
+            {l.label}
+          </Link>
+        ))}
+      </nav>
 
       {lastShopIndex < 0 && extras}
       {sections.map((s, i) => (

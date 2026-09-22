@@ -47,7 +47,7 @@ export function LanguageSwitcher({ languages, buttonClassName }: LanguageSwitche
   }
 
   return (
-    <div className="relative hidden md:block" ref={ref}>
+    <div className="relative" ref={ref}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -60,9 +60,9 @@ export function LanguageSwitcher({ languages, buttonClassName }: LanguageSwitche
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <Globe className="h-5 w-5" />
-        <span className="font-normal uppercase">{current.code}</span>
-        <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+        <Globe className="hidden h-5 w-5 md:block" />
+        <span className="text-xs font-semibold uppercase md:text-sm md:font-normal">{current.code}</span>
+        <ChevronDown className={cn("hidden h-4 w-4 transition-transform md:block", open && "rotate-180")} />
       </button>
 
       {open && (

@@ -53,9 +53,9 @@ export function FlashSaleBanner({
   const list = { id: `home_flash_sale_${sale.id}`, name: `Flash sale: ${sale.title}` };
 
   return (
-    <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
+    <section className="home-section mobile-rail max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
       <div className="flash-sale rounded-[var(--shape-section-radius,1rem)] bg-[var(--color-commerce-flash-sale-bg,var(--color-secondary-500))] p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4 sm:mb-6">
           <div className="text-[var(--color-commerce-flash-sale-text,var(--color-secondary-text))]">
             <div className="flex flex-wrap items-center gap-3">
               <Zap className="h-6 w-6 fill-current" />

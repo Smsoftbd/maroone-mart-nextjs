@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { MobileViewAll } from "@/components/home/SectionHeader";
 import { ProductGrid } from "./ProductGrid";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n/I18nProvider";
@@ -50,14 +51,14 @@ export function RelatedProducts({
   if (!isLoading && products.length === 0) return null;
 
   return (
-    <section id="same-category-products" className="mt-14 lg:mt-20">
-      <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="font-display text-lg sm:text-xl font-semibold">
+    <section id="same-category-products" className="phone-band mt-14 lg:mt-20">
+      <div className="mb-4 flex items-end justify-between gap-4 md:mb-6">
+        <h2 className="font-display text-[22px] font-bold sm:text-xl md:font-semibold">
           {t("more_from_category", "More products from this category")}
         </h2>
         <Link
           href={`/products?category=${encodeURIComponent(categorySlug)}`}
-          className="shrink-0 text-sm font-medium text-[var(--color-text-secondary)] underline-offset-4 hover:text-[var(--color-text-primary)] hover:underline"
+          className="hidden shrink-0 text-sm font-medium text-[var(--color-text-secondary)] underline-offset-4 md:inline hover:text-[var(--color-text-primary)] hover:underline"
         >
           {t("view_all", "View all")}
         </Link>
@@ -76,6 +77,7 @@ export function RelatedProducts({
           list={{ id: "related_products", name: "Related products" }}
         />
       )}
+      <MobileViewAll href={`/products?category=${encodeURIComponent(categorySlug)}`} label={t("view_all", "View all")} />
     </section>
   );
 }

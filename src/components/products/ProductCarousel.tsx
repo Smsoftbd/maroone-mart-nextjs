@@ -32,7 +32,7 @@ export function ProductCarousel({
 }: ProductCarouselProps) {
   const { layout } = useTheme();
   const perRow = columns ?? layout.products_per_row;
-  const mobile = layout.mobile_columns === 1 ? 1.15 : 2.15;
+  const mobile = layout.mobile_columns === 1 ? 1.15 : 1.9;
   const [prevEl, setPrevEl] = useState<HTMLButtonElement | null>(null);
   const [nextEl, setNextEl] = useState<HTMLButtonElement | null>(null);
 
@@ -47,8 +47,8 @@ export function ProductCarousel({
           grabCursor
           watchOverflow
           breakpoints={{
-            0: { slidesPerView: mobile },
-            640: { slidesPerView: Math.min(3, perRow) },
+            0: { slidesPerView: mobile, spaceBetween: 10 },
+            640: { slidesPerView: Math.min(3, perRow), spaceBetween: layout.grid_gap },
             1024: { slidesPerView: Math.min(4, perRow) },
             1280: { slidesPerView: perRow },
           }}

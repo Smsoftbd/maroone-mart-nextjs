@@ -19,7 +19,7 @@ export function FloatingCart({ currency }: FloatingCartProps) {
     <button
       onClick={openCart}
       aria-label={`${t("cart", "Cart")} — ${totalItems}`}
-      className="cart fixed top-1/2 -translate-y-1/2 mt-16 md:mt-0 right-0 z-30 rounded-s-md overflow-hidden shadow-lg bg-brand-500 text-[var(--color-primary-text)] border border-brand-500 active:scale-95 transition-transform"
+      className="cart fixed max-md:hidden top-1/2 -translate-y-1/2 mt-16 md:mt-0 right-0 z-30 rounded-s-md overflow-hidden shadow-lg bg-brand-500 text-[var(--color-primary-text)] border border-brand-500 active:scale-95 transition-transform"
     >
       <div className="p-2 pb-1 text-center">
         <ShoppingBag className="mx-auto h-7 w-7" strokeWidth={2} />

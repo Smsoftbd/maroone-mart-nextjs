@@ -17,6 +17,7 @@ import { getGtmConfig, stripGtmSnippet } from "@/lib/analytics/gtm-config";
 import { getConsentBannerMode, getDefaultConsent } from "@/lib/analytics/consent-server";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 import { headers } from "next/headers";
+import { messengerUrl } from "@/lib/utils/chat";
 
 export default async function StoreLayout({
   children,
@@ -49,7 +50,7 @@ export default async function StoreLayout({
       </main>
       <Footer store={store} pages={pages} />
       <ScrollToTop />
-      <BottomTabBar guestOnly={store.auth_mode === "guest_only"} />
+      <BottomTabBar chatUrl={messengerUrl(store.social.facebook, store.social.whatsapp)} phone={store.phone} />
       {footerScript && <script dangerouslySetInnerHTML={{ __html: footerScript }} />}
       {consentMode !== "off" && (
         <ConsentBanner mode={consentMode} defaultConsent={defaultConsent} />

@@ -146,7 +146,7 @@ function Section({
   return (
     <section className="pt-6">
       <div className="flex min-h-10 items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <h3 className="text-sm font-semibold text-[var(--color-text-primary)]">{title}</h3>
+        <h3 className="text-[15px] font-bold text-[var(--color-text-primary)] sm:text-sm sm:font-semibold">{title}</h3>
         {action}
       </div>
       <div className="pt-3">{children}</div>
@@ -177,7 +177,7 @@ function CategoryNav({
   const indent = (depth: number) => ({ paddingLeft: `${depth}rem` });
 
   return (
-    <div className="space-y-1.5 text-sm">
+    <div className="space-y-1.5 text-base sm:text-sm">
       {path.length > 0 && (
         <button
           type="button"
@@ -403,12 +403,13 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
       <button
         type="button"
         onClick={() => setDrawerOpen(true)}
-        className="filters-button flex h-[52px] w-full shrink-0 items-center gap-2.5 rounded-lg bg-slate-50 px-4 text-sm text-slate-800 transition-colors hover:bg-slate-100 sm:w-60 lg:w-[210px]"
+        className="filters-button flex h-12 min-w-0 flex-1 shrink-0 items-center justify-center gap-2.5 rounded-lg bg-slate-200/70 px-4 text-[15px] text-slate-800 transition-colors hover:bg-slate-200 sm:h-[52px] sm:w-60 sm:flex-none sm:justify-start sm:bg-slate-50 sm:text-sm sm:hover:bg-slate-100 lg:w-[210px]"
       >
-        <Filter className="h-4 w-4" />
-        {t("filter", "Filter")}
+        <Filter className="h-5 w-5 sm:h-4 sm:w-4" strokeWidth={1.75} />
+        <span className="sm:hidden">{t("filter_products", "Filter")}</span>
+        <span className="hidden sm:inline">{t("filter", "Filter")}</span>
         {activeCount > 0 && (
-          <span className="ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 px-1.5 text-[11px] font-medium text-[var(--color-primary-text)]">
+          <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-500 sm:ml-auto px-1.5 text-[11px] font-medium text-[var(--color-primary-text)]">
             {activeCount}
           </span>
         )}
@@ -422,7 +423,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
         className="max-w-[400px]"
       >
         <div className="flex min-h-full flex-col">
-          <div className="flex-1 px-8 pb-6">
+          <div className="flex-1 px-4 pb-6 sm:px-8">
             <ActiveFilters
               categories={props.categories}
               brands={props.brands}
@@ -431,7 +432,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
             />
             <FilterContent {...props} filters={filters} />
           </div>
-          <div className="sticky bottom-0 flex items-center gap-3 border-t border-slate-200 bg-surface px-8 py-4">
+          <div className="sticky bottom-0 flex items-center gap-3 border-t border-slate-200 bg-surface px-4 py-4 sm:px-8">
             {activeCount > 0 && (
               <button
                 type="button"

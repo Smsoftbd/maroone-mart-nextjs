@@ -143,7 +143,7 @@ export function ProductInfo({
       <button
         onClick={() => addSelected()}
         disabled={disabled}
-        className="btn btn-cart text-sm"
+        className="btn btn-cart text-sm max-lg:min-h-[52px] max-lg:text-base"
       >
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
         {t("add_to_cart", "Add to Cart")}
@@ -151,7 +151,7 @@ export function ProductInfo({
       <button
         onClick={handleBuyNow}
         disabled={disabled}
-        className="btn btn-buy text-sm"
+        className="btn btn-buy text-sm max-lg:min-h-[52px] max-lg:text-base"
       >
         <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
         {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
@@ -160,8 +160,8 @@ export function ProductInfo({
   );
 
   const callLine = phones.length > 0 && (
-    <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
-      <span className="font-medium text-[var(--color-text-primary)]">
+    <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm max-lg:text-base">
+      <span className="font-semibold text-[var(--color-text-primary)] lg:font-medium">
         {t("call_us", "Call us")}
       </span>
       {phones.map((p, i) => (
@@ -171,9 +171,9 @@ export function ProductInfo({
           )}
           <a
             href={`tel:${p}`}
-            className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums"
+            className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums max-lg:text-lg"
           >
-            <Phone className="h-3.5 w-3.5 fill-current" />
+            <Phone className="h-3.5 w-3.5 fill-current max-lg:h-4 max-lg:w-4" />
             {p}
           </a>
         </span>
@@ -218,22 +218,22 @@ export function ProductInfo({
       {/* Right: info + details */}
       <div className="min-w-0 product-content-wrap">
         {/* Eyebrow: category · brand */}
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium max-md:text-[15px] max-md:font-semibold">
           {category && (
             <Link
               href={`/products?category=${encodeURIComponent(category.slug)}`}
-              className="text-brand-ink hover:text-brand-ink transition-colors"
+              className={cn("text-brand-ink hover:text-brand-ink transition-colors", product.brand && "max-md:hidden")}
             >
               {category.name}
             </Link>
           )}
           {category && product.brand && (
-            <span aria-hidden className="text-[var(--color-text-muted)]">·</span>
+            <span aria-hidden className="text-[var(--color-text-muted)] max-md:hidden">·</span>
           )}
           {product.brand && (
             <Link
               href={`/products?brands=${product.brand.id}`}
-              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors"
+              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors max-md:text-brand-ink"
             >
               {product.brand.name}
             </Link>
@@ -242,7 +242,7 @@ export function ProductInfo({
 
         {/* Title + wishlist */}
         <div className="mt-1.5 flex items-start justify-between gap-3">
-          <h1 className="font-display text-xl sm:text-2xl font-semibold text-[var(--color-text-primary)] leading-snug">
+          <h1 className="font-display text-[22px] font-bold sm:text-2xl md:font-semibold text-[var(--color-text-primary)] leading-snug">
             {product.name}
           </h1>
           <button
@@ -268,35 +268,38 @@ export function ProductInfo({
           </button>
         </div>
 
-        {/* Rating · Q&A · Share */}
-        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-[var(--color-text-secondary)]">
+        {/* Rating · Q&A · Share (phones: two rows of two) */}
+        <div className="mt-3 grid grid-cols-2 gap-y-2.5 text-[15px] text-[var(--color-text-primary)] md:mt-2 md:flex md:flex-wrap md:items-center md:gap-x-3 md:gap-y-1.5 md:text-sm md:text-[var(--color-text-secondary)]">
           <a href="#product-reviews" className="inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)]">
-            <Rating value={product.rating_avg} />
-            <span className="tabular-nums">{product.rating_avg.toFixed(1)}</span>
-            <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
-            <span>
-              {product.rating_count} {t("ratings", "Ratings")}
-            </span>
+            <Rating value={product.rating_avg} className="max-md:[&_svg]:h-6 max-md:[&_svg]:w-6" />
+            <span className="tabular-nums">{Number(product.rating_avg.toFixed(1))}</span>
           </a>
-          <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
-          <a href="#product-questions" className="inline-flex items-center gap-1 hover:text-[var(--color-text-primary)]">
-            <MessageCircleQuestion className="h-4 w-4 text-secondary-ink" />
+          <a
+            href="#product-reviews"
+            className="inline-flex items-center gap-3 border-l border-[var(--color-border-dark)] pl-3 hover:text-[var(--color-text-primary)] md:border-0 md:pl-0"
+          >
+            <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
+            {product.rating_count} {t("ratings", "Ratings")}
+          </a>
+          <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
+          <a href="#product-questions" className="inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)]">
+            <MessageCircleQuestion className="h-5 w-5 fill-current text-secondary-ink md:h-4 md:w-4 md:fill-none" />
             {questionCount} {t("questions_answers", "Q&A")}
           </a>
-          <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
+          <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
           <button
             type="button"
             onClick={() => setShareOpen((o) => !o)}
             aria-expanded={shareOpen}
-            className="inline-flex items-center gap-1 hover:text-[var(--color-text-primary)]"
+            className="inline-flex items-center gap-1.5 border-l border-[var(--color-border-dark)] pl-3 hover:text-[var(--color-text-primary)] md:border-0 md:pl-0"
           >
-            <Share2 className="h-4 w-4" />
+            <Share2 className="h-5 w-5 md:h-4 md:w-4" />
             {t("share", "Share")}
           </button>
           {product.sale_count > 0 && (
             <>
-              <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
-              <span>
+              <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
+              <span className="col-span-2">
                 {product.sale_count.toLocaleString("en-US")} {t("sold", "sold")}
               </span>
             </>
@@ -309,14 +312,14 @@ export function ProductInfo({
         )}
 
         {/* Price */}
-        <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <div className="product-price-row mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 md:mt-5">
           <span className={cn("price text-2xl", hasDiscount && "is-sale")}>
             {formatPrice(price, currency)}
           </span>
           {hasDiscount && (
             <>
-              <s className="price-old text-sm">{formatPrice(original, currency)}</s>
-              <span className="badge badge-discount">
+              <s className="price-old text-sm max-md:text-base">{formatPrice(original, currency)}</s>
+              <span className="badge badge-discount max-md:rounded-md max-md:px-2 max-md:py-1.5 max-md:text-[15px] max-md:!bg-[var(--color-tertiary-500)]">
                 {discountPct}% {t("off", "OFF")}
               </span>
             </>
@@ -327,7 +330,7 @@ export function ProductInfo({
         <p
           className={cn(
             "mt-2 text-sm font-medium",
-            inStock ? (lowStock ? "is-low" : "is-in") : "is-out"
+            inStock ? (lowStock ? "is-low" : "is-in max-md:hidden") : "is-out"
           )}
         >
           {!inStock
@@ -356,7 +359,7 @@ export function ProductInfo({
         )}
 
         {/* Quantity */}
-        <div className="mt-5 flex items-center gap-4">
+        <div className="mt-5 hidden items-center gap-4 md:flex">
           <span className="text-sm text-[var(--color-text-secondary)]">
             {t("quantity", "Quantity")}
           </span>
@@ -391,20 +394,20 @@ export function ProductInfo({
         </div>
 
         {/* Mobile CTAs (desktop CTAs sit under the gallery) */}
-        <div ref={ctaRef} className="mt-5 space-y-3 lg:hidden">
+        <div ref={ctaRef} className="mt-5 hidden space-y-3 md:block lg:hidden">
           {ctaButtons}
           {callLine}
         </div>
 
         {/* Delivery / payment info (product.show_trust) */}
         {showTrust && (
-        <ul className="mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2">
+        <ul className="product-trust mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2">
           {deliveryItems.map(({ key, icon: Icon, title, text }) => (
-            <li key={key} className="flex items-start gap-3 text-xs">
-              <Icon className="h-5 w-5 shrink-0 text-brand-ink" strokeWidth={1.5} />
+            <li key={key} className="flex items-start gap-3 text-xs max-md:text-[15px]">
+              <Icon className="h-5 w-5 shrink-0 text-brand-ink max-md:h-7 max-md:w-7 max-md:text-[var(--color-text-primary)]" strokeWidth={1.25} />
               <span className="min-w-0 leading-relaxed">
                 {title && (
-                  <span className="block text-[var(--color-text-secondary)]">{title}</span>
+                  <span className="block text-[var(--color-text-secondary)] max-md:text-[var(--color-text-primary)]">{title}</span>
                 )}
                 <span className="text-[var(--color-text-primary)]">{text}</span>
               </span>
@@ -416,11 +419,17 @@ export function ProductInfo({
         {children}
       </div>
 
-      {/* Mobile sticky buy bar (product.sticky_cart) */}
+      {/* Phones: fixed Add to cart / Buy now + hotline, always visible. */}
+      <div className="sticky-buy-bar is-phone md:hidden fixed inset-x-0 bottom-0 z-40 space-y-2.5 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+        {ctaButtons}
+        {callLine}
+      </div>
+
+      {/* Tablets: compact bar once the inline CTA row scrolls away (product.sticky_cart) */}
       {stickyCart && (
       <div
         className={cn(
-          "sticky-buy-bar lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
+          "sticky-buy-bar hidden md:block lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
           showSticky ? "translate-y-0" : "translate-y-full"
         )}
         aria-hidden={!showSticky}

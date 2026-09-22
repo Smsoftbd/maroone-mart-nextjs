@@ -105,6 +105,16 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
     router.push("/checkout");
   };
 
+  // Phones: "4.5 ★ | 12" pill instead of the star row.
+  const ratingPill = opts.show_rating && (
+    <p className="card-rating-pill md:hidden">
+      <span className="tabular-nums">{Number(product.rating_avg || 0).toFixed(Number(product.rating_avg) % 1 ? 1 : 0)}</span>
+      <Star className="h-3 w-3 fill-current text-[var(--color-commerce-rating-star,var(--color-tertiary-ink))]" />
+      <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
+      <span className="tabular-nums">{product.rating_count ?? 0}</span>
+    </p>
+  );
+
   const rating = opts.show_rating && (
     opts.rating_style === "compact" ? (
       <p className="card-rating flex items-center gap-1 text-xs text-[var(--color-text-secondary)]">
@@ -122,6 +132,12 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
       <span className={cn("price text-base", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
       {hasDiscount && opts.show_old_price && (
         <s className="price-old text-xs">{formatPrice(original, currency)}</s>
+      )}
+      {/* Phones show the discount beside the price rather than on the image. */}
+      {hasDiscount && (
+        <span className="badge badge-discount card-price-off md:hidden">
+          {formatDiscount(original, price)}% {t("off", "OFF")}
+        </span>
       )}
     </div>
   );
@@ -254,6 +270,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
           <Link href={href}>{product.name}</Link>
         </h3>
         {rating}
+        {ratingPill}
         {swatches.length > 0 && (
           <div className="card-swatches flex gap-1.5" aria-hidden>
             {swatches.map((c) => (

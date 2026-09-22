@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SectionHeader } from "./SectionHeader";
+import { MobileViewAll, SectionHeader } from "./SectionHeader";
 import { getServerT } from "@/lib/i18n/server";
 import type { HomepageCategory, StoreThemePage } from "@/lib/api/types";
 
@@ -22,7 +22,7 @@ export async function PopularCategories({ categories, style, title, subtitle, vi
   const bandText = "text-[var(--color-section-category-band-text,var(--color-secondary-text))]";
 
   return (
-    <section className="home-section bg-[var(--color-section-category-band-bg,var(--color-secondary-500))]" data-reveal>
+    <section className="home-section category-band bg-[var(--color-section-category-band-bg,var(--color-secondary-500))]" data-reveal>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeader
           title={title || t("popular_categories", "Popular Categories")}
@@ -59,7 +59,7 @@ export async function PopularCategories({ categories, style, title, subtitle, vi
                   <span
                     className={
                       style === "circle"
-                        ? "relative flex aspect-square w-full max-w-[140px] items-center justify-center overflow-hidden rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] ring-4 ring-[color-mix(in_srgb,currentColor_20%,transparent)] transition-transform duration-[var(--effects-transition-speed,200ms)] group-hover:-translate-y-1"
+                        ? "relative flex aspect-square w-full max-w-[140px] items-center justify-center overflow-hidden rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] md:ring-4 ring-[color-mix(in_srgb,currentColor_20%,transparent)] transition-transform duration-[var(--effects-transition-speed,200ms)] group-hover:-translate-y-1"
                         : "store-card relative flex aspect-square w-full items-center justify-center overflow-hidden !bg-[var(--color-section-category-card-bg,var(--color-surface))]"
                     }
                   >
@@ -81,6 +81,7 @@ export async function PopularCategories({ categories, style, title, subtitle, vi
             ))}
           </ul>
         )}
+        <MobileViewAll href={viewAll ? "/categories" : undefined} label={t("view_all", "View All")} inverted />
       </div>
     </section>
   );

@@ -24,7 +24,7 @@ export function BrandsCarousel({ brands }: BrandsCarouselProps) {
   if (!brands.length) return null;
 
   return (
-    <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
+    <section className="home-section brands-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
       <SectionHeader title={t("our_brands", "Our Brands")} />
 
       <div className="relative">
@@ -35,7 +35,7 @@ export function BrandsCarousel({ brands }: BrandsCarouselProps) {
           watchOverflow
           navigation={{ nextEl }}
           breakpoints={{
-            0: { slidesPerView: 3.3 },
+            0: { slidesPerView: 3.1, spaceBetween: 8 },
             640: { slidesPerView: 5 },
             1024: { slidesPerView: 8 },
           }}
@@ -48,10 +48,10 @@ export function BrandsCarousel({ brands }: BrandsCarouselProps) {
               <Link
                 href={`/products?brands=${brand.id}`}
                 title={brand.name}
-                className="relative flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-md"
+                className="relative flex aspect-square items-center max-md:aspect-[118/116] max-md:rounded-xl justify-center overflow-hidden rounded-lg border border-slate-200 bg-white transition-shadow hover:shadow-md"
               >
                 {logo ? (
-                  <Image src={logo} alt={brand.name} fill sizes="130px" className="object-contain" />
+                  <Image src={logo} alt={brand.name} fill sizes="130px" className="object-contain max-md:rounded-xl max-md:p-2.5" />
                 ) : (
                   <span className="flex flex-col items-center gap-1 px-2 text-center text-slate-400">
                     <ImageOff className="h-6 w-6" strokeWidth={1.25} />

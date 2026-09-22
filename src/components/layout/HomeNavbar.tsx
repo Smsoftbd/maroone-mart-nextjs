@@ -84,8 +84,9 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
           )}
         >
           <div className={cn("flex items-center gap-6", !centered && "contents")}>
+          {/* Phones use the bottom tab bar; the drawer menu is a tablet affordance. */}
           <button
-            className={cn("lg:hidden -ml-2", iconBtn, bottomNav && "hidden")}
+            className={cn("hidden md:block lg:hidden -ml-2", iconBtn, bottomNav && "md:hidden")}
             onClick={toggleMobileNav}
             aria-label={t("open_menu", "Open menu")}
           >
@@ -178,7 +179,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
 
           {centered && logo}
 
-          <div className="flex flex-1 items-center justify-end gap-2 lg:gap-4">
+          <div className="flex flex-1 items-center justify-end gap-1.5 sm:gap-2 lg:gap-4">
             {style === "classic" && (
               <SearchBox
                 categories={categories}
@@ -209,22 +210,22 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
 
             <button
               onClick={openCart}
-              className={cn(circleBtn, "cart-icon-btn h-10 w-10 lg:h-11 lg:w-11")}
+              className={cn(circleBtn, "cart-icon-btn h-10 w-10 max-md:border-transparent lg:h-11 lg:w-11")}
               aria-label={`Cart, ${totalItems} items`}
             >
-              <CartIcon className="h-5 w-5" />
+              <CartIcon className="h-5 w-5 max-md:h-6 max-md:w-6" strokeWidth={1.75} />
               {totalItems > 0 && (
-                <span className="cart-badge absolute -right-1 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-semibold">
+                <span className="cart-badge absolute -right-1 -top-1.5 flex h-5 min-w-5 max-md:-right-2 max-md:-top-2.5 max-md:h-6 max-md:min-w-6 max-md:text-sm items-center justify-center rounded-full px-1 text-[11px] font-semibold">
                   {totalItems > 99 ? "99+" : totalItems}
                 </span>
               )}
             </button>
 
-            <ColorSchemeToggle className={cn(iconBtn, "flex")} />
+            <ColorSchemeToggle className={cn(iconBtn, "hidden sm:flex")} />
 
             <LanguageSwitcher
               languages={store.languages}
-              buttonClassName="header-icon-btn h-11 gap-1.5 px-3"
+              buttonClassName="header-icon-btn h-11 gap-1.5 px-3 max-md:w-12 max-md:h-12 max-md:!rounded-full max-md:!px-0 max-md:justify-center"
             />
           </div>
         </div>

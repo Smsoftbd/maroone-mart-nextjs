@@ -139,7 +139,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   return (
     <div>
       {pageOpts.breadcrumbs && (
-        <div className="border-b border-[var(--color-border)]">
+        <div className="hidden border-b border-[var(--color-border)] md:block">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, ...crumbs]} />
           </div>
@@ -148,7 +148,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
       {/* Category banner (layout.shop_banner) */}
       {layout.shop_banner && currentCategory && (
-        <section className="bg-[var(--color-neutral-surface-alt,var(--color-surface-100))]">
+        <section className="hidden bg-[var(--color-neutral-surface-alt,var(--color-surface-100))] md:block">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
             <h1 className="text-2xl font-bold lg:text-3xl">{currentCategory.name}</h1>
             {currentCategory.description && (
@@ -166,29 +166,29 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
       {topCategories.length > 0 && (
         <section className="border-b border-[var(--color-border)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <h2 className="mb-5 text-base font-semibold text-[var(--color-text-primary)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 md:py-8">
+            <h2 className="mb-2.5 text-[15px] font-semibold text-[var(--color-text-primary)] md:mb-5 md:text-base">
               {t("top_5_categories", "Top 5 Categories")}
             </h2>
-            <div className="-mx-4 flex gap-4 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-5">
+            <div className="-mx-3 flex gap-2 overflow-x-auto scrollbar-none px-3 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0 lg:grid-cols-5">
               {topCategories.map((cat) => (
                 <Link
                   key={cat.id}
                   href={`/products?category=${cat.slug}`}
-                  className={`flex w-48 shrink-0 items-center gap-3 rounded-lg border px-3 py-3 transition-colors sm:w-auto ${
+                  className={`flex shrink-0 items-center gap-2 rounded-lg border px-1.5 py-1.5 pr-3 transition-colors sm:w-auto sm:gap-3 sm:px-3 sm:py-3 ${
                     categories.includes(cat.slug)
                       ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)]"
-                      : "border-slate-100 text-slate-800 hover:border-brand-500"
+                      : "border-slate-200 text-slate-800 hover:border-brand-500 sm:border-slate-100"
                   }`}
                 >
-                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-100">
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-100 sm:rounded-full">
                     {cat.image ? (
                       <Image src={cat.image} alt="" fill sizes="40px" className="object-contain p-1.5" />
                     ) : (
                       <span className="text-sm font-bold text-brand-ink">{cat.name[0]}</span>
                     )}
                   </span>
-                  <span className="truncate text-sm">{cat.name}</span>
+                  <span className="whitespace-nowrap text-[15px] sm:truncate sm:text-sm">{cat.name}</span>
                 </Link>
               ))}
             </div>
@@ -196,7 +196,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         </section>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-10 md:pt-8 md:pb-16">
         {/* layout.filter_position: sidebar left/right on desktop, else the drawer */}
         <div className="shop">
           {layout.filter_position !== "drawer" && (
@@ -207,12 +207,18 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             </aside>
           )}
           <div className="min-w-0">
-            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:gap-4">
+            <div className="mb-4 flex gap-3 sm:gap-4">
+              {/* Phones: grey Sort + Filter buttons side by side. */}
+              <Suspense fallback={null}>
+                <div className="flex min-w-0 flex-1 sm:hidden">
+                  <ProductSort variant="button" />
+                </div>
+              </Suspense>
               <Suspense fallback={null}>
                 <ProductFilters {...filterProps} total={meta.total} />
               </Suspense>
 
-              <div className="flex flex-1 items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:px-3">
+              <div className="hidden flex-1 items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 sm:flex sm:px-3">
                 <p className="text-sm text-slate-800 tabular-nums">
                   {t("x_products", ":count products").replace(":count", String(meta.total))}
                 </p>
@@ -221,6 +227,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 </Suspense>
               </div>
             </div>
+
+            <h1 className="mb-3 text-2xl font-bold md:hidden">
+              {search ? `${t("search", "Search")}: "${search}"` : currentCategory?.name ?? t("all_products", "All Products")}
+            </h1>
 
             {products.length === 0 ? (
               <EmptyState
@@ -250,7 +260,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             ) : (
               <>
                 <ProductGrid products={products} currency={store.currency_symbol} list={itemList} />
-                <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-[var(--color-border)] pt-5 sm:flex-row sm:px-4">
+                <div className="mt-6 flex flex-col items-start justify-between gap-4 border-t border-[var(--color-border)] pt-4 sm:mt-10 sm:flex-row sm:items-center sm:px-4 sm:pt-5">
                   <p className="text-sm text-[var(--color-text-secondary)]">
                     {t("showing_x_of_y", "Showing :count of :total")
                       .replace(":count", String(products.length))

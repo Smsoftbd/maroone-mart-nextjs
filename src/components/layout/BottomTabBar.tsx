@@ -2,56 +2,56 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, LayoutGrid, Search, ShoppingBag, ShoppingBasket, ShoppingCart, User } from "lucide-react";
+import { Home, LayoutGrid, MessageCircle, Phone, ShoppingBag, ShoppingBasket, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
-import { useAuthStore } from "@/lib/stores/authStore";
-import { useUiStore } from "@/lib/stores/uiStore";
 import { useTheme } from "@/components/providers/StoreConfigProvider";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils/cn";
 
 const CART_ICONS = { bag: ShoppingBag, cart: ShoppingCart, basket: ShoppingBasket };
 
-/** Phone tab bar (Home, Shop, Search, Cart, Account) for layout.mobile_nav = bottom. */
-export function BottomTabBar({ guestOnly }: { guestOnly: boolean }) {
+interface BottomTabBarProps {
+  /** Messenger / WhatsApp link for the chat tab. */
+  chatUrl?: string;
+  /** Store hotline for the call tab. */
+  phone?: string;
+}
+
+/**
+ * Phone tab bar: Home, Categories, Cart, Chat, Call. Always shown below `md`;
+ * tablets get it too when layout.mobile_nav = bottom.
+ */
+export function BottomTabBar({ chatUrl, phone }: BottomTabBarProps) {
   const { layout } = useTheme();
   const t = useT();
   const pathname = usePathname();
   const totalItems = useCartStore((s) => s.totalItems);
   const openCart = useCartStore((s) => s.openCart);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const openSearch = useUiStore((s) => s.openSearch);
 
-  if (layout.mobile_nav !== "bottom") return null;
+  // Checkout and product pages carry their own sticky action bar.
+  if (pathname.startsWith("/checkout") || /^\/products\/[^/]+/.test(pathname)) return null;
 
   const CartIcon = CART_ICONS[layout.cart_icon];
-  const item = "flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium";
+  const item = "flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-medium";
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const tel = phone?.split(/[,/]/)[0]?.replace(/[^\d+]/g, "");
 
   return (
-    <nav className="bottom-tab-bar lg:hidden" aria-label={t("main_menu", "Main menu")}>
+    <nav
+      className={cn("bottom-tab-bar", layout.mobile_nav === "bottom" ? "lg:hidden" : "md:hidden")}
+      aria-label={t("main_menu", "Main menu")}
+    >
       <Link href="/" className={item} aria-current={active("/") ? "page" : undefined}>
-        <Home className="h-5 w-5" />
+        <Home className="h-[22px] w-[22px]" strokeWidth={1.5} />
         {t("home", "Home")}
       </Link>
-      <Link href="/products" className={item} aria-current={active("/products") ? "page" : undefined}>
-        <LayoutGrid className="h-5 w-5" />
-        {t("shop", "Shop")}
+      <Link href="/categories" className={item} aria-current={active("/categories") ? "page" : undefined}>
+        <LayoutGrid className="h-[22px] w-[22px]" strokeWidth={1.5} />
+        {t("category", "Category")}
       </Link>
-      <button
-        type="button"
-        className={item}
-        onClick={() => {
-          window.scrollTo({ top: 0, behavior: "smooth" });
-          openSearch();
-        }}
-      >
-        <Search className="h-5 w-5" />
-        {t("search", "Search")}
-      </button>
       <button type="button" className={cn(item, "cart-icon-btn relative")} onClick={openCart}>
         <span className="relative">
-          <CartIcon className="h-5 w-5" />
+          <CartIcon className="h-[22px] w-[22px]" strokeWidth={1.5} />
           {totalItems > 0 && (
             <span className="cart-badge absolute -right-2.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-semibold">
               {totalItems > 99 ? "99+" : totalItems}
@@ -60,15 +60,17 @@ export function BottomTabBar({ guestOnly }: { guestOnly: boolean }) {
         </span>
         {t("cart", "Cart")}
       </button>
-      {!guestOnly && (
-        <Link
-          href={isAuthenticated ? "/account" : "/login"}
-          className={item}
-          aria-current={active("/account") ? "page" : undefined}
-        >
-          <User className="h-5 w-5" />
-          {t("account", "Account")}
-        </Link>
+      {chatUrl && (
+        <a href={chatUrl} target="_blank" rel="noopener noreferrer" className={item}>
+          <MessageCircle className="h-[22px] w-[22px]" strokeWidth={1.5} />
+          {t("chat", "Chat")}
+        </a>
+      )}
+      {tel && (
+        <a href={`tel:${tel}`} className={item}>
+          <Phone className="h-[22px] w-[22px]" strokeWidth={1.5} />
+          {t("call", "Call")}
+        </a>
       )}
     </nav>
   );

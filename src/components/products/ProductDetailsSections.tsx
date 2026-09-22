@@ -57,20 +57,20 @@ export async function ProductDetailsSections({
 
       {/* Contact box */}
       {phones.length > 0 && (
-        <div className="rounded-lg border border-brand-500/40 bg-surface-50 px-4 py-5 text-center">
-          <p className="font-semibold text-[var(--color-text-primary)]">
+        <div className="rounded-lg border border-brand-500/40 bg-surface-50 px-4 py-5 text-center max-md:rounded-xl max-md:border-brand-500 max-md:bg-brand-50">
+          <p className="font-semibold text-[var(--color-text-primary)] max-md:text-[22px] max-md:font-bold">
             {t("contact_for_details", "Want to know more?")}
           </p>
-          <p className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
+          <p className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm max-md:text-base">
             <span className="text-[var(--color-text-secondary)]">{t("call_us", "Call us")}:</span>
             {phones.map((p, i) => (
               <span key={p} className="inline-flex items-center gap-2">
                 {i > 0 && <span className="text-[var(--color-text-secondary)]">{t("or", "or")}</span>}
                 <a
                   href={`tel:${p}`}
-                  className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums"
+                  className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums max-md:text-xl max-md:font-bold"
                 >
-                  <Phone className="h-3.5 w-3.5 fill-current" />
+                  <Phone className="h-3.5 w-3.5 fill-current max-md:h-5 max-md:w-5" />
                   {p}
                 </a>
               </span>

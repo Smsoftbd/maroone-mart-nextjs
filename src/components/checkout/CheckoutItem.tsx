@@ -48,7 +48,7 @@ export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
   return (
     <div
       className={cn(
-        "relative flex gap-4 rounded-lg bg-surface p-4 transition-opacity",
+        "relative flex gap-4 rounded-lg bg-surface p-4 transition-opacity max-md:gap-3 max-md:rounded-xl max-md:p-3",
         pending && "opacity-60"
       )}
     >
@@ -82,7 +82,7 @@ export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
             {attrs.map((a) => `${a.name}: ${a.value}`).join(", ")}
           </p>
         )}
-        <p className="mt-1.5 text-xl text-brand-ink tabular-nums">{formatPrice(unit, currency)}</p>
+        <p className="mt-1.5 text-xl text-brand-ink tabular-nums max-md:text-lg max-md:text-[var(--color-tertiary-500)]">{formatPrice(unit, currency)}</p>
 
         <div className="mt-2 flex items-center justify-end gap-3">
           <button
