@@ -348,7 +348,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
 
   if (loginRequired) {
     return (
-      <div className="bg-white border border-[var(--color-border)] rounded-2xl p-8 text-center max-w-md mx-auto">
+      <div className="bg-surface border border-[var(--color-border)] rounded-2xl p-8 text-center max-w-md mx-auto">
         <h2 className="font-display text-lg font-semibold mb-2">
           {t("login_to_checkout", "Please sign in to checkout")}
         </h2>
@@ -369,7 +369,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
 
   const fieldCls = (hasError: boolean) =>
     cn(
-      "w-full rounded-md border bg-white px-4 py-3 text-[15px] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
+      "w-full rounded-md border bg-surface px-4 py-3 text-[15px] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
       hasError ? "border-red-500" : "border-[var(--color-border-dark)]"
     );
   const bd = isBangladesh(country);
@@ -406,7 +406,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
               </label>
               <div
                 className={cn(
-                  "flex overflow-hidden rounded-md border bg-white focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent",
+                  "flex overflow-hidden rounded-md border bg-surface focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent",
                   errors.phone ? "border-red-500" : "border-[var(--color-border-dark)]"
                 )}
               >
@@ -481,7 +481,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
             />
           </div>
 
-          <dl className="mt-2.5 rounded-lg bg-white px-4 py-5 text-[15px] space-y-3">
+          <dl className="mt-2.5 rounded-lg bg-surface px-4 py-5 text-[15px] space-y-3">
             <div className="flex justify-between">
               <dt>{t("subtotal", "Subtotal")}</dt>
               <dd className="tabular-nums">{formatPrice(subTotal, currency)}</dd>

@@ -23,10 +23,10 @@ export default function ProductsLoading() {
           <Skeleton className="h-[52px] w-full sm:w-60 lg:w-[210px]" />
           <Skeleton className="h-[52px] flex-1" />
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="product-grid gap-3 sm:gap-4">
           {[...Array(10)].map((_, i) => (
-            <div key={i} className="rounded-xl border border-slate-200 p-1.5">
-              <Skeleton className="aspect-square w-full" rounded="sm" />
+            <div key={i} className="store-card p-1.5">
+              <Skeleton className="aspect-product w-full" rounded="sm" />
               <Skeleton className="mt-3 h-3 w-1/3" />
               <Skeleton className="mt-2 h-3.5 w-4/5" />
               <Skeleton className="mt-2 h-3.5 w-1/2" />

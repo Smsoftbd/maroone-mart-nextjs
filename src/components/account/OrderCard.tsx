@@ -25,7 +25,7 @@ export function OrderCard({ order, currency }: OrderCardProps) {
   return (
     <Link
       href={`/account/orders/${order.id}`}
-      className="block bg-white border border-[var(--color-border)] rounded-xl p-4 hover:shadow-sm transition-shadow"
+      className="block bg-surface border border-[var(--color-border)] rounded-xl p-4 hover:shadow-sm transition-shadow"
     >
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div>

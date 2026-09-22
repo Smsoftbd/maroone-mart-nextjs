@@ -29,12 +29,13 @@ export function ProductGrid({
 
   const grid = (
     <div
+      // Columns come from the theme (layout.products_per_row / mobile_columns).
       className={
         variant === "minimal"
-          ? "grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4"
+          ? "product-grid gap-x-4 gap-y-10"
           : variant === "shop"
-            ? "grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5"
-            : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+            ? "product-grid gap-3 sm:gap-4"
+            : "product-grid gap-4"
       }
     >
       {products.map((product) => (

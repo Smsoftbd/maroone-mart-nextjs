@@ -12,7 +12,7 @@ export async function FeatureHighlights() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-10">
-      <ul className="grid grid-cols-2 gap-y-5 rounded-2xl border border-slate-200 bg-white px-4 py-5 lg:grid-cols-4 lg:rounded-full lg:px-8 lg:py-6">
+      <ul className="grid grid-cols-2 gap-y-5 rounded-2xl border border-slate-200 bg-surface px-4 py-5 lg:grid-cols-4 lg:rounded-full lg:px-8 lg:py-6">
         {items.map(({ icon: Icon, label }, i) => (
           <li
             key={label}

@@ -67,7 +67,7 @@ export function BrandsCarousel({ brands }: BrandsCarouselProps) {
         <button
           ref={setNextEl}
           aria-label="Next brands"
-          className="absolute -right-4 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white text-slate-700 shadow-md transition-opacity hover:opacity-80 disabled:opacity-0 md:flex"
+          className="absolute -right-4 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-surface text-slate-700 shadow-md transition-opacity hover:opacity-80 disabled:opacity-0 md:flex"
         >
           <ChevronRight className="h-5 w-5" />
         </button>

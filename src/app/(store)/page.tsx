@@ -70,7 +70,7 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: websiteSchema(store) }}
       />
 
-      <div className="bg-white">
+      <div className="bg-[var(--color-section-hero-bg,var(--color-surface))]">
         {store.sections.banner && <Slider sliders={sliders} />}
         <FeatureHighlights />
       </div>

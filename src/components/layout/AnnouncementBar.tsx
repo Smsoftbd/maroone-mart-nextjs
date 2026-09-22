@@ -26,7 +26,7 @@ export function AnnouncementBar({ message }: AnnouncementBarProps) {
   if (dismissed || dismissedEarlier || !message) return null;
 
   return (
-    <div className="bg-tertiary-500 text-[var(--color-tertiary-text)] text-sm py-2 px-4 text-center relative">
+    <div className="bg-[var(--color-header-announcement-bg,var(--color-tertiary-500))] text-[var(--color-header-announcement-text,var(--color-tertiary-text))] text-sm py-2 px-4 text-center relative">
       <div
         dangerouslySetInnerHTML={{ __html: message }}
         className="inline [&>p]:m-0"

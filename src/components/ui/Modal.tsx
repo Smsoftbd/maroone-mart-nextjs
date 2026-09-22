@@ -36,7 +36,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             ref={backdropRef}
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--color-misc-overlay,rgba(0,0,0,0.4))] backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -44,7 +44,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
           />
           <motion.div
             className={cn(
-              "relative bg-white rounded-xl shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto",
+              "relative bg-surface rounded-xl shadow-lg max-w-lg w-full max-h-[90vh] overflow-y-auto",
               className
             )}
             initial={{ opacity: 0, scale: 0.95 }}

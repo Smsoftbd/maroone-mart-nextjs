@@ -64,6 +64,12 @@ export interface Store {
     tertiary_text: string;
     default_text: string;
   };
+  /** Full Appearance theme; null when the backend predates it. */
+  theme: StoreTheme | null;
+  /** Server-validated `:root{…}` block for `theme` (safe to inline). */
+  theme_css: string | null;
+  /** Google Fonts stylesheet for the heading + body fonts. */
+  theme_fonts_url: string | null;
   features: {
     wishlist: boolean;
     reviews: boolean;
@@ -94,6 +100,29 @@ export interface Store {
     fb_pixel_id: string | null;
     fb_domain_verification_id: string | null;
   };
+}
+
+// ─── Appearance theme ───────────────────────────────────────────────────────
+// Only the groups the app reads in TS are typed; every token is available as a
+// CSS variable (see src/lib/utils/theme.ts).
+
+export type HeaderStyle = "classic" | "centered" | "minimal";
+export type CardStyle = "bordered" | "elevated" | "flat";
+
+export interface StoreThemeLayout {
+  container_width: number;
+  header_style: HeaderStyle;
+  sticky_header: boolean;
+  card_style: CardStyle;
+  image_ratio: string;
+  products_per_row: number;
+  mobile_columns: number;
+}
+
+export interface StoreTheme {
+  version?: number;
+  layout: StoreThemeLayout;
+  [group: string]: unknown;
 }
 
 // ─── Categories ─────────────────────────────────────────────────────────────

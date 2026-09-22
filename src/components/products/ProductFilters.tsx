@@ -403,7 +403,7 @@ export function ProductFilters({ total, ...props }: ProductFiltersProps) {
             />
             <FilterContent {...props} filters={filters} />
           </div>
-          <div className="sticky bottom-0 flex items-center gap-3 border-t border-slate-200 bg-white px-8 py-4">
+          <div className="sticky bottom-0 flex items-center gap-3 border-t border-slate-200 bg-surface px-8 py-4">
             {activeCount > 0 && (
               <button
                 type="button"

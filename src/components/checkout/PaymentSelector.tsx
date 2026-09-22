@@ -71,7 +71,7 @@ export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
               onChange={() => onChange(method)}
             />
             <span
-              className={`absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border bg-white transition-colors ${
+              className={`absolute right-4 top-4 flex h-5 w-5 items-center justify-center rounded-full border bg-surface transition-colors ${
                 selected ? "border-brand-500" : "border-[var(--color-border-dark)]"
               }`}
               aria-hidden

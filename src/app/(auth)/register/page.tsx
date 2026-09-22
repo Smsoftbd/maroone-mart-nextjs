@@ -59,7 +59,7 @@ export default function RegisterPage() {
   if (authMode !== "email_password") return null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
+    <div className="bg-surface rounded-2xl shadow-lg p-8">
       <h1 className="font-display text-2xl font-bold mb-1">{t("create_account", "Create Account")}</h1>
       <p className="text-sm text-[var(--color-text-secondary)] mb-6">
         {t("join_us_today", "Join us today")}

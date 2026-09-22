@@ -58,7 +58,7 @@ export function ProductSort() {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={t("sort_products", "Sort products")}
-        className="flex h-11 w-40 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-4 text-slate-800 transition-colors hover:border-brand-500 sm:w-[288px]"
+        className="flex h-11 w-40 items-center justify-between gap-2 rounded-md border border-slate-300 bg-surface px-4 text-slate-800 transition-colors hover:border-brand-500 sm:w-[288px]"
       >
         <span className="truncate">{currentLabel}</span>
         <ChevronDown
@@ -70,7 +70,7 @@ export function ProductSort() {
         <ul
           role="listbox"
           aria-label={t("sort_products", "Sort products")}
-          className="absolute right-0 top-full z-30 mt-1 w-full min-w-56 sm:w-[288px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-white py-1 shadow-lg shadow-black/5"
+          className="absolute right-0 top-full z-30 mt-1 w-full min-w-56 sm:w-[288px] overflow-hidden rounded-lg border border-[var(--color-border)] bg-surface py-1 shadow-lg shadow-black/5"
         >
           {sortOptions.map((o) => {
             const selected = o.value === current;

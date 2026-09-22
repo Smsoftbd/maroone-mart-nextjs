@@ -83,7 +83,7 @@ export default function TrackOrderPage() {
       )}
 
       {order && (
-        <div className="bg-white border border-[var(--color-border)] rounded-2xl p-6 space-y-6">
+        <div className="bg-surface border border-[var(--color-border)] rounded-2xl p-6 space-y-6">
           <div className="flex justify-between items-start flex-wrap gap-3">
             <div>
               <p className="font-display text-xl font-semibold">{order.invoice_number}</p>

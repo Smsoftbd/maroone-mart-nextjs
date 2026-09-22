@@ -225,8 +225,8 @@ export function SearchBox({
           className={cn(
             "w-full text-sm focus:outline-none",
             isMinimal
-              ? "h-11 rounded-md border border-[var(--color-border)] bg-white pl-4 pr-14 text-[var(--color-text-primary)] placeholder:text-slate-400 focus:border-brand-500 transition-colors"
-              : "rounded-full bg-white text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
+              ? "input-shape h-11 border-[color:var(--color-header-search-border,var(--color-border))] bg-[var(--color-header-search-bg,var(--color-surface))] pl-4 pr-14 text-[var(--color-header-search-text,var(--color-text-primary))] placeholder:text-[var(--color-form-placeholder,var(--color-text-muted))] focus:border-[color:var(--color-form-input-focus,var(--color-brand-500))] transition-colors"
+              : "rounded-full bg-surface text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
           )}
         />
         <button
@@ -235,7 +235,7 @@ export function SearchBox({
           className={cn(
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
             isMinimal
-              ? "right-0 h-11 w-12 rounded-r-md bg-brand-500 text-[var(--color-primary-text)] hover:bg-brand-600"
+              ? "right-0 h-11 w-12 rounded-r-[var(--shape-input-radius,0.375rem)] bg-[var(--color-header-search-button-bg,var(--color-brand-500))] text-[var(--color-header-search-button-text,var(--color-primary-text))] hover:opacity-90"
               : "right-1.5 h-8 w-8 rounded-full text-brand-ink hover:bg-brand-50 hover:text-brand-ink"
           )}
           aria-label="Search"
@@ -249,9 +249,9 @@ export function SearchBox({
           id="searchbox-listbox"
           role="listbox"
           className={cn(
-            "absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-white text-[var(--color-text-primary)] border",
+            "absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-surface text-[var(--color-text-primary)] border",
             isMinimal
-              ? "border-neutral-200 shadow-[0_24px_48px_-32px_rgba(0,0,0,0.45)]"
+              ? "rounded-[var(--shape-card-radius,0)] border-[var(--color-border)] shadow-[0_24px_48px_-32px_rgba(0,0,0,0.45)]"
               : "rounded-xl shadow-lg border-[var(--color-border)]"
           )}
         >

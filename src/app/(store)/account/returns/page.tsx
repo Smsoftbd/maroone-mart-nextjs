@@ -42,7 +42,7 @@ export default function ReturnsPage() {
     <div className="space-y-4">
       <h2 className="font-display text-xl font-semibold">Returns & Refunds</h2>
       {returns.map((ret) => (
-        <div key={ret.id} className="bg-white border border-[var(--color-border)] rounded-xl p-4">
+        <div key={ret.id} className="bg-surface border border-[var(--color-border)] rounded-xl p-4">
           <div className="flex justify-between items-start mb-2">
             <div>
               <p className="font-medium">Return #{ret.id}</p>

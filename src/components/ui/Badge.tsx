@@ -10,9 +10,9 @@ const variants = {
   brand: "bg-brand-500 text-[var(--color-primary-text)]",
   secondary: "bg-secondary-500 text-[var(--color-secondary-text)]",
   accent: "bg-tertiary-500 text-[var(--color-tertiary-text)]",
-  success: "bg-green-100 text-green-800",
-  warning: "bg-yellow-100 text-yellow-800",
-  error: "bg-red-100 text-red-800",
+  success: "bg-[var(--color-status-success,#16a34a)] text-[var(--color-status-success-text,#fff)]",
+  warning: "bg-[var(--color-status-warning,#d97706)] text-[var(--color-status-warning-text,#fff)]",
+  error: "bg-[var(--color-status-error,#dc2626)] text-[var(--color-status-error-text,#fff)]",
   neutral: "bg-surface-100 text-[var(--color-text-secondary)]",
 };
 

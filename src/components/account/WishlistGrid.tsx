@@ -25,11 +25,11 @@ export function WishlistGrid({ items, onRemove }: WishlistGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <div className="product-grid gap-4">
       {items.map((item) => (
         <div
           key={item.id}
-          className="bg-white rounded-xl border border-[var(--color-border)] overflow-hidden"
+          className="bg-surface rounded-xl border border-[var(--color-border)] overflow-hidden"
         >
           <Link href={`/products/${item.product_slug}`}>
             <div className="relative aspect-square bg-surface-50">

@@ -48,7 +48,7 @@ export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
   return (
     <div
       className={cn(
-        "relative flex gap-4 rounded-lg bg-white p-4 transition-opacity",
+        "relative flex gap-4 rounded-lg bg-surface p-4 transition-opacity",
         pending && "opacity-60"
       )}
     >

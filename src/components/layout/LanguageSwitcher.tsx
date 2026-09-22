@@ -68,7 +68,7 @@ export function LanguageSwitcher({ languages, buttonClassName }: LanguageSwitche
       {open && (
         <ul
           role="listbox"
-          className="absolute right-0 mt-1 min-w-44 rounded-lg border border-black/10 bg-white py-1 shadow-lg z-50 text-[var(--color-text-primary)]"
+          className="absolute right-0 mt-1 min-w-44 rounded-lg border border-black/10 bg-surface py-1 shadow-lg z-50 text-[var(--color-text-primary)]"
         >
           {languages.map((lang) => (
             <li key={lang.code}>

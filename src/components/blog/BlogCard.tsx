@@ -7,7 +7,7 @@ import type { BlogPost } from "@/lib/api/types";
 
 export function BlogCard({ post }: { post: BlogPost }) {
   return (
-    <article className="group bg-white rounded-xl border border-[var(--color-border)] overflow-hidden hover:shadow-md transition-shadow">
+    <article className="group bg-surface rounded-xl border border-[var(--color-border)] overflow-hidden hover:shadow-md transition-shadow">
       <Link href={`/blog/${post.slug}`}>
         <div className="relative aspect-video overflow-hidden bg-surface-50">
           {post.featured_image && (

@@ -46,7 +46,7 @@ export function Drawer({
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
           <motion.div
-            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            className="absolute inset-0 bg-[var(--color-misc-overlay,rgba(0,0,0,0.4))] backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.3 }}
             exit={{ opacity: 0 }}
@@ -54,7 +54,7 @@ export function Drawer({
           />
           <motion.div
             className={cn(
-              "absolute top-0 bottom-0 bg-white shadow-xl flex flex-col",
+              "absolute top-0 bottom-0 bg-surface shadow-xl flex flex-col",
               side === "right" ? "right-0" : "left-0",
               "w-full max-w-md",
               className

@@ -22,7 +22,8 @@
   --color-tertiary-500: #28a745;
   --color-tertiary-600: #228e3b;
 
-  /* Surface */
+  /* Surface. `bg-surface` = panels/cards (neutral.surface); surface-0 = page. */
+  --color-surface: #ffffff;
   --color-surface-0: #ffffff;
   --color-surface-50: #fafafa;
   --color-surface-100: #f5f5f5;
@@ -32,9 +33,9 @@
   --color-footer: #0f172a;
   --color-footer-text: #ffffff;
 
-  /* Font families */
-  --font-display: var(--font-poppins), Poppins, sans-serif, Arial, "sans-serif";
-  --font-body: var(--font-poppins), Poppins, sans-serif, Arial, "sans-serif";
+  /* Font families (the Appearance theme overrides both) */
+  --font-display: Poppins, system-ui, sans-serif;
+  --font-body: Poppins, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
 
   /* Animations */
@@ -126,28 +127,217 @@ html {
   background: var(--color-surface-100);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-brand-500);
+  background: var(--color-misc-scrollbar, var(--color-brand-500));
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-brand-600);
+  background: var(--color-text-muted);
 }
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-brand-500) var(--color-surface-100);
+  scrollbar-color: var(--color-misc-scrollbar, var(--color-brand-500)) var(--color-surface-100);
 }
 
-body {
-  font-family: var(--font-body);
-  color: var(--color-text-primary);
-  background: var(--color-surface-0);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* Appearance theme base. In @layer base so Tailwind utilities still win. */
+@layer base {
+  body {
+    font-family: var(--font-body);
+    font-weight: var(--typography-body-weight, 400);
+    font-size: var(--typography-base-size, 16px);
+    line-height: var(--typography-line-height, 1.5);
+    color: var(--color-text-primary);
+    background: var(--color-surface-0);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: var(--typography-heading-weight, 700);
+    letter-spacing: var(--typography-heading-tracking, 0);
+  }
+  ::selection {
+    background: var(--color-misc-selection-bg, var(--color-brand-100));
+  }
+  :focus-visible {
+    outline-color: var(--color-form-input-focus, var(--color-brand-500));
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    accent-color: var(--color-form-checkbox-active, var(--color-brand-500));
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--color-form-placeholder, var(--color-text-muted));
+  }
+}
+
+:root {
+  /* Heading sizes from the type scale (h1 = base × scale⁴ … h4 = base × scale);
+     one step smaller on mobile. */
+  --ts: var(--typography-scale, 1.25);
+  --h4: calc(var(--typography-base-size, 16px) * var(--ts));
+  --h3: calc(var(--h4) * var(--ts));
+  --h2: calc(var(--h3) * var(--ts));
+  --h1: calc(var(--h2) * var(--ts));
+}
+@media (max-width: 640px) {
+  :root {
+    --h1: calc(var(--typography-base-size, 16px) * var(--ts) * var(--ts) * var(--ts));
+    --h2: calc(var(--typography-base-size, 16px) * var(--ts) * var(--ts));
+    --h3: calc(var(--typography-base-size, 16px) * var(--ts));
+    --h4: var(--typography-base-size, 16px);
+  }
+}
+
+/* Buttons: corner radius + letter case from the theme. */
+@utility btn-shape {
+  border-radius: var(--shape-button-radius, 0.5rem);
+  text-transform: var(--typography-button-case, none);
+}
+@utility input-shape {
+  border-radius: var(--shape-input-radius, 0.5rem);
+  border-width: var(--shape-border-width, 1px);
+}
+/* Product image frame. */
+@utility aspect-product {
+  aspect-ratio: var(--layout-image-ratio, 1/1);
+}
+
+/* Product/category cards follow layout.card_style (body[data-card]). */
+@layer components {
+  .store-card {
+    background: var(--color-card-bg, var(--color-surface));
+    border: var(--shape-border-width, 1px) solid var(--color-card-border, var(--color-border));
+    border-radius: var(--shape-card-radius, 0.75rem);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .store-card:hover {
+    border-color: var(--color-card-hover-border, var(--color-brand-500));
+  }
+  .store-card-img {
+    background: var(--color-card-image-bg, var(--color-surface-100));
+    border-radius: calc(var(--shape-card-radius, 0.75rem) * 0.8);
+  }
+  body[data-card="elevated"] .store-card {
+    border-color: transparent;
+    box-shadow: var(--shadow-card);
+  }
+  body[data-card="flat"] .store-card {
+    border-color: transparent;
+    background: transparent;
+  }
+  body[data-card="flat"] .store-card-img {
+    border-radius: var(--shape-card-radius, 0.75rem);
+  }
+
+  /* Header (header.* tokens; text/icon tokens only on header.bg). */
+  .site-header {
+    background: var(--color-header-bg, var(--color-surface));
+    color: var(--color-header-text, var(--color-text-primary));
+    border-bottom: 1px solid var(--color-border);
+  }
+  .header-icon-btn {
+    color: var(--color-header-icon, var(--color-text-primary));
+    border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+  .header-icon-btn:hover {
+    background: color-mix(in srgb, currentColor 8%, transparent);
+    border-color: color-mix(in srgb, currentColor 35%, transparent);
+  }
+  .header-nav-link {
+    color: var(--color-header-nav-text, var(--color-text-secondary));
+    transition: color 0.2s;
+  }
+  .header-nav-link:hover,
+  .header-nav-link[aria-current="page"] {
+    color: var(--color-header-nav-active, var(--color-brand-ink));
+  }
+  .header-menu {
+    background: var(--color-header-mega-menu-bg, var(--color-surface));
+    color: var(--color-header-nav-text, var(--color-text-primary));
+  }
+  .cart-badge {
+    background: var(--color-header-cart-badge-bg, var(--color-tertiary-500));
+    color: var(--color-header-cart-badge-text, var(--color-tertiary-text));
+  }
+
+  /* Commerce buttons + badges (pair each text token with its own background). */
+  .btn-buy {
+    background: var(--color-button-buy-now-bg, var(--color-brand-500));
+    color: var(--color-button-buy-now-text, var(--color-primary-text));
+    border-radius: var(--shape-button-radius, 0.375rem);
+    text-transform: var(--typography-button-case, none);
+    transition: background-color 0.2s;
+  }
+  .btn-buy:hover:not(:disabled) {
+    background: var(--color-button-buy-now-hover-bg, var(--color-brand-600));
+  }
+  .btn-cart {
+    background: var(--color-button-add-to-cart-bg, var(--color-secondary-500));
+    color: var(--color-button-add-to-cart-text, var(--color-secondary-text));
+    border-radius: var(--shape-button-radius, 0.375rem);
+    text-transform: var(--typography-button-case, none);
+    transition: background-color 0.2s;
+  }
+  .btn-cart:hover:not(:disabled) {
+    background: var(--color-button-add-to-cart-hover-bg, var(--color-secondary-600));
+  }
+  .btn-outline {
+    background: var(--color-button-outline-bg, transparent);
+    color: var(--color-button-outline-text, var(--color-brand-ink));
+    border: var(--shape-border-width, 1px) solid var(--color-button-outline-border, var(--color-brand-500));
+    border-radius: var(--shape-button-radius, 0.375rem);
+    text-transform: var(--typography-button-case, none);
+    transition: background-color 0.2s;
+  }
+  .btn-outline:hover:not(:disabled) {
+    background: var(--color-button-outline-hover-bg, var(--color-brand-50));
+  }
+  .btn-buy:disabled,
+  .btn-cart:disabled {
+    background: var(--color-button-disabled-bg, var(--color-surface-100));
+    color: var(--color-button-disabled-text, var(--color-text-muted));
+  }
+  .price {
+    color: var(--color-commerce-price, var(--color-brand-strong));
+  }
+  .price-old {
+    color: var(--color-commerce-price-old, var(--color-text-muted));
+  }
+  .badge-discount {
+    background: var(--color-commerce-discount-badge-bg, var(--color-tertiary-500));
+    color: var(--color-commerce-discount-badge-text, var(--color-tertiary-text));
+  }
+  .badge-new {
+    background: var(--color-commerce-new-badge-bg, var(--color-secondary-500));
+    color: var(--color-commerce-new-badge-text, var(--color-secondary-text));
+  }
+  .badge-bestseller {
+    background: var(--color-commerce-bestseller-badge-bg, var(--color-brand-500));
+    color: var(--color-commerce-bestseller-badge-text, var(--color-primary-text));
+  }
+  .card-title {
+    color: var(--color-card-title, var(--color-text-primary));
+  }
+
+  /* Product grid: layout.products_per_row on desktop, mobile_columns on phones. */
+  .product-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(var(--layout-mobile-columns, 2), minmax(0, 1fr));
+  }
+  @media (min-width: 640px) {
+    .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+  @media (min-width: 1024px) {
+    .product-grid { grid-template-columns: repeat(var(--layout-products-per-row, 4), minmax(0, 1fr)); }
+  }
 }
 
 /* Skeleton shimmer utility */
 .shimmer {
-  background: linear-gradient(90deg, var(--color-surface-100) 25%, var(--color-border) 50%, var(--color-surface-100) 75%);
+  background: linear-gradient(90deg, var(--color-misc-skeleton, var(--color-surface-100)) 25%, var(--color-border) 50%, var(--color-misc-skeleton, var(--color-surface-100)) 75%);
   background-size: 200% 100%;
   animation: shimmer 2s linear infinite;
 }
@@ -265,7 +455,7 @@ body {
   opacity: 1;
 }
 .home-dots-secondary .swiper-pagination-bullet {
-  background: var(--color-secondary-text);
+  background: var(--color-section-category-band-text, var(--color-secondary-text));
 }
 
 /* Hot Deals carousel: pre-init sizing (mirrors breakpoints in FlashSaleBanner)
@@ -297,7 +487,7 @@ body {
   margin: 0 !important;
   width: 8px;
   height: 8px;
-  background: var(--color-secondary-text);
+  background: var(--color-commerce-flash-sale-text, var(--color-secondary-text));
   opacity: 0.5;
   transition: width 0.25s, opacity 0.25s;
 }

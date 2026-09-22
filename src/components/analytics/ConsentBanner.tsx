@@ -111,7 +111,7 @@ export function ConsentBanner({
       aria-label={t("cookie_consent_title", "Cookie preferences")}
       className="fixed inset-x-0 bottom-0 z-[60] p-3 sm:p-4"
     >
-      <div className="mx-auto max-w-3xl rounded-2xl border border-[var(--color-border)] bg-white p-4 text-sm shadow-xl sm:p-5">
+      <div className="mx-auto max-w-3xl rounded-2xl border border-[var(--color-border)] bg-surface p-4 text-sm shadow-xl sm:p-5">
         <p className="font-medium text-[var(--color-text-primary)]">
           {t("cookie_consent_title", "Cookie preferences")}
         </p>

@@ -15,7 +15,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="text-sm font-medium text-[var(--color-text-primary)]"
+            className="text-sm font-medium text-[var(--color-form-label,var(--color-text-primary))]"
           >
             {label}
           </label>
@@ -24,9 +24,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           ref={ref}
           id={inputId}
           className={cn(
-            "w-full rounded-lg border border-[var(--color-border)] bg-white px-4 py-2.5",
-            "text-sm text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]",
-            "focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
+            "input-shape w-full border-[color:var(--color-form-input-border,var(--color-border))] bg-[var(--color-form-input-bg,var(--color-surface))] px-4 py-2.5",
+            "text-sm text-[var(--color-form-input-text,var(--color-text-primary))] placeholder:text-[var(--color-form-placeholder,var(--color-text-muted))]",
+            "focus:outline-none focus:border-[color:var(--color-form-input-focus,var(--color-brand-500))] focus:ring-3 focus:ring-[var(--color-misc-focus-ring,var(--color-brand-100))]",
             "disabled:opacity-50 disabled:cursor-not-allowed",
             error && "border-red-500 focus:ring-red-500",
             className

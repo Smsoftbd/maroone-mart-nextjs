@@ -15,9 +15,9 @@ interface FooterMinimalProps {
   pages?: PageSummary[];
 }
 
-const linkClass = "text-[var(--color-footer-text)]/75 hover:text-[var(--color-footer-text)] transition-colors";
+const linkClass = "text-[var(--color-footer-link,var(--color-footer-text))] hover:text-[var(--color-footer-link-hover,var(--color-footer-text))] transition-colors";
 
-const headingClass = "mb-5 text-sm font-semibold text-[var(--color-footer-text)]";
+const headingClass = "mb-5 text-sm font-semibold text-[var(--color-footer-heading,var(--color-footer-text))]";
 
 /**
  * Footer used on the homepage only (dark ink ground).
@@ -119,7 +119,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
           <div className="col-span-2 space-y-8 lg:col-span-1 lg:pt-10">
             {socials.length > 0 && (
               <div>
-                <h6 className="mb-3 text-sm font-medium">{t("social_links", "Social Links")}</h6>
+                <h6 className="mb-3 text-sm font-medium text-[var(--color-footer-heading,var(--color-footer-text))]">{t("social_links", "Social Links")}</h6>
                 <div className="flex flex-wrap items-center gap-4">
                   {socials.map(([key, url]) => (
                     <a
@@ -128,7 +128,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={key}
-                      className="transition-opacity hover:opacity-75"
+                      className="text-[var(--color-footer-social-icon,var(--color-footer-text))] transition-opacity hover:opacity-75"
                     >
                       <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                         {socialIcons[key]}
@@ -141,7 +141,7 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
 
             {paymentMethods.length > 0 && (
               <div>
-                <h6 className="mb-3 text-sm font-medium">{t("payment_methods", "Payment Methods")}</h6>
+                <h6 className="mb-3 text-sm font-medium text-[var(--color-footer-heading,var(--color-footer-text))]">{t("payment_methods", "Payment Methods")}</h6>
                 <div className="flex flex-wrap items-center gap-3">
                   {paymentMethods.map((m) => {
                     const name = resolveL10n(m.name);
@@ -168,15 +168,15 @@ export async function FooterMinimal({ store, pages = [] }: FooterMinimalProps) {
         </div>
       </div>
 
-      <div className="border-t border-[var(--color-footer-text)]/15">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs sm:flex-row sm:gap-6 sm:px-6 lg:px-8 text-[var(--color-footer-text)]/75">
+      <div className="border-t border-[color:var(--color-footer-divider,rgba(255,255,255,0.15))] bg-[var(--color-footer-bottom-bg,var(--color-footer))]">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-2 px-4 py-5 text-xs sm:flex-row sm:gap-6 sm:px-6 lg:px-8 text-[var(--color-footer-bottom-text,var(--color-footer-text))]">
           <span>
             &copy; {year} {store.name} — {t("all_rights_reserved", "All rights reserved")}.
           </span>
           {getConsentBannerMode() !== "off" && (
             <ConsentSettingsLink
               label={t("cookie_settings", "Cookie settings")}
-              className="hover:text-[var(--color-footer-text)]"
+              className="hover:text-[var(--color-footer-link-hover,var(--color-footer-text))]"
             />
           )}
         </div>

@@ -26,7 +26,7 @@ export function AccountSidebar() {
 
   return (
     <aside className="w-full md:w-56 shrink-0">
-      <nav className="bg-white border border-[var(--color-border)] rounded-xl overflow-hidden">
+      <nav className="bg-surface border border-[var(--color-border)] rounded-xl overflow-hidden">
         {links.map(({ href, label, icon: Icon }) => {
           const active =
             href === "/account"

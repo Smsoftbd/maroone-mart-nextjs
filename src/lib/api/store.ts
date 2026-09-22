@@ -4,6 +4,7 @@ import { apiRequest, CACHE_TAGS, REVALIDATE, resolveL10n } from "./client";
 import type { LocalizedString } from "./client";
 import { getLocale } from "@/lib/i18n/locale";
 import { normalizeColors, type StoreColors } from "@/lib/utils/colors";
+import { normalizeTheme } from "@/lib/utils/theme";
 import type {
   Store,
   StoreLanguage,
@@ -42,6 +43,9 @@ type ApiStore = {
     linkedin?: string | null;
   };
   colors?: Partial<Record<keyof StoreColors, string | null>> | null;
+  theme?: unknown;
+  theme_css?: string | null;
+  theme_fonts_url?: string | null;
   sections: {
     featured_products: boolean;
     flash_sale: boolean;
@@ -113,6 +117,7 @@ export async function getStore(): Promise<Store> {
       pinterest: res.social?.pinterest ?? undefined,
     },
     colors: normalizeColors(res.colors),
+    ...normalizeTheme(res.theme, res.theme_css, res.theme_fonts_url),
     features: {
       wishlist: res.sections?.wishlist ?? false,
       reviews: res.sections?.reviews ?? false,

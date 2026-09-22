@@ -118,7 +118,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     : [{ label: t("all_products", "All Products") }];
 
   return (
-    <div className="bg-white">
+    <div className="bg-surface">
       <div className="border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, ...crumbs]} />

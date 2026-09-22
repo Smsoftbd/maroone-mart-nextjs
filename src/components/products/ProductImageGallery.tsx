@@ -215,7 +215,7 @@ export function ProductImageGallery({
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 backdrop-blur text-slate-800 shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-white"
+                className="absolute left-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -223,7 +223,7 @@ export function ProductImageGallery({
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/85 backdrop-blur text-slate-800 shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>

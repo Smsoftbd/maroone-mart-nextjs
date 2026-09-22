@@ -23,14 +23,14 @@ export function MobileNav({ store, categories }: MobileNavProps) {
       {isMobileNavOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <motion.div
-            className="absolute inset-0 bg-black/40"
+            className="absolute inset-0 bg-[var(--color-misc-overlay,rgba(0,0,0,0.4))]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={closeMobileNav}
           />
           <motion.div
-            className="absolute left-0 top-0 bottom-0 w-80 bg-white flex flex-col overflow-hidden"
+            className="absolute left-0 top-0 bottom-0 w-80 bg-surface flex flex-col overflow-hidden"
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}

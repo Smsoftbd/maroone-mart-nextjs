@@ -32,7 +32,7 @@ export function Slider({ sliders }: SliderProps) {
           autoplay={{ delay: 5000, disableOnInteraction: false }}
           pagination={{ el: dotsEl, clickable: true }}
           watchSlidesProgress
-          className="hero-slider overflow-hidden rounded-2xl bg-surface-100"
+          className="hero-slider overflow-hidden rounded-2xl bg-[var(--color-section-hero-bg,var(--color-surface-100))]"
         >
           {sliders.map((slider, i) => {
             const img = slider.image && (
@@ -63,7 +63,7 @@ export function Slider({ sliders }: SliderProps) {
 
         {/* Dots sit on a white tab notched into the bottom edge of the banner */}
         {sliders.length > 1 && (
-          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 rounded-t-xl bg-white px-3 pt-2 pb-1.5">
+          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 rounded-t-xl bg-[var(--color-section-hero-bg,var(--color-surface))] px-3 pt-2 pb-1.5">
             <div ref={setDotsEl} className="home-dots home-dots-brand flex items-center justify-center" />
           </div>
         )}

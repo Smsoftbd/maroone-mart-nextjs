@@ -39,7 +39,7 @@ export function ProductCarousel({
       className={
         variant === "minimal" || variant === "shop"
           ? ""
-          : "sm:shadow-lg sm:bg-white rounded-xl sm:p-6"
+          : "sm:shadow-lg sm:bg-surface rounded-xl sm:p-6"
       }
     >
       <div className="relative">
@@ -67,14 +67,14 @@ export function ProductCarousel({
         <button
           ref={setPrevEl}
           aria-label="Previous products"
-          className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-200 text-slate-700 transition-opacity hover:opacity-80 disabled:opacity-0"
+          className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-surface shadow-md border border-slate-200 text-slate-700 transition-opacity hover:opacity-80 disabled:opacity-0"
         >
           <ChevronLeft height={20} width={20} />
         </button>
         <button
           ref={setNextEl}
           aria-label="Next products"
-          className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-white shadow-md border border-slate-200 text-slate-700 transition-opacity hover:opacity-80 disabled:opacity-0"
+          className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 h-9 w-9 items-center justify-center rounded-full bg-surface shadow-md border border-slate-200 text-slate-700 transition-opacity hover:opacity-80 disabled:opacity-0"
         >
           <ChevronRight height={20} width={20} />
         </button>

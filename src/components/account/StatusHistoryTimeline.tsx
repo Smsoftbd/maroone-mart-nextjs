@@ -151,7 +151,7 @@ export function StatusHistoryTimeline({ statusHistory }: Props) {
               <div className="flex flex-col items-center">
                 <div
                   className={`flex h-8 w-8 items-center justify-center rounded-full flex-shrink-0 ${
-                    isLast ? "bg-white shadow-sm ring-2 ring-offset-1 ring-current" : "bg-white"
+                    isLast ? "bg-surface shadow-sm ring-2 ring-offset-1 ring-current" : "bg-surface"
                   } ${cfg.iconClass}`}
                 >
                   <Icon className={`h-5 w-5 ${cfg.iconClass}`} />

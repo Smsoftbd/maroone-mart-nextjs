@@ -27,7 +27,7 @@ export default function AccountDashboard() {
           <Link
             key={href}
             href={href}
-            className="bg-white border border-[var(--color-border)] rounded-xl p-4 hover:shadow-sm transition-shadow text-center"
+            className="bg-surface border border-[var(--color-border)] rounded-xl p-4 hover:shadow-sm transition-shadow text-center"
           >
             <div className="bg-brand-50 rounded-full p-3 w-fit mx-auto mb-3">
               <Icon className="h-5 w-5 text-brand-ink" />

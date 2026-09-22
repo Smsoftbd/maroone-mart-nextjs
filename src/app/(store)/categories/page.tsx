@@ -27,7 +27,7 @@ export default async function CategoriesPage() {
   ]);
 
   return (
-    <div className="bg-white">
+    <div className="bg-surface">
       <div className="border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <Breadcrumb
@@ -57,7 +57,7 @@ export default async function CategoriesPage() {
                   href={`/products?category=${cat.slug}`}
                   className="group flex flex-col items-center gap-3 text-center"
                 >
-                  <span className="flex aspect-[3/2] w-full items-center justify-center rounded-xl border border-slate-200 bg-white transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-brand-500 group-hover:shadow-md">
+                  <span className="flex aspect-[3/2] w-full items-center justify-center rounded-xl border border-slate-200 bg-surface transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-brand-500 group-hover:shadow-md">
                     {cat.image ? (
                       <span className="relative block h-1/2 w-1/2">
                         <Image

@@ -6,7 +6,7 @@ interface SectionHeaderProps {
   icon?: React.ReactNode;
   viewAllHref?: string;
   viewAllLabel?: string;
-  /** Light text for the secondary-colored band. */
+  /** Text for the category band (section.category_band_text). */
   inverted?: boolean;
 }
 
@@ -16,11 +16,11 @@ export function SectionHeader({ title, icon, viewAllHref, viewAllLabel, inverted
       className={
         inverted
           ? "mb-6 flex items-center justify-between gap-4"
-          : "mb-6 flex items-center justify-between gap-4 border-b border-slate-200 pb-4"
+          : "mb-6 flex items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4"
       }
     >
       <h2
-        className={`flex items-center gap-2 text-lg font-bold md:text-xl ${inverted ? "text-[var(--color-secondary-text)]" : "text-[var(--color-text-primary)]"}`}
+        className={`flex items-center gap-2 text-lg font-bold md:text-xl ${inverted ? "text-[var(--color-section-category-band-text,var(--color-secondary-text))]" : "text-[var(--color-section-section-title,var(--color-text-primary))]"}`}
       >
         {icon}
         {title}
@@ -28,7 +28,7 @@ export function SectionHeader({ title, icon, viewAllHref, viewAllLabel, inverted
       {viewAllHref && viewAllLabel && (
         <Link
           href={viewAllHref}
-          className={`flex shrink-0 items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-75 ${inverted ? "text-[var(--color-secondary-text)]" : "text-brand-ink"}`}
+          className={`flex shrink-0 items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-75 ${inverted ? "text-[var(--color-section-category-band-text,var(--color-secondary-text))]" : "text-[var(--color-section-section-link,var(--color-brand-ink))]"}`}
         >
           {viewAllLabel}
           <ArrowRight className="h-4 w-4" />

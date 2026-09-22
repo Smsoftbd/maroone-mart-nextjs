@@ -89,7 +89,7 @@ export function CartDrawer({ currency }: CartDrawerProps) {
                 <button
                   onClick={handleClear}
                   disabled={clearing}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium text-white bg-red-500 hover:bg-red-600 transition-colors disabled:opacity-60"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium text-[var(--color-status-error-text,#fff)] bg-red-500 hover:opacity-90 transition-colors disabled:opacity-60"
                 >
                   {clearing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   {t("clear", "Clear")}

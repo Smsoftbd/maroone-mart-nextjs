@@ -23,8 +23,8 @@ export function Skeleton({ className, rounded = "md" }: SkeletonProps) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl border border-surface-100 overflow-hidden">
-      <Skeleton className="aspect-square w-full" rounded="sm" />
+    <div className="store-card overflow-hidden">
+      <Skeleton className="aspect-product w-full" rounded="sm" />
       <div className="p-4 space-y-2">
         <Skeleton className="h-3 w-20" />
         <Skeleton className="h-4 w-full" />

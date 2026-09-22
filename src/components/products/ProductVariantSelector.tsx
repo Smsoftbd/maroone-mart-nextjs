@@ -117,7 +117,7 @@ export function ProductVariantSelector({
                       "min-w-12 h-10 px-4 rounded-full border text-sm transition-colors",
                       active
                         ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)] font-medium"
-                        : "border-[var(--color-border)] bg-white text-[var(--color-text-primary)] hover:border-brand-500",
+                        : "border-[var(--color-border)] bg-surface text-[var(--color-text-primary)] hover:border-brand-500",
                       oos &&
                         "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)] hover:border-[var(--color-border-dark)]"
                     )}
