@@ -742,6 +742,15 @@ body[data-hero-height="lg"] .hero { --hero-ratio: 4 / 3; }
 }
 body[data-hero="banner"] .hero .hero-inner { max-width: none; padding: 0; }
 body[data-hero="banner"] .hero .hero-frame { border-radius: 0; }
+/* …except when the category column shares the row: that layout stays inside
+   the container, so the banner can't bleed past it. */
+body[data-hero="banner"] .hero .hero-inner.has-cats {
+  max-width: var(--container-7xl);
+  padding-inline: max(16px, min(var(--layout-container-padding, 24px), 5vw));
+}
+body[data-hero="banner"] .hero .hero-inner.has-cats .hero-frame {
+  border-radius: var(--shape-section-radius, 12px);
+}
 body[data-hero="minimal"] .hero { background: transparent; }
 body[data-gradient-hero="true"] .hero { background: var(--gradient-brand); color: var(--color-brand-primary-text); }
 

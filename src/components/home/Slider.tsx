@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay, Pagination } from "swiper/modules";
+import { cn } from "@/lib/utils/cn";
 import type { Slider as SliderType } from "@/lib/api/types";
 
 import "swiper/css";
@@ -31,7 +32,7 @@ export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: Slid
   if (!sliders.length) return null;
 
   return (
-    <section className="banner hero-inner max-w-7xl mx-auto pt-4 lg:pt-5">
+    <section className={cn("banner hero-inner max-w-7xl mx-auto pt-4 lg:pt-5", sidebar && "has-cats")}>
       <div className={sidebar ? "hero-with-cats" : undefined}>
       {sidebar}
       <div className="relative">
