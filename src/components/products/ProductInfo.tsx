@@ -7,9 +7,7 @@ import {
   CreditCard,
   Heart,
   MessageCircleQuestion,
-  Minus,
   Phone,
-  Plus,
   Share2,
   ShieldCheck,
   ShoppingCart,
@@ -75,8 +73,7 @@ export function ProductInfo({
 
   const minQty = Math.max(product.min_order_qty ?? product.min_order_quantity ?? 1, 1);
   const stock = selectedBarcode?.stock ?? 0;
-  const maxOrder = product.max_order_qty ?? product.max_order_quantity ?? null;
-  const maxQty = Math.max(minQty, maxOrder ? Math.min(stock, maxOrder) : stock);
+  // No quantity stepper on the page; the cart always gets the minimum order qty.
   const [qty, setQty] = useState(minQty);
 
   const price = Math.max(selectedBarcode?.effective_price ?? 0, 0);
@@ -371,41 +368,6 @@ export function ProductInfo({
             />
           </div>
         )}
-
-        {/* Quantity */}
-        <div className="mt-5 hidden items-center gap-4 md:flex">
-          <span className="text-sm text-[var(--color-text-secondary)]">
-            {t("quantity", "Quantity")}
-          </span>
-          <div
-            className={cn(
-              "flex items-center rounded-md border border-[var(--color-border-dark)] h-10",
-              !inStock && "opacity-50"
-            )}
-          >
-            <button
-              type="button"
-              onClick={() => setQty((q) => Math.max(minQty, q - 1))}
-              disabled={!inStock || qty <= minQty}
-              aria-label={t("decrease_quantity", "Decrease quantity")}
-              className="flex h-full w-10 items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="w-8 text-center font-semibold tabular-nums" aria-live="polite">
-              {qty}
-            </span>
-            <button
-              type="button"
-              onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
-              disabled={!inStock || qty >= maxQty}
-              aria-label={t("increase_quantity", "Increase quantity")}
-              className="flex h-full w-10 items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
 
         {/* Mobile CTAs (desktop CTAs sit under the gallery) */}
         <div ref={ctaRef} className="mt-5 hidden space-y-3 md:block lg:hidden">
