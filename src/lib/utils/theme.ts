@@ -477,7 +477,8 @@ function buildBridge(): string {
     "--radius-3xl": "calc(var(--shape-radius) * 2.4)",
 
     // Layout: every `max-w-7xl` wrapper uses the theme's container width
-    "--container-7xl": "var(--layout-container-width)",
+    // container_width is the *content* width: the gutters sit outside it.
+    "--container-7xl": "calc(var(--layout-container-width) + 2 * var(--layout-container-padding, 16px))",
 
     // Fonts
     "--font-display": "var(--typography-heading-font)",

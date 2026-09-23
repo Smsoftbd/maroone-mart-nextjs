@@ -59,7 +59,7 @@ export async function PopularCategories({ categories, style, title, subtitle, vi
                   <span
                     className={
                       style === "circle"
-                        ? "relative flex aspect-square w-full max-w-[140px] items-center justify-center overflow-hidden rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] md:ring-4 ring-[color-mix(in_srgb,currentColor_20%,transparent)] transition-transform duration-[var(--effects-transition-speed,200ms)] group-hover:-translate-y-1"
+                        ? "relative flex aspect-square w-full max-w-[140px] xl:max-w-[168px] items-center justify-center overflow-hidden rounded-full bg-[var(--color-section-category-card-bg,var(--color-surface))] transition-transform duration-[var(--effects-transition-speed,200ms)] group-hover:-translate-y-1"
                         : "store-card relative flex aspect-square w-full items-center justify-center overflow-hidden !bg-[var(--color-section-category-card-bg,var(--color-surface))]"
                     }
                   >
@@ -68,7 +68,7 @@ export async function PopularCategories({ categories, style, title, subtitle, vi
                         src={cat.image}
                         alt={cat.name}
                         fill
-                        sizes="(min-width: 1024px) 160px, 30vw"
+                        sizes="(min-width: 1024px) 168px, 30vw"
                         className={style === "circle" ? "object-cover" : "object-contain p-3"}
                       />
                     ) : (

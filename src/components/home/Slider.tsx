@@ -29,7 +29,7 @@ export function Slider({ sliders, autoplay = true, interval = 5 }: SliderProps) 
   if (!sliders.length) return null;
 
   return (
-    <section className="banner hero-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-6">
+    <section className="banner hero-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-5">
       <div className="relative">
         <Swiper
           modules={[EffectFade, Autoplay, Pagination]}
@@ -71,7 +71,7 @@ export function Slider({ sliders, autoplay = true, interval = 5 }: SliderProps) 
 
         {/* Dots sit on a white tab notched into the bottom edge of the banner */}
         {sliders.length > 1 && (
-          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 rounded-t-xl bg-[var(--color-surface-0)] px-3 pt-2 pb-1.5">
+          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2 rounded-xl bg-[var(--color-surface-0)] px-4 py-2">
             <div ref={setDotsEl} className="home-dots home-dots-brand flex items-center justify-center" />
           </div>
         )}

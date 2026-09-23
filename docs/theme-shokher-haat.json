@@ -7,7 +7,7 @@
     "secondary_text": "#FFFFFF",
     "tertiary": "#EF4444",
     "tertiary_text": "#FFFFFF",
-    "gradient_end": "#22C58B"
+    "gradient_end": "#00C999"
   },
   "neutral": {
     "text": "#0F172A",
@@ -16,7 +16,7 @@
     "background": "#FFFFFF",
     "surface": "#FFFFFF",
     "surface_alt": "#F8FAFC",
-    "border": "#E2E8F0",
+    "border": "#CBD5E1",
     "border_strong": "#CBD5E1"
   },
   "status": {
@@ -95,7 +95,7 @@
     "icon": "#334155",
     "search_bg": "#FFFFFF",
     "search_text": "#334155",
-    "search_border": "#F99104",
+    "search_border": "#CBD5E1",
     "search_button_bg": "#F99104",
     "search_button_text": "#FFFFFF",
     "cart_badge_bg": "#EF4444",
@@ -107,7 +107,7 @@
     "mega_menu_bg": "#FFFFFF"
   },
   "section": {
-    "hero_bg": "#F3F4F6",
+    "hero_bg": "#FFFFFF",
     "hero_text": "#1F2937",
     "hero_overlay": "rgba(0,0,0,0)",
     "category_band_bg": "#00B7C9",
@@ -212,9 +212,9 @@
   },
   "layout": {
     "container_width": 1280,
-    "container_padding": 20,
+    "container_padding": 16,
     "header_style": "classic",
-    "header_height": 72,
+    "header_height": 80,
     "logo_height": 36,
     "sticky_header": true,
     "header_divider": "line",
@@ -291,7 +291,7 @@
     "cart_feedback": "drawer"
   },
   "advanced": {
-    "custom_css": ".category-band{background:linear-gradient(90deg,#00B7C9 0%,#22C58B 100%);} .site-footer{background:linear-gradient(135deg,#0F172A 0%,#15233D 70%,#3A2A1A 100%);}",
+    "custom_css": ".category-band{background:linear-gradient(90deg,#00B7C9 0%,#00C999 100%);} .site-footer{background:linear-gradient(135deg,#0F172A 0%,#15233D 70%,#3A2A1A 100%);}",
     "custom_css_mobile": ""
   }
 }

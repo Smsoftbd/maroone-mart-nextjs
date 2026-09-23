@@ -20,7 +20,7 @@ interface HomeNavbarProps {
   scrolled: boolean;
 }
 
-const circleBtn = "header-icon-btn relative flex h-11 w-11 items-center justify-center rounded-full";
+const circleBtn = "header-icon-btn relative flex h-11 w-11 items-center justify-center rounded-full lg:h-12 lg:w-12";
 const CART_ICONS = { bag: ShoppingBag, cart: ShoppingCart, basket: ShoppingBasket };
 const iconBtn = "rounded-full p-2 text-[var(--color-header-icon,currentColor)] hover:bg-[color-mix(in_srgb,currentColor_8%,transparent)]";
 
@@ -184,7 +184,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
               <SearchBox
                 categories={categories}
                 currency={store.currency_symbol}
-                className="hidden max-w-sm lg:block"
+                className="hidden w-full max-w-sm lg:mr-2 lg:block lg:max-w-[352px]"
                 variant="minimal"
               />
             )}
@@ -210,7 +210,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
 
             <button
               onClick={openCart}
-              className={cn(circleBtn, "cart-icon-btn h-10 w-10 max-md:border-transparent lg:h-11 lg:w-11")}
+              className={cn(circleBtn, "cart-icon-btn h-10 w-10 max-md:border-transparent lg:h-12 lg:w-12")}
               aria-label={`Cart, ${totalItems} items`}
             >
               <CartIcon className="h-5 w-5 max-md:h-6 max-md:w-6" strokeWidth={1.75} />
@@ -225,7 +225,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
 
             <LanguageSwitcher
               languages={store.languages}
-              buttonClassName="header-icon-btn h-11 gap-1.5 px-3 max-md:w-12 max-md:h-12 max-md:!rounded-full max-md:!px-0 max-md:justify-center"
+              buttonClassName="header-icon-btn h-11 gap-1.5 px-3 lg:h-12 max-md:w-12 max-md:h-12 max-md:!rounded-full max-md:!px-0 max-md:justify-center"
             />
           </div>
         </div>
