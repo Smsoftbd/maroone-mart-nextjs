@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Flame } from "lucide-react";
 import { Slider } from "@/components/home/Slider";
+import { HeroCategoryList } from "@/components/home/HeroCategoryList";
 import { FeatureHighlights } from "@/components/home/FeatureHighlights";
 import { PopularCategories } from "@/components/home/PopularCategories";
 import { FlashSaleBanner } from "@/components/home/FlashSaleBanner";
@@ -14,6 +15,7 @@ import { NewsletterSection } from "@/components/home/NewsletterSection";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { BlogCard } from "@/components/blog/BlogCard";
 import { getStore, getSliders, getHomepageCategories, getHeroBanners } from "@/lib/api/store";
+import { getCategories } from "@/lib/api/products";
 import {
   getFlashSales,
   getNewArrivals,
@@ -61,7 +63,11 @@ const PRODUCT_KEYS = new Set(["flash_sale", "featured_products", "new_arrivals",
  * switches. Only the data for enabled blocks is fetched.
  */
 export default async function HomePage() {
-  const [store, t] = await Promise.all([getStore(), getServerT()]);
+  const [store, t, navCategories] = await Promise.all([
+    getStore(),
+    getServerT(),
+    getCategories().catch(() => []),
+  ]);
   const sections = store.homepage_sections.filter((s) => s.enabled);
   const on = (key: string) => sections.find((s) => s.key === key);
   const limitOf = (key: string) => on(key)?.limit ?? 12;
@@ -95,7 +101,12 @@ export default async function HomePage() {
         return (
           <div key={s.key}>
             <div className="hero">
-              <Slider sliders={sliders} autoplay={s.autoplay} interval={s.interval} />
+              <Slider
+                sliders={sliders}
+                autoplay={s.autoplay}
+                interval={s.interval}
+                sidebar={<HeroCategoryList categories={navCategories} />}
+              />
             </div>
             {page.trust_bar && <FeatureHighlights />}
           </div>

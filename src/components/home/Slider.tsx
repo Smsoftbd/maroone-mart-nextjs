@@ -13,6 +13,8 @@ import "swiper/css/pagination";
 
 interface SliderProps {
   sliders: SliderType[];
+  /** Optional column rendered to the left of the banner (homepage categories). */
+  sidebar?: React.ReactNode;
   /** Homepage section settings (Appearance → Sections → Banner). */
   autoplay?: boolean;
   /** Seconds between slides. */
@@ -23,13 +25,15 @@ interface SliderProps {
  * Homepage hero: the banner slider inside `.hero`. page.hero_style,
  * hero_height and effects.gradient_hero shape the frame (globals.css).
  */
-export function Slider({ sliders, autoplay = true, interval = 5 }: SliderProps) {
+export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: SliderProps) {
   const [dotsEl, setDotsEl] = useState<HTMLDivElement | null>(null);
 
   if (!sliders.length) return null;
 
   return (
-    <section className="banner hero-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 lg:pt-5">
+    <section className="banner hero-inner max-w-7xl mx-auto pt-4 lg:pt-5">
+      <div className={sidebar ? "hero-with-cats" : undefined}>
+      {sidebar}
       <div className="relative">
         <Swiper
           modules={[EffectFade, Autoplay, Pagination]}
@@ -75,6 +79,7 @@ export function Slider({ sliders, autoplay = true, interval = 5 }: SliderProps) 
             <div ref={setDotsEl} className="home-dots home-dots-brand flex items-center justify-center" />
           </div>
         )}
+      </div>
       </div>
     </section>
   );

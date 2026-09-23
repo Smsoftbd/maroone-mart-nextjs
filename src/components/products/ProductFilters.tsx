@@ -2,11 +2,19 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Check, ChevronLeft, Filter, Search, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  DollarSign,
+  Filter,
+  LayoutGrid,
+  Percent,
+  Search,
+  SlidersHorizontal,
+  Tag,
+} from "lucide-react";
 import { ActiveFilters } from "./ActiveFilters";
 import { Drawer } from "@/components/ui/Drawer";
-import { Checkbox } from "@/components/ui/Checkbox";
-import { RangeSlider } from "@/components/ui/RangeSlider";
 import { Spinner } from "@/components/ui/Spinner";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { cn } from "@/lib/utils/cn";
@@ -56,6 +64,24 @@ function useFilterParams() {
     navigate(params);
   };
 
+  // Free-text search inside the current listing ("Search in category…").
+  const setSearch = (term: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const value = term.trim();
+    if (value) params.set("search", value);
+    else params.delete("search");
+    navigate(params);
+  };
+
+  // Special offers: a single discount floor ("50" | "30" | "1"), cleared by
+  // picking the same bucket again.
+  const setDiscount = (value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) params.set("discount", value);
+    else params.delete("discount");
+    navigate(params);
+  };
+
   const setPrice = (min: number | undefined, max: number | undefined) => {
     const params = new URLSearchParams(searchParams.toString());
     if (min != null) params.set("price_min", String(min));
@@ -81,14 +107,17 @@ function useFilterParams() {
     values: searchParams.getAll("attribute_values"),
     priceMin: searchParams.get("price_min"),
     priceMax: searchParams.get("price_max"),
+    discount: searchParams.get("discount"),
+    search: searchParams.get("search") ?? "",
   };
   const activeCount =
     active.categories.length +
     active.brands.length +
     active.values.length +
-    (active.priceMin || active.priceMax ? 1 : 0);
+    (active.priceMin || active.priceMax ? 1 : 0) +
+    (active.discount ? 1 : 0);
 
-  return { active, activeCount, toggle, setCategory, setPrice, clearAll, isPending };
+  return { active, activeCount, toggle, setCategory, setPrice, setSearch, setDiscount, clearAll, isPending };
 }
 
 function ShowMore<T>({
@@ -134,25 +163,48 @@ function categoryPath(cats: Category[], slug: string): Category[] {
   return [];
 }
 
-function Section({
+function FilterCard({
   title,
+  icon,
   action,
+  tone,
   children,
 }: {
   title: string;
+  icon: React.ReactNode;
   action?: React.ReactNode;
+  /** "offers" paints the tinted Special Offers card. */
+  tone?: "offers";
   children: React.ReactNode;
 }) {
   return (
-    <section className="pt-6">
-      <div className="flex min-h-10 items-center justify-between gap-3 border-b border-slate-200 pb-2">
-        <h3 className="text-[15px] font-bold text-[var(--color-text-primary)] sm:text-sm sm:font-semibold">{title}</h3>
+    <section className={cn("filter-card", tone === "offers" && "is-offers")}>
+      <div className="filter-card-head">
+        <h3 className="filter-card-title">
+          {icon}
+          {title}
+        </h3>
         {action}
       </div>
-      <div className="pt-3">{children}</div>
+      {children}
     </section>
   );
 }
+
+/** Price buckets, matching the reference sidebar. */
+const PRICE_BUCKETS: { min?: number; max?: number }[] = [
+  { max: 1000 },
+  { min: 1000, max: 5000 },
+  { min: 5000, max: 15000 },
+  { min: 15000 },
+];
+
+/** Discount floors for the Special Offers card. */
+const OFFER_BUCKETS = [
+  { value: "50", label: "50% or more" },
+  { value: "30", label: "30% - 50%" },
+  { value: "1", label: "1% - 30%" },
+];
 
 function CategoryNav({
   categories,
@@ -225,99 +277,142 @@ function FilterContent({
   categories,
   brands,
   filterAttributes,
-  priceRange,
   currency,
   filters,
-}: Omit<ProductFiltersProps, "total"> & {
+}: Omit<ProductFiltersProps, "total" | "priceRange"> & {
   filters: ReturnType<typeof useFilterParams>;
 }) {
   const t = useT();
-  const [brandSearchOpen, setBrandSearchOpen] = useState(false);
-  const [brandQuery, setBrandQuery] = useState("");
-  const { active, toggle, setPrice } = filters;
+  const { active, toggle, setPrice, setSearch, setDiscount } = filters;
+  const [term, setTerm] = useState(active.search);
 
-  const filteredBrands = brandQuery
-    ? brands.filter((b) => b.name.toLowerCase().includes(brandQuery.toLowerCase()))
-    : brands;
+  const money = (n: number) => `${currency}${n.toLocaleString("en-US")}`;
+  const priceLabel = (b: { min?: number; max?: number }) =>
+    b.min == null
+      ? `${t("under", "Under")} ${money(b.max!)}`
+      : b.max == null
+      ? `${t("above", "Above")} ${money(b.min)}`
+      : `${money(b.min)} - ${money(b.max)}`;
+  const priceChecked = (b: { min?: number; max?: number }) =>
+    String(b.min ?? "") === (active.priceMin ?? "") && String(b.max ?? "") === (active.priceMax ?? "");
 
   return (
     <div>
-      {categories.length > 0 && (
-        <Section title={t("shop_by_category", "Shop by Category")}>
-          <CategoryNav categories={categories} filters={filters} />
-        </Section>
-      )}
+      <FilterCard title={t("search_products", "Search Products")} icon={<Search />}>
+        <form
+          className="filter-search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setSearch(term);
+          }}
+        >
+          <Search />
+          <input
+            type="search"
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            onBlur={() => term !== active.search && setSearch(term)}
+            placeholder={t("search_in_category", "Search in category...")}
+            aria-label={t("search_products", "Search Products")}
+          />
+        </form>
+      </FilterCard>
+
+      <FilterCard
+        title={t("price_range", "Price Range")}
+        icon={<DollarSign />}
+        action={
+          (active.priceMin || active.priceMax) && (
+            <button type="button" onClick={() => setPrice(undefined, undefined)} className="filter-card-action">
+              {t("reset", "Reset")}
+            </button>
+          )
+        }
+      >
+        {PRICE_BUCKETS.map((b) => (
+          <label key={`${b.min ?? 0}-${b.max ?? 0}`} className="filter-option">
+            <input
+              type="radio"
+              name="price-bucket"
+              checked={priceChecked(b)}
+              onChange={() => setPrice(b.min, b.max)}
+            />
+            {priceLabel(b)}
+          </label>
+        ))}
+      </FilterCard>
 
       {brands.length > 0 && (
-        <Section
+        <FilterCard
           title={t("brands", "Brands")}
+          icon={<Tag />}
           action={
-            <button
-              type="button"
-              onClick={() => {
-                setBrandSearchOpen((o) => !o);
-                setBrandQuery("");
-              }}
-              aria-label={t("search_brands", "Search brands")}
-              aria-expanded={brandSearchOpen}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-slate-800 transition-colors hover:border-brand-500 hover:text-brand-ink"
-            >
-              {brandSearchOpen ? <X className="h-4 w-4" /> : <Search className="h-4 w-4" />}
-            </button>
+            active.brands.length > 0 && (
+              <button
+                type="button"
+                onClick={() => active.brands.forEach((id) => toggle("brands", id))}
+                className="filter-card-action"
+              >
+                {t("clear", "Clear")}
+              </button>
+            )
           }
         >
-          {brandSearchOpen && (
-            <div className="relative mb-2">
-              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
-              <input
-                type="search"
-                autoFocus
-                value={brandQuery}
-                onChange={(e) => setBrandQuery(e.target.value)}
-                placeholder={t("search_brands", "Search brands")}
-                aria-label={t("search_brands", "Search brands")}
-                className="w-full rounded-md border border-slate-200 bg-transparent py-1.5 pl-8 pr-2 text-sm outline-none transition-colors placeholder:text-slate-400 focus:border-brand-500"
-              />
-            </div>
-          )}
-          {filteredBrands.length === 0 ? (
-            <p className="py-1.5 text-sm text-slate-500">{t("no_matches", "No matches")}</p>
-          ) : (
-            <ShowMore
-              key={brandQuery}
-              items={filteredBrands}
-              isActive={(b) => active.brands.includes(String(b.id))}
-              render={(brand) => (
-                <Checkbox
-                  key={brand.id}
+          <ShowMore
+            items={brands}
+            isActive={(b) => active.brands.includes(String(b.id))}
+            render={(brand) => (
+              <label key={brand.id} className="filter-option">
+                <input
+                  type="checkbox"
                   checked={active.brands.includes(String(brand.id))}
                   onChange={() => toggle("brands", String(brand.id))}
-                  label={brand.name}
                 />
-              )}
-            />
-          )}
-        </Section>
+                <span className="truncate">{brand.name}</span>
+                {brand.products_count != null && (
+                  <span className="filter-count tabular-nums">({brand.products_count})</span>
+                )}
+              </label>
+            )}
+          />
+        </FilterCard>
       )}
 
-      {priceRange.max > priceRange.min && (
-        <Section title={t("price", "Price")}>
-          <RangeSlider
-            min={priceRange.min}
-            max={priceRange.max}
-            valueMin={active.priceMin ? Number(active.priceMin) : undefined}
-            valueMax={active.priceMax ? Number(active.priceMax) : undefined}
-            currency={currency}
-            onCommit={setPrice}
-          />
-        </Section>
+      <FilterCard
+        title={t("special_offers", "Special Offers")}
+        icon={<Percent />}
+        tone="offers"
+        action={
+          active.discount && (
+            <button type="button" onClick={() => setDiscount(null)} className="filter-card-action">
+              {t("clear", "Clear")}
+            </button>
+          )
+        }
+      >
+        {OFFER_BUCKETS.map((o) => (
+          <label key={o.value} className="filter-option">
+            <input
+              type="checkbox"
+              checked={active.discount === o.value}
+              onChange={() => setDiscount(active.discount === o.value ? null : o.value)}
+            />
+            {t(`offer_${o.value}`, o.label)}
+          </label>
+        ))}
+      </FilterCard>
+
+      {categories.length > 0 && (
+        <FilterCard title={t("shop_by_category", "Categories")} icon={<LayoutGrid />}>
+          <CategoryNav categories={categories} filters={filters} />
+        </FilterCard>
       )}
 
       {filterAttributes.map((attr) => {
         const isColor = attr.code === "color" && attr.values.some((v) => v.code);
 
         return (
-          <Section key={attr.id} title={attr.name}>
+          <FilterCard key={attr.id} title={attr.name} icon={<SlidersHorizontal />}>
             {isColor ? (
               <div className="flex flex-wrap gap-2.5 pt-1">
                 {attr.values.map((v) => {
@@ -348,16 +443,18 @@ function FilterContent({
                 items={attr.values}
                 isActive={(v) => active.values.includes(String(v.id))}
                 render={(v) => (
-                  <Checkbox
-                    key={v.id}
-                    checked={active.values.includes(String(v.id))}
-                    onChange={() => toggle("attribute_values", String(v.id))}
-                    label={v.value}
-                  />
+                  <label key={v.id} className="filter-option">
+                    <input
+                      type="checkbox"
+                      checked={active.values.includes(String(v.id))}
+                      onChange={() => toggle("attribute_values", String(v.id))}
+                    />
+                    <span className="truncate">{v.value}</span>
+                  </label>
                 )}
               />
             )}
-          </Section>
+          </FilterCard>
         );
       })}
     </div>
@@ -370,26 +467,7 @@ function FilterContent({
  */
 export function ProductFilterSidebar(props: Omit<ProductFiltersProps, "total">) {
   const filters = useFilterParams();
-  const t = useT();
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between pb-2">
-        <h2 className="text-base font-semibold">{t("filter", "Filter")}</h2>
-        {filters.activeCount > 0 && (
-          <button type="button" onClick={filters.clearAll} className="text-xs font-medium text-brand-ink hover:underline">
-            {t("clear_all", "Clear all")}
-          </button>
-        )}
-      </div>
-      <ActiveFilters
-        categories={props.categories}
-        brands={props.brands}
-        filterAttributes={props.filterAttributes}
-        currency={props.currency}
-      />
-      <FilterContent {...props} filters={filters} />
-    </div>
-  );
+  return <FilterContent {...props} filters={filters} />;
 }
 
 export function ProductFilters({ total, ...props }: ProductFiltersProps) {

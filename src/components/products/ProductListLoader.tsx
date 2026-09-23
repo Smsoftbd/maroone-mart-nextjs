@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ProductGrid } from "./ProductGrid";
+import { RefreshCw } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { loadProductsPage } from "@/app/(store)/products/actions";
@@ -75,17 +76,24 @@ export function ProductListLoader({
     <div>
       <ProductGrid products={products} currency={currency} list={list} />
       <div ref={sentinel} className="mt-10 flex flex-col items-center gap-3">
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          {t("showing_x_of_y", "Showing :count of :total")
-            .replace(":count", String(products.length))
-            .replace(":total", String(total))}
-        </p>
         {hasMore && (mode === "load_more" || failed) && (
-          <button type="button" onClick={loadMore} disabled={isPending} className="btn btn-outline min-w-40 text-sm">
-            {isPending ? <Spinner size="sm" /> : t("load_more", "Load more")}
+          <button type="button" onClick={loadMore} disabled={isPending} className="load-more-btn">
+            {isPending ? (
+              <Spinner size="sm" />
+            ) : (
+              <RefreshCw className="h-[18px] w-[18px]" strokeWidth={2} />
+            )}
+            {t("load_more_products", "Load More Products")}
           </button>
         )}
         {hasMore && mode === "infinite" && !failed && isPending && <Spinner size="md" />}
+        {!hasMore && (
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            {t("showing_x_of_y", "Showing :count of :total")
+              .replace(":count", String(products.length))
+              .replace(":total", String(total))}
+          </p>
+        )}
       </div>
     </div>
   );

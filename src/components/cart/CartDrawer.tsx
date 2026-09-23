@@ -1,62 +1,57 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Loader2, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { ArrowRight, ShoppingBag, X } from "lucide-react";
 import { Drawer } from "@/components/ui/Drawer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { CartItem } from "./CartItem";
-import { CartSummary } from "./CartSummary";
 import { useCartStore } from "@/lib/stores/cartStore";
-import { useCart } from "@/lib/hooks/useCart";
+import { formatPrice } from "@/lib/utils/format";
 import { useT } from "@/lib/i18n/I18nProvider";
-import { appToast } from "@/lib/utils/toast";
-import { track } from "@/lib/analytics/track";
-import { cartTrackItem, useTrackViewCart } from "@/lib/hooks/useTrackViewCart";
+import { useTrackViewCart } from "@/lib/hooks/useTrackViewCart";
 
 interface CartDrawerProps {
   currency: string;
 }
 
+/**
+ * Slide-over cart, in the reference storefront's shape: a green bag tile in
+ * the head, one framed row per line item on a tinted body, and the total plus
+ * "View Cart" / "Checkout" pinned to the bottom.
+ */
 export function CartDrawer({ currency }: CartDrawerProps) {
   const { isOpen, closeCart, items, totalItems, subTotal } = useCartStore();
-  const { clearCart } = useCart();
   const router = useRouter();
   const t = useT();
-  const [confirmClear, setConfirmClear] = useState(false);
-  const [clearing, setClearing] = useState(false);
   useTrackViewCart(isOpen);
 
-  const handleClose = useCallback(() => {
-    setConfirmClear(false);
-    closeCart();
-  }, [closeCart]);
+  const handleClose = useCallback(() => closeCart(), [closeCart]);
 
-  const handleClear = async () => {
-    setClearing(true);
-    const cleared = items;
-    try {
-      await clearCart();
-      cleared.forEach((i) => track.removeFromCart(cartTrackItem(i)));
-    } catch (e) {
-      appToast.apiError(e instanceof Error ? e.message : undefined);
-    } finally {
-      setClearing(false);
-      setConfirmClear(false);
-    }
-  };
-
-  const title =
-    totalItems > 0
-      ? `${t("your_cart", "Your cart")} (${totalItems})`
-      : t("your_cart", "Your cart");
+  const header = (
+    <div className="cart-drawer-head">
+      <span className="cart-drawer-icon">
+        <ShoppingBag className="h-[22px] w-[22px]" strokeWidth={1.75} />
+      </span>
+      <div className="min-w-0">
+        <h2 className="font-display text-xl font-bold leading-tight">{t("cart", "Cart")}</h2>
+        <p className="text-[13px] text-[var(--color-text-muted)] tabular-nums">
+          {totalItems} {totalItems === 1 ? t("item", "item") : t("items", "items")}
+        </p>
+      </div>
+      <button
+        onClick={handleClose}
+        className="ml-auto flex h-9 w-9 items-center justify-center rounded-full text-[var(--color-text-muted)] transition-colors hover:bg-[var(--color-surface-100)] hover:text-[var(--color-text-primary)]"
+        aria-label={t("close", "Close")}
+      >
+        <X className="h-5 w-5" strokeWidth={2} />
+      </button>
+    </div>
+  );
 
   return (
-    <Drawer
-      isOpen={isOpen}
-      onClose={handleClose}
-      title={title}
-    >
+    <Drawer isOpen={isOpen} onClose={handleClose} title={t("cart", "Cart")} header={header}>
       {items.length === 0 ? (
         <EmptyState
           icon={ShoppingBag}
@@ -72,59 +67,36 @@ export function CartDrawer({ currency }: CartDrawerProps) {
           className="py-20"
         />
       ) : (
-        <div className="flex flex-col min-h-full">
-          <div className="flex items-center justify-end gap-2 px-4 pt-3 text-xs">
-            {confirmClear ? (
-              <>
-                <span className="text-[var(--color-text-secondary)]">
-                  {t("clear_cart_confirm", "Remove all items?")}
-                </span>
-                <button
-                  onClick={() => setConfirmClear(false)}
-                  disabled={clearing}
-                  className="px-2 py-1 rounded-md font-medium text-[var(--color-text-secondary)] hover:bg-surface-100 transition-colors"
-                >
-                  {t("cancel", "Cancel")}
-                </button>
-                <button
-                  onClick={handleClear}
-                  disabled={clearing}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium text-[var(--color-status-error-text,#fff)] bg-red-500 hover:opacity-90 transition-colors disabled:opacity-60"
-                >
-                  {clearing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                  {t("clear", "Clear")}
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setConfirmClear(true)}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-md font-medium text-[var(--color-text-secondary)] hover:text-red-500 hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-                {t("clear_cart", "Clear cart")}
-              </button>
-            )}
-          </div>
-          <div className="flex-1 px-4 max-md:px-3 max-md:pt-1">
+        <div className="cart-drawer-body flex min-h-full flex-col">
+          <div className="flex-1 p-4">
             {items.map((item) => (
-              <CartItem key={item.id} item={item} currency={currency} onNavigate={closeCart} />
+              <CartItem
+                key={item.id}
+                item={item}
+                currency={currency}
+                onNavigate={closeCart}
+                variant="drawer"
+              />
             ))}
-            <button
-              type="button"
-              onClick={closeCart}
-              className="mx-auto mb-4 mt-2 flex items-center gap-2 text-[15px] font-medium text-[var(--color-brand-secondary,var(--color-secondary-500))] md:hidden"
-            >
-              <Plus className="h-5 w-5" />
-              {t("shop_more", "Shop more")}
-            </button>
           </div>
-          <div className="sticky bottom-0 shadow-[0_-4px_12px_rgba(0,0,0,0.05)]">
-            <CartSummary
-              subTotal={subTotal}
-              currency={currency}
-              totalItems={totalItems}
-              onClose={closeCart}
-            />
+
+          <div className="cart-foot sticky bottom-0">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="text-xl font-bold text-[var(--color-text-primary)]">{t("total", "Total")}</p>
+              <p className="cart-total-amount">{formatPrice(subTotal, currency)}</p>
+            </div>
+            <p className="mt-1.5 text-center text-[13px] text-[var(--color-text-muted)]">
+              {t("taxes_shipping_at_checkout", "Taxes and shipping calculated at checkout")}
+            </p>
+            <div className="mt-4 flex gap-3">
+              <Link href="/cart" onClick={closeCart} className="cart-foot-btn is-ghost flex-1">
+                {t("view_cart", "View Cart")}
+              </Link>
+              <Link href="/checkout" onClick={closeCart} className="cart-foot-btn is-primary flex-[1.6]">
+                {t("checkout", "Checkout")}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
           </div>
         </div>
       )}

@@ -24,27 +24,21 @@ export async function CategoryProductSections({
   return (
     <>
       {visible.map(({ category, products }) => (
-        <section
-          key={category.id}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10"
-        >
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-display text-2xl md:text-3xl font-semibold">
-              {category.name}
-            </h2>
-            <Link
-              href={`/products?category=${category.slug}`}
-              className="text-sm text-brand-ink hover:text-brand-ink font-medium transition-colors"
-            >
-              {t("see_all", "See All")} →
-            </Link>
+        <section key={category.id} className="max-w-7xl mx-auto py-5 md:py-6">
+          <div className="section-panel">
+            <div className="ruled-head mb-6">
+              <h2 className="ruled-title">{category.name}</h2>
+              <span className="ruled-rule" aria-hidden />
+              <Link href={`/products?category=${category.slug}`} className="ruled-btn">
+                {t("view_all", "View All")}
+              </Link>
+            </div>
+            <ProductGrid
+              products={products.slice(0, 10)}
+              currency={currency}
+              list={{ id: `home_category_${category.slug}`, name: category.name }}
+            />
           </div>
-          <ProductGrid
-            products={products.slice(0, 8)}
-            currency={currency}
-            variant="minimal"
-            list={{ id: `home_category_${category.slug}`, name: category.name }}
-          />
         </section>
       ))}
     </>

@@ -219,13 +219,13 @@ export function SearchBox({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
-          placeholder={t("search", "Search")}
+          placeholder={isMinimal ? t("search_placeholder", "Enter product name...") : t("search", "Search")}
           autoComplete="off"
           aria-label="Search products"
           className={cn(
             "w-full text-sm focus:outline-none",
             isMinimal
-              ? "input-shape h-11 lg:h-12 border-[color:var(--color-header-search-border,var(--color-border))] bg-[var(--color-header-search-bg,var(--color-surface))] pl-4 pr-14 text-[var(--color-header-search-text,var(--color-text-primary))] placeholder:text-[var(--color-form-placeholder,var(--color-text-muted))] focus:border-[color:var(--color-form-input-focus,var(--color-brand-500))] transition-colors"
+              ? "input-shape h-11 lg:h-[44px] border-[color:var(--color-header-search-border,var(--color-border))] bg-[var(--color-header-search-bg,var(--color-surface))] pl-4 pr-16 text-[var(--color-header-search-text,var(--color-text-primary))] placeholder:text-[var(--color-form-placeholder,var(--color-text-muted))] focus:border-[color:var(--color-form-input-focus,var(--color-brand-500))] transition-colors"
               : "rounded-full bg-surface text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
           )}
         />
@@ -235,7 +235,7 @@ export function SearchBox({
           className={cn(
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
             isMinimal
-              ? "right-0 h-11 w-11 lg:h-12 lg:w-12 rounded-r-[var(--shape-input-radius,0.375rem)] bg-[var(--color-header-search-button-bg,var(--color-brand-500))] text-[var(--color-header-search-button-text,var(--color-primary-text))] hover:opacity-90"
+              ? "right-0 h-11 w-14 lg:h-[44px] lg:w-[60px] rounded-r-[var(--shape-input-radius,0.375rem)] bg-[var(--color-header-search-button-bg,var(--color-brand-500))] text-[var(--color-header-search-button-text,var(--color-primary-text))] hover:bg-[var(--color-button-primary-hover-bg,var(--color-brand-600))]"
               : "right-1.5 h-8 w-8 rounded-full text-brand-ink hover:bg-brand-50 hover:text-brand-ink"
           )}
           aria-label="Search"

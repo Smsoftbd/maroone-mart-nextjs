@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Send } from "lucide-react";
 import { setTrackingUserData, track } from "@/lib/analytics/track";
 import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
@@ -38,11 +39,11 @@ export function FooterNewsletter({ label, placeholder, button, success }: Footer
   if (status === "done") return <p className="text-sm font-medium">{success}</p>;
 
   return (
-    <form onSubmit={submit} className="space-y-2">
-      <label htmlFor="footer-newsletter" className="block text-sm font-semibold text-[var(--color-footer-heading,var(--color-footer-text))]">
+    <form onSubmit={submit} className="space-y-2.5">
+      <label htmlFor="footer-newsletter" className="block text-[13px] leading-relaxed">
         {label}
       </label>
-      <div className="flex gap-2">
+      <div className="footer-subscribe">
         <input
           id="footer-newsletter"
           type="email"
@@ -50,10 +51,9 @@ export function FooterNewsletter({ label, placeholder, button, success }: Footer
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={placeholder}
-          className="input min-w-0 flex-1 px-3 py-2 text-sm"
         />
-        <button type="submit" disabled={status === "loading"} className="btn btn-primary shrink-0 text-sm">
-          {button}
+        <button type="submit" disabled={status === "loading"} aria-label={button} title={button}>
+          <Send className="h-[18px] w-[18px]" strokeWidth={1.75} />
         </button>
       </div>
       {status === "error" && <p className="text-xs">Something went wrong. Please try again.</p>}

@@ -1,4 +1,4 @@
-import { Phone, Star } from "lucide-react";
+import { FileText, MessageCircleQuestion, Phone, Star } from "lucide-react";
 import { Rating } from "@/components/ui/Rating";
 import { ReviewCard } from "./ReviewCard";
 import { ProductInfoSections, type InfoPanel } from "./ProductInfoSections";
@@ -55,29 +55,29 @@ export async function ProductDetailsSections({
         </dl>
       )}
 
-      {/* Contact box */}
-      {phones.length > 0 && (
-        <div className="product-contact-box rounded-lg border border-brand-500/40 bg-surface-50 px-4 py-5 text-center max-md:rounded-xl max-md:border-brand-500 max-md:bg-brand-50 md:py-6">
-          <p className="font-semibold text-[var(--color-text-primary)] max-md:text-[22px] max-md:font-bold md:text-xl md:font-bold">
-            {t("contact_for_details", "Want to know more?")}
-          </p>
-          <p className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm max-md:text-base md:text-base">
-            <span className="text-[var(--color-text-secondary)]">{t("call_us", "Call us")}:</span>
-            {phones.map((p, i) => (
-              <span key={p} className="inline-flex items-center gap-2">
-                {i > 0 && <span className="text-[var(--color-text-secondary)]">{t("or", "or")}</span>}
-                <a
-                  href={`tel:${p}`}
-                  className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums max-md:text-xl max-md:font-bold md:text-lg md:font-bold"
-                >
-                  <Phone className="h-3.5 w-3.5 fill-current max-md:h-5 max-md:w-5 md:h-[18px] md:w-[18px]" />
-                  {p}
-                </a>
-              </span>
-            ))}
-          </p>
-        </div>
-      )}
+    </div>
+  );
+
+  const contactPanel = (
+    <div className="text-center">
+      <p className="text-lg font-bold text-[var(--color-text-primary)]">
+        {t("contact_for_details", "Want to know more?")}
+      </p>
+      <p className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-base">
+        <span className="text-[var(--color-text-secondary)]">{t("call_us", "Call us")}:</span>
+        {phones.map((p, i) => (
+          <span key={p} className="inline-flex items-center gap-2">
+            {i > 0 && <span className="text-[var(--color-text-secondary)]">{t("or", "or")}</span>}
+            <a
+              href={`tel:${p}`}
+              className="inline-flex items-center gap-1 text-lg font-bold tabular-nums text-brand-ink"
+            >
+              <Phone className="h-[18px] w-[18px] fill-current" />
+              {p}
+            </a>
+          </span>
+        ))}
+      </p>
     </div>
   );
 
@@ -145,11 +145,42 @@ export async function ProductDetailsSections({
     );
 
   const panels: InfoPanel[] = [
-    { id: "product-description", label: t("product_description", "Product Description"), content: description },
+    {
+      id: "product-description",
+      label: t("description", "Description"),
+      content: description,
+      icon: <FileText className="h-4 w-4" />,
+      tone: "#4F46E5",
+    },
     ...(showReviews
-      ? [{ id: "product-reviews", label: `${t("ratings_reviews", "Ratings & Reviews")} (${product.rating_count})`, content: reviewsPanel }]
+      ? [
+          {
+            id: "product-reviews",
+            label: `${t("ratings_reviews", "Ratings & Reviews")} (${product.rating_count})`,
+            content: reviewsPanel,
+            icon: <Star className="h-4 w-4 fill-current" />,
+            tone: "#F59E0B",
+          },
+        ]
       : []),
-    { id: "product-questions", label: `${t("questions_answers", "Q&A")} (${questions.length})`, content: questionsPanel },
+    ...(phones.length > 0
+      ? [
+          {
+            id: "product-contact",
+            label: t("contact_us", "Contact Us"),
+            content: contactPanel,
+            icon: <Phone className="h-4 w-4" />,
+            tone: "#16A34A",
+          },
+        ]
+      : []),
+    {
+      id: "product-questions",
+      label: t("questions_answers", "Q&A"),
+      content: questionsPanel,
+      icon: <MessageCircleQuestion className="h-4 w-4" />,
+      tone: "#EA580C",
+    },
   ];
 
   return <ProductInfoSections panels={panels} />;

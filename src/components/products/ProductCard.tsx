@@ -17,7 +17,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ArrowRight, Eye, Heart, ShoppingBag, ShoppingBasket, ShoppingCart, Star } from "lucide-react";
+import { Eye, Heart, ShoppingBag, ShoppingBasket, ShoppingCart, Star } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useWishlist } from "@/lib/hooks/useWishlist";
 import { useT } from "@/lib/i18n/I18nProvider";
@@ -128,7 +128,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
 
   const priceRow = (
     <div className="card-price flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-      <span className={cn("price text-[17px]", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
+      <span className={cn("price text-base", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
       {hasDiscount && opts.show_old_price && (
         <s className="price-old text-sm">{formatPrice(original, currency)}</s>
       )}
@@ -169,25 +169,34 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
   const inWishlist = wishlistOn && isInWishlist(product.id);
   const addLabel = isVariable ? t("select_options", "Select options") : t("add_to_cart", "Add to Cart");
 
+  /* Reference storefront: a product with options gets one wide "View Options"
+     button; a simple product gets "Order Now" plus the square cart tile. */
   const actionRow = (
-    <div className="card-actions flex items-center gap-2">
-      <button
-        aria-label={addLabel}
-        title={addLabel}
-        onClick={handleAddToCart}
-        disabled={isLoading || !inStock}
-        className="btn btn-cart flex aspect-square shrink-0 items-center justify-center !px-0"
-      >
-        <CartIcon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-      </button>
+    <div className="card-actions flex items-center">
       <button
         onClick={handleBuyNow}
         disabled={isLoading || !inStock}
-        className="btn btn-buy flex min-w-0 flex-1 items-center justify-center gap-1.5 !px-2 text-[15px]"
+        className="btn btn-buy flex min-w-0 flex-1 items-center justify-center gap-1.5 !px-2"
       >
-        <span className="truncate">{inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}</span>
-        {inStock && <ArrowRight className="hidden h-4 w-4 shrink-0 sm:block" />}
+        <span className="truncate">
+          {!inStock
+            ? t("out_of_stock", "Out of Stock")
+            : isVariable
+            ? t("view_options", "View Options")
+            : t("order_now", "Order Now")}
+        </span>
       </button>
+      {!isVariable && (
+        <button
+          aria-label={addLabel}
+          title={addLabel}
+          onClick={handleAddToCart}
+          disabled={isLoading || !inStock}
+          className="btn btn-cart flex aspect-square shrink-0 items-center justify-center !px-0"
+        >
+          <CartIcon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        </button>
+      )}
     </div>
   );
 
@@ -278,7 +287,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
         )}
         {priceRow}
         {stockLine}
-        {opts.add_to_cart === "button" && <div className="mt-auto pt-1.5">{actionRow}</div>}
+        {opts.add_to_cart === "button" && <div className="mt-auto pt-1">{actionRow}</div>}
       </div>
 
       {quickOpen && (

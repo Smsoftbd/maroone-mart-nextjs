@@ -9,6 +9,10 @@ export interface InfoPanel {
   id: string;
   label: string;
   content: ReactNode;
+  /** Small coloured tile beside the label (reference: file / phone / question). */
+  icon?: ReactNode;
+  /** Background of that tile. */
+  tone?: string;
 }
 
 /**
@@ -89,14 +93,19 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
 
   if (layout === "accordion") {
     return (
-      <section className="mt-8 divide-y [--tw-divide-style:var(--shape-divider-style,solid)] divide-[var(--color-border)] border-y border-[var(--color-border)]">
+      <section className="pdp-panels mt-8">
         {panels.map((p, i) => (
           <details key={p.id} id={p.id} open={i === 0} className="group scroll-mt-32">
-            <summary className="flex cursor-pointer list-none items-center justify-between py-4 text-sm font-semibold text-[var(--color-text-primary)] [&::-webkit-details-marker]:hidden">
+            <summary>
+              {p.icon && (
+                <span className="panel-icon" style={{ background: p.tone ?? "var(--color-brand-500)" }}>
+                  {p.icon}
+                </span>
+              )}
               {p.label}
-              <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+              <ChevronDown className="ml-auto h-[18px] w-[18px] text-[var(--color-text-muted)] transition-transform group-open:rotate-180" />
             </summary>
-            <div className="pb-6">{p.content}</div>
+            <div className="panel-body">{p.content}</div>
           </details>
         ))}
       </section>

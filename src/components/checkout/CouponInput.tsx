@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import { CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { formatPrice } from "@/lib/utils/format";
 import { useT } from "@/lib/i18n/I18nProvider";
 
@@ -77,28 +75,27 @@ export function CouponInput({ orderTotal, currency, onApply }: CouponInputProps)
   return (
     <div>
       <div className="flex gap-2">
-        <div className="flex-1">
-          <Input
-            value={code}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            placeholder={t("enter_coupon", "Enter coupon code")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                e.preventDefault();
-                handleApply();
-              }
-            }}
-          />
-        </div>
-        <Button
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder={t("coupon_code", "Coupon code")}
+          aria-label={t("coupon_code", "Coupon code")}
+          className="checkout-input min-w-0 flex-1"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleApply();
+            }
+          }}
+        />
+        <button
           type="button"
-          variant="secondary"
-          loading={isLoading}
           onClick={handleApply}
-          className="shrink-0 rounded-xl"
+          disabled={isLoading}
+          className="shrink-0 rounded-[var(--shape-input-radius,8px)] bg-[var(--color-brand-500)] px-5 text-sm font-semibold text-[var(--color-primary-text)] transition-colors hover:bg-[var(--color-button-primary-hover-bg,var(--color-brand-600))] disabled:opacity-60"
         >
           {t("apply", "Apply")}
-        </Button>
+        </button>
       </div>
       {error && <p className="mt-1.5 text-xs text-red-600">{error}</p>}
     </div>

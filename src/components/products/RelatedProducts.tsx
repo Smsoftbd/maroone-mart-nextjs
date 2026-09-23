@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { MobileViewAll } from "@/components/home/SectionHeader";
+import { ArrowRight } from "lucide-react";
 import { ProductGrid } from "./ProductGrid";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n/I18nProvider";
@@ -51,33 +51,34 @@ export function RelatedProducts({
   if (!isLoading && products.length === 0) return null;
 
   return (
-    <section id="same-category-products" className="phone-band mt-14 lg:mt-20">
-      <div className="mb-4 flex items-end justify-between gap-4 md:mb-6">
-        <h2 className="font-display text-[22px] font-bold sm:text-xl md:font-semibold">
-          {t("more_from_category", "More products from this category")}
-        </h2>
-        <Link
-          href={`/products?category=${encodeURIComponent(categorySlug)}`}
-          className="hidden shrink-0 text-sm font-medium text-[var(--color-text-secondary)] underline-offset-4 md:inline hover:text-[var(--color-text-primary)] hover:underline"
-        >
-          {t("view_all", "View all")}
-        </Link>
-      </div>
-      {isLoading ? (
-        <div className="product-grid gap-3 sm:gap-4">
-          {[...Array(5)].map((_, i) => (
-            <ProductCardSkeleton key={i} />
-          ))}
+    <section id="same-category-products" className="phone-band mt-12 lg:mt-16">
+      <div className="section-panel">
+        <div className="mb-6 flex items-center justify-between gap-4">
+          <h2 className="font-display text-xl font-bold md:text-[22px]">
+            {t("related_products", "Related Products")}
+          </h2>
+          <Link
+            href={`/products?category=${encodeURIComponent(categorySlug)}`}
+            className="ruled-link"
+          >
+            {t("view_all", "View All")}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-      ) : (
-        <ProductGrid
-          products={products}
-          currency={currency}
-          variant="shop"
-          list={{ id: "related_products", name: "Related products" }}
-        />
-      )}
-      <MobileViewAll href={`/products?category=${encodeURIComponent(categorySlug)}`} label={t("view_all", "View all")} />
+        {isLoading ? (
+          <div className="product-grid">
+            {[...Array(5)].map((_, i) => (
+              <ProductCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : (
+          <ProductGrid
+            products={products}
+            currency={currency}
+            list={{ id: "related_products", name: "Related products" }}
+          />
+        )}
+      </div>
     </section>
   );
 }

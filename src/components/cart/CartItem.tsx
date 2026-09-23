@@ -15,11 +15,13 @@ interface CartItemProps {
   item: CartItemType;
   currency: string;
   onNavigate?: () => void;
+  /** "drawer" = the compact row used in the slide-over cart. */
+  variant?: "page" | "drawer";
 }
 
 const LOW_STOCK_THRESHOLD = 5;
 
-export function CartItem({ item, currency, onNavigate }: CartItemProps) {
+export function CartItem({ item, currency, onNavigate, variant = "page" }: CartItemProps) {
   const { updateItem, removeItem } = useCart();
   const priceOverrides = useCartStore((s) => s.priceOverrides);
   const stockOverrides = useCartStore((s) => s.stockOverrides);
@@ -52,6 +54,74 @@ export function CartItem({ item, currency, onNavigate }: CartItemProps) {
     run(() => (atMin ? removeItem(item.id) : updateItem(item.id, item.quantity - 1)));
   const increase = () => !atMax && run(() => updateItem(item.id, item.quantity + 1));
   const remove = () => run(() => removeItem(item.id));
+
+  if (variant === "drawer") {
+    return (
+      <div className={cn("cart-row", pending && "opacity-60")}>
+        <Link href={productHref} onClick={onNavigate} className="shrink-0">
+          {productImage ? (
+            <Image
+              src={productImage}
+              alt={productName}
+              width={70}
+              height={70}
+              className="h-[70px] w-[70px] rounded-lg object-cover"
+            />
+          ) : (
+            <div className="flex h-[70px] w-[70px] items-center justify-center rounded-lg bg-surface-100 text-xs text-[var(--color-text-muted)]">
+              {t("no_image", "No image")}
+            </div>
+          )}
+        </Link>
+
+        <div className="flex min-w-0 flex-1 flex-col gap-2.5">
+          <Link
+            href={productHref}
+            onClick={onNavigate}
+            className="line-clamp-2 text-sm font-bold text-[var(--color-text-primary)] transition-colors hover:text-brand-ink"
+          >
+            {productName}
+          </Link>
+
+          <div className="flex items-center gap-3">
+            <div className="cart-qty">
+              <button
+                onClick={decrease}
+                disabled={pending}
+                aria-label={atMin ? t("remove_item", "Remove item") : t("decrease_qty", "Decrease quantity")}
+              >
+                <Minus className="h-4 w-4" strokeWidth={2} />
+              </button>
+              <span aria-live="polite">
+                {pending ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : item.quantity}
+              </span>
+              <button
+                onClick={increase}
+                disabled={pending || atMax}
+                aria-label={t("increase_qty", "Increase quantity")}
+                title={atMax ? t("max_stock_reached", "Max available") : undefined}
+              >
+                <Plus className="h-4 w-4" strokeWidth={2} />
+              </button>
+            </div>
+
+            <p className="ml-auto whitespace-nowrap text-base font-bold tabular-nums text-[var(--color-brand-500)]">
+              {formatPrice(lineTotal, currency)}
+            </p>
+
+            <button
+              onClick={remove}
+              disabled={pending}
+              aria-label={t("remove", "Remove")}
+              className="cart-trash"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const stepperBtn =
     "w-9 h-9 max-md:w-7 max-md:h-7 max-md:rounded-md max-md:border max-md:border-[var(--color-border-dark)] flex items-center justify-center transition-colors disabled:cursor-not-allowed disabled:text-[var(--color-text-muted)] hover:bg-brand-50 hover:text-brand-ink disabled:hover:bg-transparent";

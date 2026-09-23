@@ -3,30 +3,17 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  CreditCard,
-  Heart,
-  MessageCircleQuestion,
-  Phone,
-  Share2,
-  ShieldCheck,
-  ShoppingCart,
-  Truck,
-  Zap,
-} from "lucide-react";
+import { Minus, Plus, ShoppingCart, Zap } from "lucide-react";
 import { ProductVariantSelector } from "./ProductVariantSelector";
 import { ShareButtons } from "./ShareButtons";
-import { Rating } from "@/components/ui/Rating";
 import { useCart } from "@/lib/hooks/useCart";
-import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
-import { resolveL10n } from "@/lib/utils/l10n";
 import { splitPhones } from "@/lib/utils/phone";
 import { cn } from "@/lib/utils/cn";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import { useTheme } from "@/components/providers/StoreConfigProvider";
 import { track } from "@/lib/analytics/track";
-import type { Product, Barcode, DeliveryCharge } from "@/lib/api/types";
+import type { Product, Barcode } from "@/lib/api/types";
 
 interface ProductInfoProps {
   product: Product;
@@ -34,46 +21,45 @@ interface ProductInfoProps {
   shareUrl: string;
   /** Store phone field; may hold several numbers separated by commas. */
   phone?: string;
-  deliveryCharges: DeliveryCharge[];
   questionCount: number;
-  /** Gallery rendered in the left column above the CTAs. */
+  /** Gallery rendered in the left column. */
   gallery: ReactNode;
-  /** Server-rendered details (description, reviews, Q&A) under the info column. */
+  /** Server-rendered details (description, reviews, Q&A) under both columns. */
   children?: ReactNode;
+  /** Chat links for the two gradient buttons under the CTAs. */
+  whatsapp?: string | null;
+  facebook?: string | null;
 }
 
 const LOW_STOCK = 5;
 
+/**
+ * Product page, in the reference storefront's shape: gallery on the left, and
+ * on the right the title, the category/brand/code line, the green price, a
+ * quantity stepper, the Order Now / 1 Click Order / Add to Cart trio, the two
+ * chat bars and the share row. The detail panels run full width underneath.
+ */
 export function ProductInfo({
   product,
   currency,
   shareUrl,
   phone,
-  deliveryCharges,
   questionCount,
   gallery,
   children,
+  whatsapp,
+  facebook,
 }: ProductInfoProps) {
   const router = useRouter();
-  const { t, locale } = useI18n();
-  // product.sticky_cart / show_trust / show_stock / show_wishlist; the page
-  // always shows the rating and the old price.
-  const {
-    sticky_cart: stickyCart,
-    show_trust: showTrust,
-    show_stock: showStock,
-    show_wishlist: showWishlist,
-  } = useTheme().product;
+  const { t } = useI18n();
+  const { sticky_cart: stickyCart, show_stock: showStock } = useTheme().product;
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
     product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
   const { addItem, isLoading } = useCart();
-  const { isInWishlist, toggle } = useWishlist();
-  const [shareOpen, setShareOpen] = useState(false);
 
   const minQty = Math.max(product.min_order_qty ?? product.min_order_quantity ?? 1, 1);
   const stock = selectedBarcode?.stock ?? 0;
-  // No quantity stepper on the page; the cart always gets the minimum order qty.
   const [qty, setQty] = useState(minQty);
 
   const price = Math.max(selectedBarcode?.effective_price ?? 0, 0);
@@ -82,11 +68,11 @@ export function ProductInfo({
   const discountPct = hasDiscount ? formatDiscount(original, price) : null;
   const inStock = stock > 0;
   const lowStock = inStock && stock <= LOW_STOCK;
-  const inWishlist = isInWishlist(product.id);
   const category = product.child_category ?? product.sub_category ?? product.category;
   const phones = splitPhones(phone);
+  const maxQty = Math.max(product.max_order_qty ?? product.max_order_quantity ?? stock, 1);
 
-  // Mobile sticky buy bar: shown once the mobile CTA row scrolls above the viewport.
+  // Mobile sticky buy bar: shown once the CTA row scrolls above the viewport.
   const ctaRef = useRef<HTMLDivElement>(null);
   const [showSticky, setShowSticky] = useState(false);
   useEffect(() => {
@@ -142,304 +128,241 @@ export function ProductInfo({
   const disabled = isLoading || !inStock;
 
   const ctaButtons = (
-    <div className="pdp-cta grid grid-cols-2 gap-4">
-      <button
-        onClick={() => addSelected()}
-        disabled={disabled}
-        className="btn btn-cart"
-      >
+    <div className="pdp-cta grid gap-3 sm:grid-cols-3">
+      <button onClick={() => addSelected()} disabled={disabled} className="btn btn-outline">
+        <Zap className="h-[18px] w-[18px]" strokeWidth={2} />
+        {t("order_now", "Order Now")}
+      </button>
+      <button onClick={handleBuyNow} disabled={disabled} className="btn btn-buy">
+        <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
+        {inStock ? t("one_click_order", "1 Click Order") : t("out_of_stock", "Out of Stock")}
+      </button>
+      <button onClick={() => addSelected()} disabled={disabled} className="btn btn-cart">
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
         {t("add_to_cart", "Add to Cart")}
       </button>
-      <button
-        onClick={handleBuyNow}
-        disabled={disabled}
-        className="btn btn-buy"
-      >
-        <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
-        {inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}
-      </button>
     </div>
   );
 
-  const callLine = phones.length > 0 && (
-    <p className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm max-lg:text-base">
-      <span className="font-semibold text-[var(--color-text-primary)] lg:font-medium">
-        {t("call_us", "Call us")}
-      </span>
-      {phones.map((p, i) => (
-        <span key={p} className="inline-flex items-center gap-2">
-          {i > 0 && (
-            <span className="text-[var(--color-text-secondary)]">{t("or", "or")}</span>
-          )}
-          <a
-            href={`tel:${p}`}
-            className="inline-flex items-center gap-1 font-semibold text-brand-ink hover:text-brand-ink tabular-nums max-lg:text-lg"
-          >
-            <Phone className="h-3.5 w-3.5 fill-current max-lg:h-4 max-lg:w-4" />
-            {p}
-          </a>
-        </span>
-      ))}
-    </p>
-  );
-
-  const deliveryItems = [
-    ...deliveryCharges.map((d) => ({
-      key: `d-${d.id}`,
-      icon: Truck,
-      title: `${t("delivery_charge", "Delivery charge")}:`,
-      text: `${resolveL10n(d.zone_name, locale)} : ${currency}${Number(d.charge_amount).toLocaleString("en-US")}`,
-    })),
-    {
-      key: "cod",
-      icon: CreditCard,
-      title: null,
-      text: t("cash_on_delivery_nationwide", "Cash on delivery all over the country"),
-    },
-    {
-      key: "secure",
-      icon: ShieldCheck,
-      title: null,
-      text: t("secure_payment_easy", "Easy and secure payment"),
-    },
-  ];
-
-  return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-10">
-      {/* Left: gallery + CTAs (sticky on desktop) */}
-      <div className="min-w-0">
-        <div className="lg:sticky lg:top-32 space-y-4">
-          {gallery}
-          <div className="hidden lg:block space-y-4">
-            {ctaButtons}
-            {callLine}
-          </div>
-        </div>
-      </div>
-
-      {/* Right: info + details */}
-      <div className="min-w-0 product-content-wrap">
-        {/* Eyebrow: category · brand */}
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-medium max-md:text-[15px] max-md:font-semibold">
-          {category && (
-            <Link
-              href={`/products?category=${encodeURIComponent(category.slug)}`}
-              className={cn("text-brand-ink hover:text-brand-ink transition-colors", product.brand && "max-md:hidden")}
-            >
-              {category.name}
-            </Link>
-          )}
-          {category && product.brand && (
-            <span aria-hidden className="text-[var(--color-text-muted)] max-md:hidden">·</span>
-          )}
-          {product.brand && (
-            <Link
-              href={`/products?brands=${product.brand.id}`}
-              className="text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] transition-colors max-md:text-brand-ink"
-            >
-              {product.brand.name}
-            </Link>
-          )}
-        </div>
-
-        {/* Title + wishlist */}
-        <div className="mt-1.5 flex items-start justify-between gap-3">
-          <h1 className="font-display text-[22px] font-bold sm:text-2xl md:font-semibold text-[var(--color-text-primary)] leading-snug">
-            {product.name}
-          </h1>
-          {showWishlist && (
-          <button
-            onClick={() =>
-              toggle(product.slug, product.id, {
-                id: selectedBarcode?.id ?? product.id,
-                name: product.name,
-                price,
-                quantity: 1,
-                category: category?.name,
-              })
-            }
-            aria-label={inWishlist ? t("remove_from_wishlist", "Remove from wishlist") : t("add_to_wishlist", "Add to wishlist")}
-            aria-pressed={inWishlist}
-            className={cn(
-              "shrink-0 h-9 w-9 rounded-full border flex items-center justify-center transition-colors",
-              inWishlist
-                ? "border-[var(--color-text-primary)] text-[var(--color-text-primary)]"
-                : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-text-primary)] hover:text-[var(--color-text-primary)]"
-            )}
-          >
-            <Heart className={cn("h-4 w-4", inWishlist && "fill-current")} />
-          </button>
-          )}
-        </div>
-
-        {/* Rating · Q&A · Share (phones: two rows of two) */}
-        <div className="mt-3 grid grid-cols-2 gap-y-2.5 text-[15px] text-[var(--color-text-primary)] md:mt-2 md:flex md:flex-wrap md:items-center md:gap-x-3 md:gap-y-1.5 md:text-sm md:text-[var(--color-text-secondary)]">
-          <a href="#product-reviews" className="inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)]">
-            <Rating value={product.rating_avg} className="max-md:[&_svg]:h-6 max-md:[&_svg]:w-6" />
-            <span className="tabular-nums">{Number(product.rating_avg.toFixed(1))}</span>
-          </a>
-          <a
-            href="#product-reviews"
-            className="inline-flex items-center gap-3 border-l border-[var(--color-border-dark)] pl-3 hover:text-[var(--color-text-primary)] md:border-0 md:pl-0"
-          >
-            <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
-            {product.rating_count} {t("ratings", "Ratings")}
-          </a>
-          <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
-          <a href="#product-questions" className="inline-flex items-center gap-1.5 hover:text-[var(--color-text-primary)]">
-            {/* Teal bubble with a white mark, like the reference storefront. */}
-            <MessageCircleQuestion
-              className="h-5 w-5 fill-[var(--color-secondary-500)] text-[var(--color-secondary-text,#fff)] md:h-[18px] md:w-[18px]"
-              strokeWidth={2}
-            />
-            {questionCount} {t("questions_answers", "Q&A")}
-          </a>
-          <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
-          <button
-            type="button"
-            onClick={() => setShareOpen((o) => !o)}
-            aria-expanded={shareOpen}
-            className="inline-flex items-center gap-1.5 border-l border-[var(--color-border-dark)] pl-3 hover:text-[var(--color-text-primary)] md:border-0 md:pl-0"
-          >
-            <Share2 className="h-5 w-5 md:h-4 md:w-4" />
-            {t("share", "Share")}
-          </button>
-          {product.sale_count > 0 && (
-            <>
-              <span className="hidden h-3 w-px bg-[var(--color-border-dark)] md:block" aria-hidden />
-              <span className="col-span-2">
-                {product.sale_count.toLocaleString("en-US")} {t("sold", "sold")}
-              </span>
-            </>
-          )}
-        </div>
-        {shareOpen && (
-          <div className="mt-3 rounded-lg border border-[var(--color-border)] px-3 py-2">
-            <ShareButtons url={shareUrl} title={product.name} />
-          </div>
-        )}
-
-        {/* Price */}
-        <div className="product-price-row mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 md:mt-5">
-          <span className={cn("price text-2xl", hasDiscount && "is-sale")}>
-            {formatPrice(price, currency)}
-          </span>
-          {hasDiscount && (
-            <>
-              <s className="price-old text-sm max-md:text-base">{formatPrice(original, currency)}</s>
-              <span className="badge badge-discount max-md:rounded-md max-md:px-2 max-md:py-1.5 max-md:text-[15px] max-md:!bg-[var(--color-tertiary-500)]">
-                {discountPct}% {t("off", "OFF")}
-              </span>
-            </>
-          )}
-        </div>
-
-        {/* Stock — product.show_stock; "out"/"low" always warn. */}
-        {(showStock || !inStock || lowStock) && (
-        <p
-          className={cn(
-            "mt-2 text-sm font-medium",
-            inStock ? (lowStock ? "is-low" : "is-in max-md:hidden") : "is-out"
-          )}
+  const chatLinks = (whatsapp || facebook || phones.length > 0) && (
+    <div className="space-y-2.5">
+      {(whatsapp || phones.length > 0) && (
+        <a
+          href={
+            whatsapp ||
+            `https://wa.me/${phones[0].replace(/[^\d]/g, "")}?text=${encodeURIComponent(product.name)}`
+          }
+          target="_blank"
+          rel="noopener noreferrer"
+          className="chat-btn is-whatsapp"
         >
-          {!inStock
-            ? t("out_of_stock", "Out of Stock")
-            : lowStock
-            ? `${t("only", "Only")} ${stock} ${t("left_in_stock", "left in stock")}`
-            : t("in_stock", "In Stock")}
-        </p>
-        )}
-
-        {/* Short description */}
-        {product.short_description && (
-          <div
-            className="prose-content max-w-none text-sm text-[var(--color-text-secondary)] mt-4 [&_p:last-child]:mb-0"
-            dangerouslySetInnerHTML={{ __html: product.short_description }}
-          />
-        )}
-
-        {/* Variants */}
-        {product.barcodes.length > 1 && (
-          <div className="mt-5">
-            <ProductVariantSelector
-              barcodes={product.barcodes}
-              onChange={handleVariantChange}
-            />
-          </div>
-        )}
-
-        {/* Mobile CTAs (desktop CTAs sit under the gallery) */}
-        <div ref={ctaRef} className="mt-5 hidden space-y-3 md:block lg:hidden">
-          {ctaButtons}
-          {callLine}
-        </div>
-
-        {/* Delivery / payment info (product.show_trust) */}
-        {showTrust && (
-        <ul className="product-trust mt-6 grid gap-x-6 gap-y-4 rounded-lg border border-[var(--color-border)] bg-surface-50 p-4 sm:grid-cols-2 md:gap-y-7 md:bg-surface-100 md:p-6">
-          {deliveryItems.map(({ key, icon: Icon, title, text }) => (
-            <li key={key} className="flex items-start gap-3 text-xs max-md:text-[15px] md:text-sm">
-              <Icon className="h-5 w-5 shrink-0 text-brand-ink max-md:h-7 max-md:w-7 max-md:text-[var(--color-text-primary)] md:h-6 md:w-6 md:text-[var(--color-text-secondary)]" strokeWidth={1.25} />
-              <span className="min-w-0 leading-relaxed">
-                {title && (
-                  <span className="block text-[var(--color-text-secondary)] max-md:text-[var(--color-text-primary)]">{title}</span>
-                )}
-                <span className="text-[var(--color-text-primary)] md:text-[var(--color-text-secondary)]">{text}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-        )}
-
-        {children}
-      </div>
-
-      {/* Phones: fixed Add to cart / Buy now + hotline, always visible. */}
-      <div className="sticky-buy-bar is-phone md:hidden fixed inset-x-0 bottom-0 z-40 space-y-2.5 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
-        {ctaButtons}
-        {callLine}
-      </div>
-
-      {/* Tablets: compact bar once the inline CTA row scrolls away (product.sticky_cart) */}
-      {stickyCart && (
-      <div
-        className={cn(
-          "sticky-buy-bar hidden md:block lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
-          showSticky ? "translate-y-0" : "translate-y-full"
-        )}
-        aria-hidden={!showSticky}
-      >
-        <div className="flex items-center gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs text-[var(--color-text-secondary)]">{product.name}</p>
-            <p>
-              <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
-              {hasDiscount && (
-                <s className="price-old ml-2 text-xs">{formatPrice(original, currency)}</s>
-              )}
-            </p>
-          </div>
-          <button
-            onClick={() => addSelected()}
-            disabled={disabled}
-            tabIndex={showSticky ? 0 : -1}
-            aria-label={t("add_to_cart", "Add to Cart")}
-            className="btn btn-cart w-11 shrink-0 !px-0"
-          >
-            <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
-          </button>
-          <button
-            onClick={handleBuyNow}
-            disabled={disabled}
-            tabIndex={showSticky ? 0 : -1}
-            className="btn btn-buy shrink-0 text-sm"
-          >
-            {t("buy_now", "Buy Now")}
-          </button>
-        </div>
-      </div>
+          <svg className="h-[18px] w-[18px]" viewBox="0 0 448 512" fill="currentColor">
+            <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 110.9L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6z" />
+          </svg>
+          {t("contact_with_whatsapp", "Contact with WhatsApp")}
+        </a>
+      )}
+      {facebook && (
+        <a href={facebook} target="_blank" rel="noopener noreferrer" className="chat-btn is-facebook">
+          <svg className="h-[18px] w-[18px]" viewBox="0 0 320 512" fill="currentColor">
+            <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" />
+          </svg>
+          {t("contact_with_facebook", "Contact with Facebook")}
+        </a>
       )}
     </div>
+  );
+
+  return (
+    <>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
+        {/* Left: gallery (sticky on desktop) */}
+        <div className="min-w-0">
+          <div className="lg:sticky lg:top-32">{gallery}</div>
+        </div>
+
+        {/* Right: everything the shopper acts on */}
+        <div className="min-w-0">
+          <h1 className="font-display text-[26px] font-bold uppercase leading-tight text-[var(--color-text-primary)] sm:text-[32px]">
+            {product.name}
+          </h1>
+
+          <div className="pdp-meta mt-2.5">
+            {category && (
+              <span>
+                {t("category", "Category")}:{" "}
+                <Link
+                  href={`/products?category=${encodeURIComponent(category.slug)}`}
+                  className="font-bold text-[var(--color-text-primary)] hover:text-brand-ink"
+                >
+                  {category.name}
+                </Link>
+              </span>
+            )}
+            {product.brand && (
+              <span>
+                {t("brand", "Brand")}:{" "}
+                <Link
+                  href={`/products?brands=${product.brand.id}`}
+                  className="font-bold text-[var(--color-text-primary)] hover:text-brand-ink"
+                >
+                  {product.brand.name}
+                </Link>
+              </span>
+            )}
+            {product.sku && (
+              <span>
+                {t("product_code", "Product Code")}: <strong>{product.sku}</strong>
+              </span>
+            )}
+          </div>
+
+          <p
+            className={cn(
+              "mt-3 flex items-center gap-2 text-sm font-medium",
+              inStock ? (lowStock ? "is-low" : "is-in") : "is-out"
+            )}
+          >
+            <span className="h-2 w-2 shrink-0 rounded-full bg-current" aria-hidden />
+            {!inStock
+              ? t("out_of_stock", "Out of Stock")
+              : lowStock
+              ? `${t("only", "Only")} ${stock} ${t("left_in_stock", "left in stock")}`
+              : t("in_stock", "In Stock")}
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <span className="pdp-price">{formatPrice(price, currency)}</span>
+            {hasDiscount && (
+              <>
+                <s className="price-old text-base">{formatPrice(original, currency)}</s>
+                <span className="badge badge-discount">
+                  {discountPct}% {t("off", "OFF")}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* Short description */}
+          {product.short_description && (
+            <div
+              className="prose-content mt-4 max-w-none text-sm text-[var(--color-text-secondary)] [&_p:last-child]:mb-0"
+              dangerouslySetInnerHTML={{ __html: product.short_description }}
+            />
+          )}
+
+          {/* Variants */}
+          {product.barcodes.length > 1 && (
+            <div className="mt-5">
+              <ProductVariantSelector barcodes={product.barcodes} onChange={handleVariantChange} />
+            </div>
+          )}
+
+          {/* Quantity */}
+          <div className="mt-6">
+            <p className="pdp-label mb-2">{t("quantity", "Quantity")}</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="qty-stepper">
+                <button
+                  type="button"
+                  onClick={() => setQty((q) => Math.max(minQty, q - 1))}
+                  disabled={qty <= minQty}
+                  aria-label={t("decrease_qty", "Decrease quantity")}
+                >
+                  <Minus className="h-4 w-4" strokeWidth={2} />
+                </button>
+                <span aria-live="polite">{qty}</span>
+                <button
+                  type="button"
+                  onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
+                  disabled={qty >= maxQty}
+                  aria-label={t("increase_qty", "Increase quantity")}
+                >
+                  <Plus className="h-4 w-4" strokeWidth={2} />
+                </button>
+              </div>
+              {(showStock || !inStock || lowStock) && (
+                <span className={cn("text-sm font-medium", inStock ? (lowStock ? "is-low" : "is-in") : "is-out")}>
+                  {!inStock ? t("out_of_stock", "Out of Stock") : t("in_stock", "In Stock")}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div ref={ctaRef} className="mt-6 space-y-3">
+            {ctaButtons}
+            {chatLinks}
+          </div>
+
+          <div className="mt-6">
+            <ShareButtons url={shareUrl} title={product.name} />
+          </div>
+
+          {questionCount > 0 && (
+            <a
+              href="#product-questions"
+              className="mt-4 inline-block text-sm text-[var(--color-text-secondary)] hover:text-brand-ink"
+            >
+              {questionCount} {t("questions_answers", "Q&A")}
+            </a>
+          )}
+        </div>
+      </div>
+
+      {/* Description / Contact / Q&A, full width under both columns. */}
+      {children}
+
+      {/* Phones: fixed Add to cart / Buy now bar. */}
+      <div className="sticky-buy-bar is-phone md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
+        <div className="pdp-cta grid grid-cols-2 gap-3">
+          <button onClick={() => addSelected()} disabled={disabled} className="btn btn-cart">
+            <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            {t("add_to_cart", "Add to Cart")}
+          </button>
+          <button onClick={handleBuyNow} disabled={disabled} className="btn btn-buy">
+            <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
+            {inStock ? t("order_now", "Order Now") : t("out_of_stock", "Out of Stock")}
+          </button>
+        </div>
+      </div>
+
+      {/* Tablets: compact bar once the CTA row scrolls away (product.sticky_cart) */}
+      {stickyCart && (
+        <div
+          className={cn(
+            "sticky-buy-bar hidden md:block lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
+            showSticky ? "translate-y-0" : "translate-y-full"
+          )}
+          aria-hidden={!showSticky}
+        >
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-xs text-[var(--color-text-secondary)]">{product.name}</p>
+              <p>
+                <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
+                {hasDiscount && <s className="price-old ml-2 text-xs">{formatPrice(original, currency)}</s>}
+              </p>
+            </div>
+            <button
+              onClick={() => addSelected()}
+              disabled={disabled}
+              tabIndex={showSticky ? 0 : -1}
+              aria-label={t("add_to_cart", "Add to Cart")}
+              className="btn btn-cart w-11 shrink-0 !px-0"
+            >
+              <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </button>
+            <button
+              onClick={handleBuyNow}
+              disabled={disabled}
+              tabIndex={showSticky ? 0 : -1}
+              className="btn btn-buy shrink-0 text-sm"
+            >
+              {t("order_now", "Order Now")}
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

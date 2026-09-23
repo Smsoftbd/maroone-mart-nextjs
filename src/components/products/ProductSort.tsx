@@ -16,7 +16,7 @@ export function ProductSort({ variant = "select" }: { variant?: "select" | "butt
   const rootRef = useRef<HTMLDivElement>(null);
 
   const sortOptions = [
-    { label: t("default", "Default"), value: "" },
+    { label: t("sort_featured", "Featured"), value: "" },
     { label: t("sort_newest", "Newest"), value: "new" },
     { label: t("sort_price_asc", "Price: Low to High"), value: "price_asc" },
     { label: t("sort_price_desc", "Price: High to Low"), value: "price_desc" },
@@ -68,22 +68,21 @@ export function ProductSort({ variant = "select" }: { variant?: "select" | "butt
           <span className="truncate">{t("sort_button", "Sort")}</span>
         </button>
       ) : (
-        <>
-          <span className="hidden text-slate-600 sm:inline">{t("sort_by", "Sort by")}:</span>
-          <button
-            type="button"
-            onClick={() => setOpen((o) => !o)}
-            aria-haspopup="listbox"
-            aria-expanded={open}
-            aria-label={t("sort_products", "Sort products")}
-            className="flex h-11 w-40 items-center justify-between gap-2 rounded-md border border-slate-300 bg-surface px-4 text-slate-800 transition-colors hover:border-brand-500 sm:w-[288px]"
-          >
-            <span className="truncate">{currentLabel}</span>
-            <ChevronDown
-              className={cn("h-4 w-4 shrink-0 transition-transform duration-200", open && "rotate-180")}
-            />
-          </button>
-        </>
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          aria-label={t("sort_products", "Sort products")}
+          className="shop-select"
+        >
+          <span className="truncate">
+            {t("sort_by", "Sort by")}: {currentLabel}
+          </span>
+          <ChevronDown
+            className={cn("h-4 w-4 shrink-0 text-[var(--color-text-muted)] transition-transform duration-200", open && "rotate-180")}
+          />
+        </button>
       )}
 
       {open && (

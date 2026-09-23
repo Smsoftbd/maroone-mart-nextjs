@@ -13,7 +13,6 @@ import {
   getProductQuestions,
 } from "@/lib/api/products";
 import { getStore } from "@/lib/api/store";
-import { getDeliveryCharges } from "@/lib/api/content";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { productSchema, breadcrumbSchema } from "@/lib/utils/structured-data";
 import { getServerT } from "@/lib/i18n/server";
@@ -60,12 +59,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params;
 
-  let product, store, deliveryCharges, reviews, questions;
+  let product, store, reviews, questions;
   try {
-    [product, store, deliveryCharges, reviews, questions] = await Promise.all([
+    [product, store, reviews, questions] = await Promise.all([
       getProduct(slug),
       getStore(),
-      getDeliveryCharges().catch(() => []),
       getProductReviews(slug).catch(() => []),
       getProductQuestions(slug).catch(() => []),
     ]);
@@ -131,8 +129,9 @@ export default async function ProductPage({ params }: PageProps) {
           currency={store.currency_symbol}
           shareUrl={shareUrl}
           phone={store.phone}
-          deliveryCharges={deliveryCharges}
           questionCount={questions.length}
+          whatsapp={store.social.whatsapp}
+          facebook={store.social.facebook}
           gallery={<ProductImageGallery images={galleryImages} productName={product.name} />}
         >
           <ProductDetailsSections

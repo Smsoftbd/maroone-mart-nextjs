@@ -351,10 +351,11 @@ export const THEME_DEFAULTS_CSS =
     "--shape-button-border-width:var(--shape-border-width,1px)",
     "--shape-divider-style:solid",
     "--shape-focus-ring-width:3px",
+    "--layout-container-width:1536px",
     "--layout-container-padding:24px",
-    "--layout-header-height:68px",
-    "--layout-logo-height:36px",
-    "--layout-grid-gap:18px",
+    "--layout-header-height:72px",
+    "--layout-logo-height:44px",
+    "--layout-grid-gap:26px",
     "--page-category-columns:6",
     "--product-title-lines:1",
     "--effects-transition-speed:200ms",
@@ -478,7 +479,7 @@ function buildBridge(): string {
 
     // Layout: every `max-w-7xl` wrapper uses the theme's container width
     // container_width is the *content* width: the gutters sit outside it.
-    "--container-7xl": "calc(var(--layout-container-width) + 2 * var(--layout-container-padding, 16px))",
+    "--container-7xl": "calc(var(--layout-container-width, 1536px) + 2 * var(--layout-container-padding, 24px))",
 
     // Fonts
     "--font-display": "var(--typography-heading-font)",

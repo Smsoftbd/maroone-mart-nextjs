@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils/format";
 import type { DeliveryCharge } from "@/lib/api/types";
 import { resolveL10n } from "@/lib/utils/l10n";
 import { cn } from "@/lib/utils/cn";
+import { useT } from "@/lib/i18n/I18nProvider";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 const PUBLIC_KEY = process.env.NEXT_PUBLIC_API_KEY!;
@@ -16,11 +17,9 @@ interface ShippingSelectorProps {
   onChange: (charge: DeliveryCharge) => void;
 }
 
-export function ShippingSelector({
-  currency,
-  methodName,
-  onChange,
-}: ShippingSelectorProps) {
+/** Delivery zones as the reference's two-column grid of bordered tiles. */
+export function ShippingSelector({ currency, methodName, onChange }: ShippingSelectorProps) {
+  const t = useT();
   const [charges, setCharges] = useState<DeliveryCharge[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -41,22 +40,22 @@ export function ShippingSelector({
 
   if (isLoading) {
     return (
-      <div className="flex gap-6">
+      <div className="grid gap-3 sm:grid-cols-2">
         {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-6 w-36 rounded-md" />
+          <Skeleton key={i} className="h-[50px] rounded-lg" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-x-10 gap-y-3" role="radiogroup">
+    <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
       {charges.map((charge) => {
         const displayName = resolveL10n(charge.zone_name);
         const cost = parseFloat(charge.charge_amount);
         const selected = methodName === displayName;
         return (
-          <label key={charge.id} className="flex items-center gap-3 cursor-pointer">
+          <label key={charge.id} className={cn("choice-tile cursor-pointer", selected && "is-active")}>
             <input
               type="radio"
               name="delivery"
@@ -64,20 +63,9 @@ export function ShippingSelector({
               checked={selected}
               onChange={() => onChange(charge)}
             />
-            <span
-              className={cn(
-                "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border bg-surface transition-colors",
-                selected ? "border-brand-500" : "border-[var(--color-border-dark)]"
-              )}
-              aria-hidden
-            >
-              {selected && <span className="h-2.5 w-2.5 rounded-full bg-brand-500" />}
-            </span>
-            <span className="text-[15px] font-medium">
-              {displayName}
-              <span className="ml-2 font-semibold tabular-nums">
-                {cost === 0 ? "Free" : formatPrice(cost, currency)}
-              </span>
+            <span className="truncate font-medium">{displayName}</span>
+            <span className="choice-price shrink-0">
+              {cost === 0 ? t("free", "Free") : formatPrice(cost, currency)}
             </span>
           </label>
         );

@@ -124,6 +124,21 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                 </div>
               ))}
 
+              {/* Same destinations as the desktop nav bar. */}
+              <Link
+                href="/flash-sale"
+                className="block px-5 py-3 text-sm font-medium hover:bg-surface-50"
+                onClick={closeMobileNav}
+              >
+                Promotion
+              </Link>
+              <Link
+                href="/track-order"
+                className="block px-5 py-3 text-sm font-medium hover:bg-surface-50"
+                onClick={closeMobileNav}
+              >
+                Track Order
+              </Link>
               <Link
                 href="/blog"
                 className="block px-5 py-3 text-sm font-medium hover:bg-surface-50"
@@ -136,7 +151,7 @@ export function MobileNav({ store, categories }: MobileNavProps) {
                 className="block px-5 py-3 text-sm font-medium hover:bg-surface-50"
                 onClick={closeMobileNav}
               >
-                Contact
+                Contact Us
               </Link>
             </nav>
 

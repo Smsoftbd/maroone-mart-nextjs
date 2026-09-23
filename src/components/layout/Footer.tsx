@@ -16,7 +16,7 @@ interface FooterProps {
 }
 
 const linkClass = "footer-link transition-colors";
-const headingClass = "mb-5 text-sm font-semibold text-[var(--color-footer-heading,var(--color-footer-text))]";
+const headingClass = "footer-heading";
 /** Brand colors for the phone footer's social row. */
 const SOCIAL_COLORS: Record<string, string> = {
   facebook: "#1877F2",
@@ -48,18 +48,21 @@ export async function Footer({ store, pages = [] }: FooterProps) {
     : [];
   const phones = store.phone.split(/[,/]/).map((p) => p.trim()).filter(Boolean);
 
-  const companyLinks =
+  // Quick links: the storefront's own routes. Customer service: the owner's
+  // CMS pages (FAQs, policies …), falling back to the account routes.
+  const companyLinks = [
+    { href: "/", label: t("home", "Home") },
+    { href: "/products", label: t("shop", "Shop") },
+    ...(store.features.blog ? [{ href: "/blog", label: t("blog", "Blog") }] : []),
+    { href: "/contact", label: t("contact_us", "Contact Us") },
+  ];
+  const helpLinks =
     pages.length > 0
       ? pages.map((p) => ({ href: `/pages/${p.slug}`, label: p.title }))
       : [
-          { href: "/products", label: t("all_products", "All Products") },
+          { href: "/track-order", label: t("track_order", "Track Order") },
           { href: "/account", label: t("my_account", "My Account") },
         ];
-  const helpLinks = [
-    { href: "/contact", label: t("contact_us", "Contact Us") },
-    { href: "/track-order", label: t("track_order", "Track Order") },
-    ...(store.features.blog ? [{ href: "/blog", label: t("blog", "Blog") }] : []),
-  ];
 
   const logo = (
     <Link href="/" className="inline-block">
@@ -78,7 +81,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
   );
 
   const socialRow = socials.length > 0 && (
-    <div className="flex flex-wrap items-center gap-4">
+    <div className="flex flex-wrap items-center gap-3">
       {socials.map(([key, url]) => (
         <a
           key={key}
@@ -86,9 +89,9 @@ export async function Footer({ store, pages = [] }: FooterProps) {
           target="_blank"
           rel="noopener noreferrer"
           aria-label={key}
-          className="text-[var(--color-footer-social-icon,var(--color-footer-text))] transition-opacity hover:opacity-75"
+          className="footer-social"
         >
-          <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="h-[17px] w-[17px]" fill="currentColor" viewBox="0 0 24 24">
             {socialIcons[key]}
           </svg>
         </a>
@@ -98,7 +101,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
 
   const newsletter = page.footer_newsletter && (
     <FooterNewsletter
-      label={t("newsletter_title", "Stay in the Loop")}
+      label={t("newsletter_footer_caption", "Subscribe to get the latest offers and new products.")}
       placeholder={t("email_placeholder", "your@email.com")}
       button={t("subscribe", "Subscribe")}
       success={t("newsletter_success", "Thank you for subscribing!")}
@@ -118,7 +121,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
             title={name}
             width={56}
             height={28}
-            className="h-6 w-auto rounded bg-white object-contain p-0.5"
+            className="h-[30px] w-auto rounded bg-white object-contain px-1 py-0.5"
           />
         ) : (
           <span key={m.id} className="rounded bg-[color-mix(in_srgb,currentColor_12%,transparent)] px-2 py-1">
@@ -130,13 +133,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
   );
 
   const contactList = (
-    <ul className="space-y-3 text-[15px] md:text-sm">
-      {store.address && (
-        <li className="flex items-start gap-3 leading-relaxed">
-          <MapPin className="mt-0.5 h-5 w-5 shrink-0 max-md:fill-[var(--color-tertiary-500)] max-md:text-[var(--color-footer-bg,var(--color-footer))]" />
-          {store.address}
-        </li>
-      )}
+    <ul className="space-y-3.5 text-[15px] md:text-sm [&_svg]:text-[var(--color-brand-500)]">
       {phones.length > 0 && (
         <li className="flex items-center gap-3">
           <Phone className="h-4 w-4 shrink-0" />
@@ -155,6 +152,12 @@ export async function Footer({ store, pages = [] }: FooterProps) {
           <a href={`mailto:${store.email}`} className={`${linkClass} break-all`}>
             {store.email}
           </a>
+        </li>
+      )}
+      {store.address && (
+        <li className="flex items-start gap-3 leading-relaxed">
+          <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+          {store.address}
         </li>
       )}
     </ul>
@@ -223,17 +226,19 @@ export async function Footer({ store, pages = [] }: FooterProps) {
     <footer className="site-footer mt-auto max-md:rounded-t-2xl">
       {style !== "minimal" && mobileFooter}
       {style === "columns" && (
-        <div className="mx-auto hidden max-w-7xl px-4 py-12 md:block sm:px-6 lg:px-8 lg:py-14">
-          <div className="grid grid-cols-2 gap-10 lg:grid-cols-4 lg:gap-12">
+        <div className="mx-auto hidden max-w-7xl py-12 md:block lg:py-14">
+          <div className="grid grid-cols-2 gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1.3fr] lg:gap-12">
             <div className="col-span-2 space-y-6 lg:col-span-1">
               {logo}
-              {contactList}
-              {newsletter}
+              {store.tagline && (
+                <p className="max-w-xs text-[15px] leading-relaxed">{store.tagline}</p>
+              )}
+              {socialRow}
             </div>
 
             <div>
-              <h6 className={headingClass}>{t("company", "Company")}</h6>
-              <ul className="space-y-3 text-sm">
+              <h6 className={headingClass}>{t("quick_links", "Quick Links")}</h6>
+              <ul className="space-y-3">
                 {companyLinks.map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className={linkClass}>
@@ -245,8 +250,8 @@ export async function Footer({ store, pages = [] }: FooterProps) {
             </div>
 
             <div>
-              <h6 className={headingClass}>{t("help", "Help")}</h6>
-              <ul className="space-y-3 text-sm">
+              <h6 className={headingClass}>{t("customer_service", "Customer Service")}</h6>
+              <ul className="space-y-3">
                 {helpLinks.map((l) => (
                   <li key={l.href}>
                     <Link href={l.href} className={linkClass}>
@@ -257,10 +262,10 @@ export async function Footer({ store, pages = [] }: FooterProps) {
               </ul>
             </div>
 
-            <div className="col-span-2 space-y-4 lg:col-span-1">
-              <h6 className={headingClass}>{t("follow_us", "Follow Us")}</h6>
-              {store.tagline && <p className="text-sm leading-relaxed">{store.tagline}</p>}
-              {socialRow}
+            <div className="col-span-2 space-y-5 lg:col-span-1">
+              <h6 className={headingClass}>{t("contact_us", "Contact Us")}</h6>
+              {contactList}
+              {newsletter}
             </div>
           </div>
         </div>
@@ -283,19 +288,35 @@ export async function Footer({ store, pages = [] }: FooterProps) {
       )}
 
       <div className="footer-bottom">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs sm:flex-row sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 py-5 text-xs sm:flex-row">
           <span className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <span>
-              &copy; {year} {store.name} — {t("all_rights_reserved", "All rights reserved")}.
+              &copy; {year} {store.name}. {t("all_rights_reserved", "All rights reserved")}.
             </span>
             {getConsentBannerMode() !== "off" && (
               <ConsentSettingsLink label={t("cookie_settings", "Cookie settings")} className={linkClass} />
             )}
           </span>
-          {style === "minimal" && socialRow}
-          {paymentMethods.length > 0 && <div className="hidden md:block">{payments}</div>}
+          <span className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1">
+            {style === "minimal" && socialRow}
+            {helpLinks.slice(-2).map((l) => (
+              <Link key={l.href} href={l.href} className={linkClass}>
+                {l.label}
+              </Link>
+            ))}
+          </span>
         </div>
       </div>
+
+      {paymentMethods.length > 0 && (
+        <div className="footer-accept hidden md:block">
+          <div className="mx-auto max-w-7xl">
+            <h6>{t("we_accept", "We accept")}</h6>
+            <div className="flex flex-wrap items-center justify-center gap-2.5">{payments}</div>
+          </div>
+        </div>
+      )}
+
     </footer>
   );
 }

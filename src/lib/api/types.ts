@@ -258,6 +258,8 @@ export interface Brand {
   id: number;
   name: string;
   logo?: string | null;
+  /** Only sent by backends that count products per brand; drives the "(48)". */
+  products_count?: number;
 }
 
 // ─── Products ───────────────────────────────────────────────────────────────
@@ -817,6 +819,8 @@ export interface DeliveryCharge {
 export interface PaymentMethod {
   id: number;
   name: string | { en?: string; bn?: string; [lang: string]: string | undefined };
+  /** Hint under the name on the checkout tile ("Pay when you receive"). */
+  description?: string | { en?: string; bn?: string; [lang: string]: string | undefined };
   icon?: string;
   code?: string;
 }

@@ -1,124 +1,55 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Loader2, Minus, Package, Plus, Trash2 } from "lucide-react";
-import { useCart } from "@/lib/hooks/useCart";
+import { Package } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { formatPrice } from "@/lib/utils/format";
-import { cn } from "@/lib/utils/cn";
-import { useT } from "@/lib/i18n/I18nProvider";
 import type { CartItem } from "@/lib/api/types";
 
 interface CheckoutItemProps {
   item: CartItem;
   currency: string;
-  storeName: string;
 }
 
-export function CheckoutItem({ item, currency, storeName }: CheckoutItemProps) {
-  const t = useT();
-  const { updateItem, removeItem } = useCart();
+/** One line in the checkout's Order Summary: thumb, name, "n × price", total. */
+export function CheckoutItem({ item, currency }: CheckoutItemProps) {
   const priceOverrides = useCartStore((s) => s.priceOverrides);
-  const stockOverrides = useCartStore((s) => s.stockOverrides);
   const attributeOverrides = useCartStore((s) => s.attributeOverrides);
-  const [pending, setPending] = useState(false);
 
   const unit = item.unit_price || priceOverrides[item.barcode_id] || 0;
   const attrs = attributeOverrides[item.barcode_id] ?? [];
-  const maxQty = stockOverrides[item.barcode_id] ?? Infinity;
-  const atMin = item.quantity <= 1;
-  const atMax = item.quantity >= maxQty;
   const href = `/products/${item.product_slug}`;
 
-  const run = async (action: () => Promise<void>) => {
-    if (pending) return;
-    setPending(true);
-    try {
-      await action();
-    } finally {
-      setPending(false);
-    }
-  };
-
-  const stepperBtn =
-    "h-7 w-7 flex items-center justify-center rounded border transition-colors disabled:cursor-not-allowed disabled:border-[var(--color-border)] disabled:text-[var(--color-text-muted)]";
-
   return (
-    <div
-      className={cn(
-        "relative flex gap-4 rounded-lg bg-surface p-4 transition-opacity max-md:gap-3 max-md:rounded-xl max-md:p-3",
-        pending && "opacity-60"
-      )}
-    >
+    <div className="summary-row">
       <Link
         href={href}
-        className="relative h-[84px] w-[84px] shrink-0 overflow-hidden rounded-md bg-surface-100"
+        className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-[var(--color-surface)]"
       >
         {item.product_image ? (
-          <Image
-            src={item.product_image}
-            alt={item.product_name}
-            fill
-            className="object-cover"
-            sizes="84px"
-          />
+          <Image src={item.product_image} alt={item.product_name} fill className="object-cover" sizes="48px" />
         ) : (
-          <Package className="absolute inset-0 m-auto h-6 w-6 text-[var(--color-text-muted)]" />
+          <Package className="absolute inset-0 m-auto h-5 w-5 text-[var(--color-text-muted)]" />
         )}
       </Link>
 
-      <div className="flex-1 min-w-0 pr-6">
-        {storeName && <p className="text-xs text-brand-ink leading-none mb-2">{storeName}</p>}
+      <div className="min-w-0 flex-1">
         <Link
           href={href}
-          className="block text-[15px] font-semibold leading-snug truncate hover:text-brand-ink transition-colors"
+          className="block truncate text-sm font-bold text-[var(--color-text-primary)] transition-colors hover:text-brand-ink"
         >
           {item.product_name}
         </Link>
-        {attrs.length > 0 && (
-          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-            {attrs.map((a) => `${a.name}: ${a.value}`).join(", ")}
-          </p>
-        )}
-        <p className="mt-1.5 text-xl text-brand-ink tabular-nums max-md:text-lg max-md:text-[var(--color-tertiary-500)]">{formatPrice(unit, currency)}</p>
-
-        <div className="mt-2 flex items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={() => run(() => updateItem(item.id, item.quantity - 1))}
-            disabled={pending || atMin}
-            aria-label={t("decrease_qty", "Decrease quantity")}
-            className={cn(stepperBtn, "border-[var(--color-text-primary)] hover:bg-surface-100")}
-          >
-            <Minus className="h-4 w-4" />
-          </button>
-          <span className="w-5 text-center text-sm tabular-nums" aria-live="polite">
-            {pending ? <Loader2 className="h-4 w-4 animate-spin mx-auto" /> : item.quantity}
-          </span>
-          <button
-            type="button"
-            onClick={() => !atMax && run(() => updateItem(item.id, item.quantity + 1))}
-            disabled={pending || atMax}
-            aria-label={t("increase_qty", "Increase quantity")}
-            title={atMax ? t("max_stock_reached", "Max available") : undefined}
-            className={cn(stepperBtn, "border-[var(--color-text-primary)] hover:bg-surface-100")}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
+        <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)] tabular-nums">
+          {item.quantity} x {formatPrice(unit, currency)}
+          {attrs.length > 0 && ` · ${attrs.map((a) => `${a.name}: ${a.value}`).join(", ")}`}
+        </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => run(() => removeItem(item.id))}
-        disabled={pending}
-        aria-label={t("remove_item", "Remove item")}
-        className="absolute right-4 top-4 text-red-500 hover:text-red-600 disabled:opacity-50"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
+      <p className="shrink-0 text-sm font-bold tabular-nums text-[var(--color-brand-500)]">
+        {formatPrice(unit * item.quantity, currency)}
+      </p>
     </div>
   );
 }

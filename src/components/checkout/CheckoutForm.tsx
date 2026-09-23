@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useForm, type Path } from "react-hook-form";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useForm, useWatch, type Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,16 @@ import { ShippingSelector } from "./ShippingSelector";
 import { PaymentSelector } from "./PaymentSelector";
 import { CouponInput } from "./CouponInput";
 import Link from "next/link";
-import { HandCoins, Plus } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  CreditCard,
+  Loader2,
+  Lock,
+  MapPin,
+  ShoppingBag,
+  Truck,
+} from "lucide-react";
 import { CheckoutItem } from "./CheckoutItem";
 import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/stores/cartStore";
@@ -64,12 +73,11 @@ interface CheckoutFormProps {
   currency: string;
   /** Org's country — fixed, non-editable at checkout. */
   country: string;
-  storeName: string;
   /** Render the Coupon Code section only when the org has a usable coupon. */
   showCoupon: boolean;
 }
 
-export function CheckoutForm({ currency, country, storeName, showCoupon }: CheckoutFormProps) {
+export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProps) {
   const router = useRouter();
   const t = useT();
   const { items, subTotal, priceOverrides, clearCart } = useCartStore();
@@ -77,11 +85,8 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
   const { authMode, guestCheckout, checkoutOtp } = useStoreConfig();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
-  // Phones list two items, then fade the third behind a "+N more" button.
-  const [showAllItems, setShowAllItems] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
-  const [couponOpen, setCouponOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const schema = useMemo(() => makeSchema(country), [country]);
@@ -90,6 +95,7 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
     register,
     handleSubmit,
     setError,
+    control,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -344,6 +350,11 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
     }
   };
 
+  const [watchedName, watchedPhone, watchedAddress] = useWatch({
+    control,
+    name: ["name", "phone", "address"],
+  });
+
   // Login-required store: a login mode is active, guest checkout is disabled,
   // and the shopper is not signed in → gate checkout behind login.
   const loginRequired = authMode !== "guest_only" && !guestCheckout && !isAuthenticated;
@@ -369,234 +380,293 @@ export function CheckoutForm({ currency, country, storeName, showCoupon }: Check
   }
 
 
-  const fieldCls = (hasError: boolean) =>
-    cn(
-      "w-full rounded-md border bg-surface px-4 py-3 text-[15px] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
-      hasError ? "border-red-500" : "border-[var(--color-border-dark)]"
-    );
   const bd = isBangladesh(country);
+  const steps = [
+    { n: 1, label: t("shipping", "Shipping") },
+    { n: 2, label: t("delivery_zone", "Delivery Zone") },
+    { n: 3, label: t("payment", "Payment") },
+    { n: 4, label: t("success", "Success") },
+  ];
+  // The rail follows how far the shopper has actually got, so it opens on
+  // "Shipping" rather than jumping ahead to the auto-selected defaults.
+  const addressDone = !!watchedName?.trim() && !!watchedPhone?.trim() && (watchedAddress?.trim().length ?? 0) >= 10;
+  const activeStep = !addressDone ? 1 : !delivery ? 2 : !paymentMethod ? 3 : 3;
+  const stepDone = (n: number) => n < activeStep;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-8 gap-y-6 items-start">
-        {/* ── Left: customer details + payment ── */}
-        <div className="lg:col-start-1 lg:row-start-1">
-          <p className="text-[17px] font-medium leading-relaxed pb-4 border-b border-[var(--color-border)] max-md:font-semibold">
-            {t(
-              "checkout_instruction",
-              "To confirm your order, enter your name, address and mobile number, then click the Confirm Order button"
-            )}
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="checkout-name" className="text-[15px]">
-                {t("your_name", "Your Name")}
-              </label>
-              <input
-                id="checkout-name"
-                autoComplete="name"
-                placeholder={t("your_name_ph", "Enter your name")}
-                className={fieldCls(!!errors.name)}
-                {...register("name")}
-              />
-              {errors.name && <p className="text-xs text-red-600">{errors.name.message}</p>}
-            </div>
-            <div className="flex flex-col gap-2">
-              <label htmlFor="checkout-phone" className="text-[15px]">
-                {t("phone_number", "Phone Number")}
-              </label>
-              <div
-                className={cn(
-                  "flex overflow-hidden rounded-md border bg-surface focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent",
-                  errors.phone ? "border-red-500" : "border-[var(--color-border-dark)]"
-                )}
-              >
-                {bd && (
-                  <span className="flex items-center px-2.5 text-[15px] bg-surface-100 border-r border-[var(--color-border-dark)] whitespace-nowrap">
-                    (BD) +88
-                  </span>
-                )}
-                <input
-                  id="checkout-phone"
-                  type="tel"
-                  inputMode="tel"
-                  autoComplete="tel"
-                  placeholder={t("your_phone_ph", "Your mobile number")}
-                  className="flex-1 min-w-0 px-3 py-3 text-[15px] placeholder:text-[var(--color-text-muted)] focus:outline-none"
-                  {...register("phone")}
-                />
-              </div>
-              {errors.phone && <p className="text-xs text-red-600">{errors.phone.message}</p>}
-            </div>
+      {/* Dark hero with the step rail. */}
+      <div className="checkout-hero">
+        <div className="max-w-7xl mx-auto flex flex-col items-start justify-between gap-8 py-10 lg:flex-row lg:items-center lg:py-14">
+          <div>
+            <span className="checkout-eyebrow">
+              <span className="h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
+              {t("checkout_now", "Checkout Now")}
+            </span>
+            <h1 className="mt-4 font-display text-[34px] font-bold leading-tight text-white sm:text-[44px]">
+              {t("secure_checkout", "Secure Checkout")}
+            </h1>
+            <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#94a3b8]">
+              {t("checkout_subtitle", "Complete your order in a few steps")}
+              <span aria-hidden>·</span>
+              <Link href="/cart" className="inline-flex items-center gap-2 font-medium text-white hover:opacity-80">
+                <ArrowLeft className="h-4 w-4" />
+                {t("back_to_cart", "Back to Cart")}
+              </Link>
+            </p>
           </div>
 
-          <div className="flex flex-col gap-2 mt-4">
-            <label htmlFor="checkout-address" className="text-[15px]">
-              {t("your_address", "Your Address")}
-            </label>
-            <textarea
-              id="checkout-address"
-              rows={5}
-              autoComplete="street-address"
-              placeholder={t("your_address_ph", "Enter your full address")}
-              className={fieldCls(!!errors.address)}
-              {...register("address")}
-            />
-            {errors.address && <p className="text-xs text-red-600">{errors.address.message}</p>}
-          </div>
-          <input type="hidden" {...register("email")} />
-          <input type="hidden" {...register("city")} />
-          <input type="hidden" {...register("state")} />
-          <input type="hidden" {...register("country")} />
+          <ol className="checkout-steps w-full max-w-xl lg:w-auto">
+            {steps.map((s, i) => (
+              <Fragment key={s.n}>
+                {i > 0 && <li className={cn("checkout-step-line", stepDone(s.n - 1) && "is-done")} aria-hidden />}
+                <li className={cn("checkout-step", activeStep === s.n && "is-active")}>
+                  <span className="checkout-step-dot">{s.n}</span>
+                  <span className="checkout-step-label">{s.label}</span>
+                </li>
+              </Fragment>
+            ))}
+          </ol>
+        </div>
+      </div>
 
-          <div className="border-t-2 border-dashed border-[var(--color-border-dark)] mt-10 pt-8 max-md:-mx-3 max-md:mt-6 max-md:border-t-8 max-md:border-solid max-md:border-[var(--color-neutral-surface-alt,var(--color-surface-100))] max-md:px-3 max-md:pt-5">
-            <h2 className="flex items-center gap-2.5 text-xl font-bold mb-10 max-md:mb-6">
-              <HandCoins className="h-7 w-7 text-brand-ink" />
-              {t("how_to_pay", "How would you like to pay")}
-            </h2>
-            <PaymentSelector
-              value={resolveL10n(paymentMethod?.name) ?? ""}
-              onChange={setPaymentMethod}
-            />
-          </div>
+      <div className="max-w-7xl mx-auto py-8 md:py-12">
+        <div className="checkout-note mb-6">
+          {t(
+            "checkout_instruction",
+            "To confirm your order, enter your name, address and mobile number, then place the order."
+          )}
         </div>
 
-        {/* ── Right: order summary ── */}
-        <div className="-mx-3 -mb-3 h-2 bg-[var(--color-neutral-surface-alt,var(--color-surface-100))] md:hidden" aria-hidden />
-        <aside className="lg:col-start-2 lg:row-start-1 lg:row-span-2 rounded-lg bg-surface-100 p-4 sm:p-6 max-md:rounded-xl max-md:bg-slate-200/70 max-md:p-3">
-          <h2 className="text-lg font-medium mb-4 max-md:mb-3 max-md:mt-1 max-md:px-1">{t("your_order", "Your Order")}</h2>
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+          {/* ── Left: address, delivery, payment ── */}
+          <div>
+            <section className="checkout-card">
+              <div className="checkout-card-head">
+                <span className="checkout-tile bg-[color-mix(in_srgb,var(--color-brand-500)_12%,transparent)] text-[var(--color-brand-500)]">
+                  <MapPin className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h2>{t("shipping_address", "Shipping Address")}</h2>
+              </div>
 
-          <div className="space-y-4 max-md:space-y-3">
-            {items.map((item, i) => {
-              const collapsed = !showAllItems && items.length > 3;
-              return (
-                <div
-                  key={item.id}
-                  className={cn(
-                    collapsed && i === 2 && "relative max-md:max-h-[110px] max-md:overflow-hidden",
-                    collapsed && i > 2 && "max-md:hidden"
-                  )}
-                >
-                  <div className={cn(collapsed && i === 2 && "max-md:pointer-events-none max-md:opacity-30")}>
-                    <CheckoutItem item={item} currency={currency} storeName={storeName} />
-                  </div>
-                  {collapsed && i === 2 && (
-                    <button
-                      type="button"
-                      onClick={() => setShowAllItems(true)}
-                      className="absolute inset-0 flex items-center justify-center gap-1.5 text-[15px] font-medium text-brand-ink md:hidden"
-                    >
-                      <Plus className="h-4 w-4" />
-                      {t("more_items", "More")} {items.length - 2}
-                    </button>
-                  )}
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div className="checkout-field">
+                  <label htmlFor="checkout-name">
+                    {t("full_name", "Full Name")} <span className="req">*</span>
+                  </label>
+                  <input
+                    id="checkout-name"
+                    autoComplete="name"
+                    placeholder={t("full_name", "Full Name")}
+                    className={cn("checkout-input", errors.name && "has-error")}
+                    {...register("name")}
+                  />
+                  {errors.name && <p className="mt-1.5 text-xs text-red-600">{errors.name.message}</p>}
                 </div>
-              );
-            })}
-          </div>
 
-          <div className="mt-8 rounded-lg border border-brand-500/25 bg-brand-500/5 px-4 py-5">
-            <p className="text-[15px] text-[var(--color-text-secondary)] mb-4">
-              {t("select_delivery_method", "Select delivery method")}
-            </p>
-            <ShippingSelector
-              currency={currency}
-              methodName={resolveL10n(delivery?.zone_name) ?? ""}
-              onChange={setDelivery}
-            />
-          </div>
-
-          <dl className="mt-2.5 rounded-lg bg-surface px-4 py-5 text-[15px] space-y-3">
-            <div className="flex justify-between">
-              <dt>{t("subtotal", "Subtotal")}</dt>
-              <dd className="tabular-nums">{formatPrice(subTotal, currency)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt>{t("discount", "Discount")}</dt>
-              <dd className="tabular-nums text-red-500">-{formatPrice(discountAmount, currency)}</dd>
-            </div>
-            {showCoupon && (
-              <div>
-                <div className="flex justify-between items-center">
-                  <dt>
-                    {t("coupon_promo_discount", "Coupon/Promo Discount")}
-                    {couponCode && <span className="ml-1 text-xs text-green-600">({couponCode})</span>}
-                  </dt>
-                  {!couponCode && (
-                    <dd>
-                      <button
-                        type="button"
-                        onClick={() => setCouponOpen((o) => !o)}
-                        className="text-brand-ink underline underline-offset-4 hover:text-brand-ink"
-                      >
-                        {t("coupon_code", "Coupon Code")}
-                      </button>
-                    </dd>
-                  )}
-                </div>
-                {(couponOpen || couponCode) && (
-                  <div className="mt-3">
-                    <CouponInput
-                      orderTotal={subTotal}
-                      currency={currency}
-                      onApply={(code, amount) => {
-                        setCouponCode(code);
-                        setDiscountAmount(amount);
-                      }}
+                <div className="checkout-field">
+                  <label htmlFor="checkout-phone">
+                    {t("phone_number", "Phone Number")} <span className="req">*</span>
+                  </label>
+                  <div
+                    className={cn(
+                      "checkout-input flex items-center gap-2 !py-0",
+                      errors.phone && "has-error"
+                    )}
+                  >
+                    {bd && (
+                      <span className="shrink-0 border-r border-[var(--color-border)] pr-2 text-sm text-[var(--color-text-secondary)]">
+                        (BD) +88
+                      </span>
+                    )}
+                    <input
+                      id="checkout-phone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      placeholder={t("phone_number", "Phone Number")}
+                      className="min-h-[44px] w-full min-w-0 bg-transparent text-sm outline-none"
+                      {...register("phone")}
                     />
                   </div>
-                )}
+                  {errors.phone && <p className="mt-1.5 text-xs text-red-600">{errors.phone.message}</p>}
+                </div>
+              </div>
+
+              <div className="checkout-field mt-5">
+                <label htmlFor="checkout-address">
+                  {t("full_address", "Full Address")} <span className="req">*</span>
+                </label>
+                <input
+                  id="checkout-address"
+                  autoComplete="street-address"
+                  placeholder={t("your_address_ph", "Enter your full address")}
+                  className={cn("checkout-input", errors.address && "has-error")}
+                  {...register("address")}
+                />
+                {errors.address && <p className="mt-1.5 text-xs text-red-600">{errors.address.message}</p>}
+              </div>
+
+              <div className="checkout-field mt-5">
+                <label htmlFor="checkout-note">
+                  {t("order_note", "Write your any note or any instruction")}{" "}
+                  <span className="font-normal text-[var(--color-text-muted)]">({t("optional", "Optional")})</span>
+                </label>
+                <textarea
+                  id="checkout-note"
+                  rows={3}
+                  className="checkout-input resize-y"
+                  {...register("note")}
+                />
+              </div>
+
+              <input type="hidden" {...register("email")} />
+              <input type="hidden" {...register("city")} />
+              <input type="hidden" {...register("state")} />
+              <input type="hidden" {...register("country")} />
+            </section>
+
+            <section className="checkout-card">
+              <div className="checkout-card-head">
+                <span className="checkout-tile bg-[#e6fbf5] text-[#0d9488]">
+                  <Truck className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h2>{t("delivery_zone_schedule", "Delivery Zone & Schedule")}</h2>
+              </div>
+              <p className="mb-3 text-[13px] font-semibold text-[var(--color-form-label,var(--color-text-secondary))]">
+                {t("delivery_area", "Delivery Area")}
+              </p>
+              <ShippingSelector
+                currency={currency}
+                methodName={resolveL10n(delivery?.zone_name) ?? ""}
+                onChange={setDelivery}
+              />
+              <p className="mt-4 flex items-center gap-2 rounded-lg bg-[color-mix(in_srgb,var(--color-brand-500)_7%,transparent)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
+                <CalendarDays className="h-4 w-4 shrink-0 text-[var(--color-brand-500)]" />
+                {t("estimated_delivery", "Estimated Delivery")}
+              </p>
+            </section>
+
+            <section className="checkout-card">
+              <div className="checkout-card-head">
+                <span className="checkout-tile bg-[#eef2ff] text-[#4f46e5]">
+                  <CreditCard className="h-5 w-5" strokeWidth={1.75} />
+                </span>
+                <h2>{t("payment_method", "Payment Method")}</h2>
+              </div>
+              <PaymentSelector value={resolveL10n(paymentMethod?.name) ?? ""} onChange={setPaymentMethod} />
+            </section>
+          </div>
+
+          {/* ── Right: order summary ── */}
+          <aside className="checkout-card lg:sticky lg:top-24">
+            <div className="checkout-card-head">
+              <span className="checkout-tile bg-[#f5f0ff] text-[#7c3aed]">
+                <ShoppingBag className="h-5 w-5" strokeWidth={1.75} />
+              </span>
+              <h2>{t("order_summary", "Order Summary")}</h2>
+            </div>
+
+            <div>
+              {items.map((item) => (
+                <CheckoutItem key={item.id} item={item} currency={currency} />
+              ))}
+            </div>
+
+            <dl className="mt-5 space-y-3 border-t border-[var(--color-border)] pt-5 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-[var(--color-text-secondary)]">{t("subtotal", "Subtotal")}</dt>
+                <dd className="font-semibold tabular-nums">{formatPrice(subTotal, currency)}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-[var(--color-text-secondary)]">{t("shipping", "Shipping")}</dt>
+                <dd className="font-semibold tabular-nums">
+                  {delivery ? formatPrice(shippingCost, currency) : formatPrice(0, currency)}
+                </dd>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between">
+                  <dt className="text-[var(--color-text-secondary)]">
+                    {t("discount", "Discount")}
+                    {couponCode && <span className="ml-1 text-xs text-[var(--color-brand-500)]">({couponCode})</span>}
+                  </dt>
+                  <dd className="font-semibold tabular-nums text-red-600">
+                    -{formatPrice(discountAmount, currency)}
+                  </dd>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <dt className="text-[var(--color-text-secondary)]">{t("tax", "Tax")}</dt>
+                <dd className="font-semibold tabular-nums">{formatPrice(0, currency)}</dd>
+              </div>
+              <div className="flex items-baseline justify-between border-t border-[var(--color-border)] pt-4">
+                <dt className="text-base font-bold">{t("total", "Total")}</dt>
+                <dd className="summary-total">{formatPrice(total, currency)}</dd>
+              </div>
+            </dl>
+
+            {showCoupon && (
+              <div className="mt-5">
+                <CouponInput
+                  orderTotal={subTotal}
+                  currency={currency}
+                  onApply={(code, amount) => {
+                    setCouponCode(code);
+                    setDiscountAmount(amount);
+                  }}
+                />
               </div>
             )}
-            <div className="flex justify-between border-t border-[var(--color-border)] pt-3">
-              <dt>{t("total_amount", "Total Amount")}</dt>
-              <dd className="tabular-nums">{formatPrice(subTotal - discountAmount, currency)}</dd>
-            </div>
-            <div className="flex justify-between">
-              <dt>{t("delivery_charge", "Delivery Charge")}</dt>
-              <dd className="tabular-nums">
-                {delivery ? formatPrice(shippingCost, currency) : "—"}
-              </dd>
-            </div>
-            <div className="flex justify-between border-t border-[var(--color-text-primary)] pt-3 font-bold">
-              <dt>{t("payable_amount", "Payable Amount")}</dt>
-              <dd className="tabular-nums">{formatPrice(total, currency)}</dd>
-            </div>
-          </dl>
-        </aside>
 
-        <div className="hidden md:block lg:col-start-1 lg:row-start-2">
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            className="w-full rounded-md font-bold"
-            loading={isSubmitting}
-            disabled={items.length === 0}
-          >
-            {t("confirm_order", "Confirm Order")}
-          </Button>
+            <button
+              type="submit"
+              disabled={isSubmitting || items.length === 0}
+              className="place-order-btn mt-5"
+            >
+              {isSubmitting ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Lock className="h-[18px] w-[18px]" strokeWidth={2} />
+              )}
+              {t("place_order", "Place Order")}
+            </button>
+
+            <p className="mt-3 text-center text-xs text-[var(--color-text-muted)]">
+              {t("by_placing_order", "By placing order, you agree to our")}{" "}
+              <Link href="/pages/terms-and-conditions" className="font-medium text-[var(--color-brand-500)]">
+                {t("terms", "Terms")}
+              </Link>{" "}
+              &amp;{" "}
+              <Link href="/pages/privacy-policy" className="font-medium text-[var(--color-brand-500)]">
+                {t("privacy", "Privacy")}
+              </Link>
+            </p>
+          </aside>
         </div>
       </div>
 
-      {/* Phones: payable total + confirm, pinned to the bottom. */}
-      <div className="checkout-bar fixed inset-x-0 bottom-0 z-40 flex items-center gap-4 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] md:hidden">
+      {/* Phones: payable total + place order, pinned to the bottom. */}
+      <div className="checkout-bar fixed inset-x-0 bottom-0 z-40 flex items-center gap-4 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-[0_-4px_12px_rgba(0,0,0,0.05)] lg:hidden">
         <div className="shrink-0 leading-tight">
-          <p className="text-[15px] text-[var(--color-text-primary)]">{t("total", "Total")}:</p>
-          <p className="text-[17px] font-bold tabular-nums">{formatPrice(total, currency)}</p>
+          <p className="text-[13px] text-[var(--color-text-secondary)]">{t("total", "Total")}</p>
+          <p className="text-[17px] font-bold tabular-nums text-[var(--color-brand-500)]">
+            {formatPrice(total, currency)}
+          </p>
         </div>
-        <Button
+        <button
           type="submit"
-          variant="primary"
-          size="lg"
-          className="min-h-[52px] flex-1 rounded-lg font-bold"
-          loading={isSubmitting}
-          disabled={items.length === 0}
+          disabled={isSubmitting || items.length === 0}
+          className="place-order-btn flex-1"
         >
-          {t("confirm_order", "Confirm Order")}
-        </Button>
+          {isSubmitting ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Lock className="h-[18px] w-[18px]" strokeWidth={2} />
+          )}
+          {t("place_order", "Place Order")}
+        </button>
       </div>
+
 
       <Modal
         isOpen={otpModalOpen}
