@@ -9,19 +9,19 @@ interface PromoBannersProps {
 /** Phones: every banner full width at its own proportions, stacked. */
 function MobileStack({ items }: { items: HeroBanner[] }) {
   return (
-    <div className="flex flex-col gap-4 md:hidden">
+    <div className="flex flex-col gap-3 md:hidden">
       {items.map((b) => {
         const img = (
           <Image
             src={b.image}
             alt={b.title || "Banner"}
             width={800}
-            height={450}
+            height={400}
             sizes="100vw"
             className="h-auto w-full"
           />
         );
-        const cls = "block overflow-hidden rounded-[var(--shape-section-radius,1rem)] bg-surface-100";
+        const cls = "block overflow-hidden rounded-[4px] bg-surface-100";
         return b.link ? (
           <Link key={b.id} href={b.link} aria-label={b.title || "Banner"} className={cls}>
             {img}
@@ -43,10 +43,10 @@ function BannerTile({ banner, className, sizes }: { banner: HeroBanner; classNam
       alt={banner.title || "Banner"}
       fill
       sizes={sizes}
-      className="object-cover transition-transform duration-500 group-hover:scale-105"
+      className="object-cover"
     />
   );
-  const cls = `group relative block overflow-hidden rounded-[var(--shape-section-radius,1rem)] bg-surface-100 ${className}`;
+  const cls = `relative block overflow-hidden rounded-[4px] bg-surface-100 ${className}`;
   return banner.link ? (
     <Link href={banner.link} aria-label={banner.title || "Banner"} className={cls}>
       {img}
@@ -66,11 +66,11 @@ export function PromoBanners({ banners }: PromoBannersProps) {
 
   if (items.length < 4) {
     return (
-      <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
+      <section className="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8 lg:pt-3" data-reveal>
         <MobileStack items={items} />
-        <div className={`hidden md:grid gap-4 ${items.length === 1 ? "" : items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+        <div className={`hidden md:grid gap-3 ${items.length === 1 ? "" : items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {items.map((b) => (
-            <BannerTile key={b.id} banner={b} className="aspect-[16/9]" sizes="(min-width: 768px) 33vw, 100vw" />
+            <BannerTile key={b.id} banner={b} className="aspect-[2/1]" sizes="(min-width: 768px) 33vw, 100vw" />
           ))}
         </div>
       </section>

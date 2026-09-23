@@ -751,6 +751,24 @@ body[data-hero="banner"] .hero .hero-inner.has-cats {
 body[data-hero="banner"] .hero .hero-inner.has-cats .hero-frame {
   border-radius: var(--shape-section-radius, 12px);
 }
+/* With the category column the row has a fixed height on desktop and the
+   banner fills it, so neither side leaves a gap under the other. */
+@media (min-width: 1024px) {
+  .hero .hero-with-cats { height: var(--hero-cats-height, 370px); }
+  .hero .hero-with-cats > .hero-banner,
+  .hero .hero-with-cats .hero-frame { height: 100%; min-height: 0; }
+  .hero .hero-with-cats .hero-slide { aspect-ratio: auto; height: 100%; }
+  /* Dots over the photo: light pills, the active one in brand color. */
+  .hero .hero-with-cats .home-dots .swiper-pagination-bullet {
+    background: #fff;
+    opacity: 0.75;
+    box-shadow: 0 0 0 1px rgba(17, 24, 39, 0.12);
+  }
+  .hero .hero-with-cats .home-dots .swiper-pagination-bullet-active {
+    background: var(--color-brand-ink);
+    opacity: 1;
+  }
+}
 body[data-hero="minimal"] .hero { background: transparent; }
 body[data-gradient-hero="true"] .hero { background: var(--gradient-brand); color: var(--color-brand-primary-text); }
 
@@ -1411,13 +1429,12 @@ body[data-sticky-cta] .scroll-to-top {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 11px 18px;
+    min-height: 41px;
+    padding: 8px 16px;
     border-bottom: 1px solid var(--color-border);
     color: var(--color-header-nav-text, var(--color-text-secondary));
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+    font-size: 13.5px;
+    font-weight: 500;
     transition: color var(--effects-transition-speed, 200ms), background-color var(--effects-transition-speed, 200ms);
   }
   .cat-list a:last-child { border-bottom: 0; }
@@ -1445,7 +1462,13 @@ body[data-sticky-cta] .scroll-to-top {
   @media (min-width: 1024px) {
     .hero-with-cats { grid-template-columns: 250px minmax(0, 1fr); }
   }
-  .hero-cats { align-self: start; max-height: 420px; overflow-y: auto; }
+  .hero-cats {
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: none;
+    border-radius: var(--shape-card-radius, 4px);
+  }
+  .hero-cats::-webkit-scrollbar { display: none; }
 }
 
 /* ── Section heads ───────────────────────────────────────────────────────

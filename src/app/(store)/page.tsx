@@ -55,7 +55,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Blocks after which the store's extra rows (promo banners, all products …) belong. */
 const SHOP_KEYS = new Set(["banner", "categories", "flash_sale", "featured_products", "new_arrivals", "top_selling"]);
-const PRODUCT_KEYS = new Set(["flash_sale", "featured_products", "new_arrivals", "top_selling"]);
 
 /**
  * Homepage built from Appearance → Sections: enabled blocks in the owner's
@@ -116,7 +115,6 @@ export default async function HomePage() {
           <PopularCategories
             key={s.key}
             categories={categories.slice(0, limit)}
-            style={page.category_style}
             title={s.title}
             subtitle={s.subtitle}
             viewAll={s.view_all}
@@ -207,7 +205,6 @@ export default async function HomePage() {
   };
 
   const lastShopIndex = sections.reduce((last, s, i) => (SHOP_KEYS.has(s.key) ? i : last), -1);
-  const firstProductIndex = sections.findIndex((s) => PRODUCT_KEYS.has(s.key));
 
   const extras = (
     <>
@@ -247,7 +244,7 @@ export default async function HomePage() {
       {sections.map((s, i) => (
         <div key={s.key} className="contents">
           {render(s)}
-          {i === firstProductIndex && on("banner") && <PromoBanners banners={banners} />}
+          {s.key === "banner" && <PromoBanners banners={banners} />}
           {i === lastShopIndex && extras}
         </div>
       ))}

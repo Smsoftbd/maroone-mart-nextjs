@@ -35,7 +35,7 @@ export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: Slid
     <section className={cn("banner hero-inner max-w-7xl mx-auto pt-4 lg:pt-5", sidebar && "has-cats")}>
       <div className={sidebar ? "hero-with-cats" : undefined}>
       {sidebar}
-      <div className="relative">
+      <div className="hero-banner relative">
         <Swiper
           modules={[EffectFade, Autoplay, Pagination]}
           effect="fade"
@@ -74,9 +74,17 @@ export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: Slid
           })}
         </Swiper>
 
-        {/* Dots sit on a white tab notched into the bottom edge of the banner */}
+        {/* Dots sit on a white tab notched into the bottom edge of the banner;
+            beside the category column they sit inside the banner instead. */}
         {sliders.length > 1 && (
-          <div className="absolute bottom-0 left-1/2 z-10 -translate-x-1/2 translate-y-1/2 rounded-xl bg-[var(--color-surface-0)] px-4 py-2">
+          <div
+            className={cn(
+              "absolute left-1/2 z-10 -translate-x-1/2",
+              sidebar
+                ? "bottom-0 translate-y-1/2 rounded-xl bg-[var(--color-surface-0)] px-4 py-2 lg:bottom-3 lg:translate-y-0 lg:bg-transparent lg:p-0"
+                : "bottom-0 translate-y-1/2 rounded-xl bg-[var(--color-surface-0)] px-4 py-2"
+            )}
+          >
             <div ref={setDotsEl} className="home-dots home-dots-brand flex items-center justify-center" />
           </div>
         )}

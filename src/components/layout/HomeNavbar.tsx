@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils/cn";
 import { SearchBox } from "./SearchBox";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ColorSchemeToggle } from "./ColorSchemeToggle";
+import { CategoryIcon } from "@/components/home/HeroCategoryList";
 import { useT } from "@/lib/i18n/I18nProvider";
 import type { Category, Store } from "@/lib/api/types";
 
@@ -209,17 +210,7 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
                         href={`/products?category=${cat.slug}`}
                         onClick={() => setCatOpen(false)}
                       >
-                        {cat.image ? (
-                          <Image
-                            src={cat.image}
-                            alt=""
-                            width={22}
-                            height={22}
-                            className="h-[22px] w-[22px] shrink-0 rounded object-cover"
-                          />
-                        ) : (
-                          <Menu className="h-4 w-4 shrink-0 opacity-50" />
-                        )}
+                        <CategoryIcon image={cat.image} />
                         <span className="truncate">{cat.name}</span>
                       </Link>
                     ))}
