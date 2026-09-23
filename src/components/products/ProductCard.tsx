@@ -105,9 +105,9 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
     router.push("/checkout");
   };
 
-  // Phones: "4.5 ★ | 12" pill instead of the star row.
-  const ratingPill = opts.show_rating && (
-    <p className="card-rating-pill md:hidden">
+  // "4.5 ★ | 12": the compact rating line, and the phone fallback for star rows.
+  const ratingPill = (className?: string) => (
+    <p className={cn("card-rating-pill", className)}>
       <span className="tabular-nums">{Number(product.rating_avg || 0).toFixed(Number(product.rating_avg) % 1 ? 1 : 0)}</span>
       <Star className="h-3 w-3 fill-current text-[var(--color-commerce-rating-star,var(--color-tertiary-ink))]" />
       <span className="h-3 w-px bg-[var(--color-border-dark)]" aria-hidden />
@@ -117,25 +117,24 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
 
   const rating = opts.show_rating && (
     opts.rating_style === "compact" ? (
-      <p className="card-rating flex items-center gap-1 text-xs text-[var(--color-text-secondary)]">
-        <Star className="h-3.5 w-3.5 fill-current text-[var(--color-commerce-rating-star,var(--color-tertiary-ink))]" />
-        <span className="tabular-nums">{Number(product.rating_avg || 0).toFixed(1)}</span>
-        <span className="text-[var(--color-text-muted)]">({product.rating_count ?? 0})</span>
-      </p>
+      ratingPill()
     ) : (
-      <Rating value={Number(product.rating_avg || 0)} count={product.rating_count ?? 0} className="card-rating" />
+      <>
+        <Rating value={Number(product.rating_avg || 0)} count={product.rating_count ?? 0} className="card-rating" />
+        {ratingPill("md:hidden")}
+      </>
     )
   );
 
   const priceRow = (
-    <div className="card-price flex flex-wrap items-baseline gap-x-2 gap-y-1">
-      <span className={cn("price text-base", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
+    <div className="card-price flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+      <span className={cn("price text-[17px]", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
       {hasDiscount && opts.show_old_price && (
-        <s className="price-old text-xs">{formatPrice(original, currency)}</s>
+        <s className="price-old text-sm">{formatPrice(original, currency)}</s>
       )}
-      {/* Phones show the discount beside the price rather than on the image. */}
+      {/* The discount sits beside the price rather than on the image. */}
       {hasDiscount && (
-        <span className="badge badge-discount card-price-off md:hidden">
+        <span className="badge badge-discount card-price-off">
           {formatDiscount(original, price)}% {t("off", "OFF")}
         </span>
       )}
@@ -184,7 +183,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
       <button
         onClick={handleBuyNow}
         disabled={isLoading || !inStock}
-        className="btn btn-buy flex min-w-0 flex-1 items-center justify-center gap-1.5 !px-2 text-sm"
+        className="btn btn-buy flex min-w-0 flex-1 items-center justify-center gap-1.5 !px-2 text-[15px]"
       >
         <span className="truncate">{inStock ? t("buy_now", "Buy Now") : t("out_of_stock", "Out of Stock")}</span>
         {inStock && <ArrowRight className="hidden h-4 w-4 shrink-0 sm:block" />}
@@ -270,7 +269,6 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
           <Link href={href}>{product.name}</Link>
         </h3>
         {rating}
-        {ratingPill}
         {swatches.length > 0 && (
           <div className="card-swatches flex gap-1.5" aria-hidden>
             {swatches.map((c) => (

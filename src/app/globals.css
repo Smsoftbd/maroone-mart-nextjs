@@ -412,28 +412,32 @@ body[data-pattern="glow"] {
     background: var(--color-card-image-bg, var(--color-surface-100));
     border-radius: var(--shape-image-radius, var(--shape-card-radius, 0.75rem));
   }
+  /* Image sits inset from the frame with its own radius on all four corners. */
   .product-card > .card-img {
-    border-radius: var(--shape-card-radius, 0.75rem) var(--shape-card-radius, 0.75rem) 0 0;
+    margin: 4px;
+    border-radius: var(--shape-image-radius, 0.5rem);
   }
   .product-card .card-img img {
     object-fit: cover;
     transition: transform calc(var(--effects-transition-speed, 200ms) * 2) var(--easing, ease), opacity var(--effects-transition-speed, 200ms);
   }
   .product-card .card-img-alt { opacity: 0; }
-  .product-card .card-body { padding: 14px; }
+  .product-card .card-body { padding: 12px; }
+  /* The discount reads inline next to the price, so the image badge stays off. */
+  .product-card .card-badges .badge-discount { display: none; }
   .card-brand {
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-brand-ink);
   }
   .card-title {
     font-family: var(--font-body);
-    font-size: 0.9375rem;
-    font-weight: 500;
+    font-size: 15px;
+    font-weight: 600;
     letter-spacing: normal;
-    line-height: 1.4;
+    line-height: 1.45;
     text-transform: none;
     color: var(--color-card-title, var(--color-text-primary));
   }
@@ -443,7 +447,17 @@ body[data-pattern="glow"] {
     -webkit-line-clamp: var(--product-title-lines, 1);
     overflow: hidden;
   }
-  .card-actions .btn { min-height: 38px; }
+  /* Sits a touch further from the struck-through price than the price gap. */
+  .card-price-off { margin-inline-start: 4px; }
+  .card-actions .btn { min-height: 36px; }
+  .product-card .card-actions .btn-cart { width: 36px; }
+  /* Outlined cart square next to the solid buy button. */
+  .product-card .card-actions .btn-cart:not(:disabled) {
+    background: var(--color-button-outline-bg, var(--color-surface));
+    color: var(--color-button-outline-text, var(--color-brand-ink));
+    border-color: var(--color-button-outline-border, var(--color-brand-500));
+  }
+  .product-card .card-actions .btn-buy { font-weight: 700; }
   .card-badges {
     position: absolute;
     top: 10px;
@@ -599,6 +613,7 @@ body[data-button-hover="darken"] .btn-secondary:hover:not(:disabled) { backgroun
 body[data-button-hover="darken"] .btn-buy:hover:not(:disabled) { background: var(--color-button-buy-now-hover-bg, var(--color-brand-600)); }
 body[data-button-hover="darken"] .btn-cart:hover:not(:disabled) { background: var(--color-button-add-to-cart-hover-bg, var(--color-secondary-600)); }
 body[data-button-hover="darken"] .btn-outline:hover:not(:disabled) { background: var(--color-button-outline-hover-bg, var(--color-brand-50)); }
+body[data-button-hover="darken"] .product-card .card-actions .btn-cart:hover:not(:disabled) { background: var(--color-button-outline-hover-bg, var(--color-brand-50)); }
 body[data-button-hover="lift"] :is(.btn, .btn-buy, .btn-cart, .btn-outline):hover:not(:disabled) {
   transform: translateY(calc(var(--effects-lift-distance, 4px) / -2));
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
@@ -1082,16 +1097,14 @@ body[data-sticky-cta] .scroll-to-top {
     border-color: var(--color-section-category-band-text, var(--color-secondary-text));
     color: var(--color-section-category-band-text, var(--color-secondary-text));
   }
+  /* "4.5 ★ | 12" — the card's rating line when product.rating_style is compact. */
   .card-rating-pill {
     display: inline-flex;
     align-self: flex-start;
     align-items: center;
     gap: 6px;
-    padding: 2px 8px;
-    border-radius: 6px;
-    background: var(--color-neutral-surface-alt, var(--color-surface-100));
     color: var(--color-text-primary);
-    font-size: 12px;
+    font-size: 15px;
     font-weight: 500;
   }
 }
@@ -1119,40 +1132,10 @@ body[data-sticky-cta] .scroll-to-top {
 
   .brands-section .section-head { justify-content: center; }
 
-  /* Product card */
-  .product-card { --product-title-lines: 2; border-radius: 10px; }
-  .product-card > .card-img { margin: 4px 4px 0; border-radius: 8px; }
-  .product-card .card-body { padding: 10px 12px 12px; gap: 6px; }
-  .product-card .card-brand {
-    font-size: 13px;
-    font-weight: 500;
-    letter-spacing: 0;
-    text-transform: none;
-    color: var(--color-brand-ink);
-  }
-  .product-card .card-title { font-size: 15px; font-weight: 600; line-height: 1.45; min-height: 2.9em; }
+  /* Product card: same look as desktop, two title lines and no buy arrow. */
+  .product-card { --product-title-lines: 2; }
+  .product-card .card-title { min-height: 2.9em; }
   .product-card .card-rating { display: none; }
-  .product-card .card-badges .badge-discount { display: none; }
-  .product-card .card-price { column-gap: 6px; row-gap: 2px; align-items: center; }
-  .product-card .price,
-  .product-card .price.is-sale { color: var(--color-tertiary-500); font-size: 17px; }
-  .product-card .price-old { font-size: 14px; }
-  .product-card .card-price-off {
-    padding: 2px 6px;
-    border-radius: 4px;
-    background: var(--color-tertiary-500);
-    color: var(--color-tertiary-text);
-    font-size: 12px;
-  }
-  .product-card .card-actions { gap: 8px; }
-  .product-card .card-actions .btn { min-height: 36px; border-radius: 6px; }
-  .product-card .card-actions .btn-cart {
-    width: 36px;
-    background: var(--color-surface);
-    color: var(--color-brand-ink);
-    border-color: var(--color-brand-500);
-  }
-  .product-card .card-actions .btn-buy { font-size: 15px; font-weight: 700; }
   .product-card .card-actions .btn-buy svg { display: none; }
 
   .product-grid { gap: 14px; }
