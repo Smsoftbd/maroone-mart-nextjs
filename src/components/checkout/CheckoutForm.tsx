@@ -580,7 +580,7 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
                 <span className="checkout-tile bg-[#e6fbf5] text-[#0d9488]">
                   <Truck className="h-5 w-5" strokeWidth={1.75} />
                 </span>
-                <h2>{t("delivery_zone_schedule", "Delivery Zone & Schedule")}</h2>
+                <h2>{t("delivery_zone", "Delivery Zone")}</h2>
               </div>
               <p className="mb-3 text-[13px] font-semibold text-[var(--color-form-label,var(--color-text-secondary))]">
                 {t("delivery_area", "Delivery Area")}
