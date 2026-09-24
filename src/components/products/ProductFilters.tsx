@@ -2,17 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useTransition } from "react";
-import {
-  Check,
-  ChevronLeft,
-  DollarSign,
-  Filter,
-  LayoutGrid,
-  Percent,
-  Search,
-  SlidersHorizontal,
-  Tag,
-} from "lucide-react";
+import { Check, ChevronLeft, Filter } from "lucide-react";
 import { ActiveFilters } from "./ActiveFilters";
 import { Drawer } from "@/components/ui/Drawer";
 import { Spinner } from "@/components/ui/Spinner";
@@ -165,13 +155,11 @@ function categoryPath(cats: Category[], slug: string): Category[] {
 
 function FilterCard({
   title,
-  icon,
   action,
   tone,
   children,
 }: {
   title: string;
-  icon: React.ReactNode;
   action?: React.ReactNode;
   /** "offers" paints the tinted Special Offers card. */
   tone?: "offers";
@@ -181,8 +169,7 @@ function FilterCard({
     <section className={cn("filter-card", tone === "offers" && "is-offers")}>
       <div className="filter-card-head">
         <h3 className="filter-card-title">
-          {icon}
-          {title}
+          <span>{title}</span>
         </h3>
         {action}
       </div>
@@ -229,12 +216,12 @@ function CategoryNav({
   const indent = (depth: number) => ({ paddingLeft: `${depth}rem` });
 
   return (
-    <div className="space-y-1.5 text-base sm:text-sm">
+    <div className="cat-nav">
       {path.length > 0 && (
         <button
           type="button"
           onClick={() => setCategory(null)}
-          className="flex items-center gap-1 text-slate-700 hover:text-brand-ink"
+          className="flex items-center gap-1"
         >
           <ChevronLeft className="h-3.5 w-3.5" />
           {t("all_categories", "All Categories")}
@@ -246,10 +233,7 @@ function CategoryNav({
           type="button"
           onClick={() => setCategory(cat.slug)}
           style={indent(i + 1)}
-          className={cn(
-            "flex items-center gap-1 hover:text-brand-ink",
-            cat === current ? "text-brand-ink" : "text-slate-700"
-          )}
+          className={cn("flex items-center gap-1", cat === current && "is-active")}
         >
           <ChevronLeft className="h-3.5 w-3.5" />
           {cat.name}
@@ -261,10 +245,7 @@ function CategoryNav({
           type="button"
           onClick={() => setCategory(cat.slug)}
           style={indent(path.length ? trail.length + 1.5 : 0)}
-          className={cn(
-            "block text-left hover:text-brand-ink",
-            cat === current ? "font-medium text-brand-ink" : "text-slate-800"
-          )}
+          className={cn("block text-left", cat === current && "is-active")}
         >
           {cat.name}
         </button>
@@ -283,10 +264,9 @@ function FilterContent({
   filters: ReturnType<typeof useFilterParams>;
 }) {
   const t = useT();
-  const { active, toggle, setPrice, setSearch, setDiscount } = filters;
-  const [term, setTerm] = useState(active.search);
+  const { active, toggle, setPrice, setDiscount } = filters;
 
-  const money = (n: number) => `${currency}${n.toLocaleString("en-US")}`;
+  const money = (n: number) => `${currency === "৳" ? "Tk " : currency}${n.toLocaleString("en-US")}`;
   const priceLabel = (b: { min?: number; max?: number }) =>
     b.min == null
       ? `${t("under", "Under")} ${money(b.max!)}`
@@ -298,54 +278,15 @@ function FilterContent({
 
   return (
     <div>
-      <FilterCard title={t("search_products", "Search Products")} icon={<Search />}>
-        <form
-          className="filter-search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setSearch(term);
-          }}
-        >
-          <Search />
-          <input
-            type="search"
-            value={term}
-            onChange={(e) => setTerm(e.target.value)}
-            onBlur={() => term !== active.search && setSearch(term)}
-            placeholder={t("search_in_category", "Search in category...")}
-            aria-label={t("search_products", "Search Products")}
-          />
-        </form>
-      </FilterCard>
-
-      <FilterCard
-        title={t("price_range", "Price Range")}
-        icon={<DollarSign />}
-        action={
-          (active.priceMin || active.priceMax) && (
-            <button type="button" onClick={() => setPrice(undefined, undefined)} className="filter-card-action">
-              {t("reset", "Reset")}
-            </button>
-          )
-        }
-      >
-        {PRICE_BUCKETS.map((b) => (
-          <label key={`${b.min ?? 0}-${b.max ?? 0}`} className="filter-option">
-            <input
-              type="radio"
-              name="price-bucket"
-              checked={priceChecked(b)}
-              onChange={() => setPrice(b.min, b.max)}
-            />
-            {priceLabel(b)}
-          </label>
-        ))}
-      </FilterCard>
+      {categories.length > 0 && (
+        <FilterCard title={t("shop_by_category", "Categories")}>
+          <CategoryNav categories={categories} filters={filters} />
+        </FilterCard>
+      )}
 
       {brands.length > 0 && (
         <FilterCard
           title={t("brands", "Brands")}
-          icon={<Tag />}
           action={
             active.brands.length > 0 && (
               <button
@@ -379,9 +320,30 @@ function FilterContent({
       )}
 
       <FilterCard
+        title={t("price_range", "Price Range")}
+        action={
+          (active.priceMin || active.priceMax) && (
+            <button type="button" onClick={() => setPrice(undefined, undefined)} className="filter-card-action">
+              {t("reset", "Reset")}
+            </button>
+          )
+        }
+      >
+        {PRICE_BUCKETS.map((b) => (
+          <label key={`${b.min ?? 0}-${b.max ?? 0}`} className="filter-option">
+            <input
+              type="radio"
+              name="price-bucket"
+              checked={priceChecked(b)}
+              onChange={() => setPrice(b.min, b.max)}
+            />
+            {priceLabel(b)}
+          </label>
+        ))}
+      </FilterCard>
+
+      <FilterCard
         title={t("special_offers", "Special Offers")}
-        icon={<Percent />}
-        tone="offers"
         action={
           active.discount && (
             <button type="button" onClick={() => setDiscount(null)} className="filter-card-action">
@@ -402,17 +364,11 @@ function FilterContent({
         ))}
       </FilterCard>
 
-      {categories.length > 0 && (
-        <FilterCard title={t("shop_by_category", "Categories")} icon={<LayoutGrid />}>
-          <CategoryNav categories={categories} filters={filters} />
-        </FilterCard>
-      )}
-
       {filterAttributes.map((attr) => {
         const isColor = attr.code === "color" && attr.values.some((v) => v.code);
 
         return (
-          <FilterCard key={attr.id} title={attr.name} icon={<SlidersHorizontal />}>
+          <FilterCard key={attr.id} title={attr.name}>
             {isColor ? (
               <div className="flex flex-wrap gap-2.5 pt-1">
                 {attr.values.map((v) => {

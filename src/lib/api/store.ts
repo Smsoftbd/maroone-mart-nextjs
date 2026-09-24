@@ -23,6 +23,7 @@ type ApiStore = {
   phone: string;
   addresses: string[];
   country?: string | null;
+  google_map_link?: string | null;
   motto: LocalizedString;
   offer_message: LocalizedString;
   short_description: LocalizedString;
@@ -103,6 +104,7 @@ export async function getStore(): Promise<Store> {
     phone: res.phone ?? "",
     address: res.addresses?.[0] ?? "",
     country: res.country ?? "",
+    google_map_link: res.google_map_link || null,
     currency: "BDT",
     currency_symbol: "৳",
     guest_checkout: res.guest_checkout ?? true,

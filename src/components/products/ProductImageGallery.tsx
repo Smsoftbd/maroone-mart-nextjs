@@ -121,13 +121,13 @@ export function ProductImageGallery({
       : null;
 
   const frame =
-    "relative w-full aspect-square md:rounded-[var(--shape-image-radius,0.5rem)] overflow-hidden bg-[var(--color-card-image-bg,var(--color-surface-100))]";
+    "relative w-full aspect-square overflow-hidden bg-[var(--color-card-image-bg,var(--color-surface-100))]";
   const left = layout === "thumbs_left";
   const grid = layout === "grid" && count > 1;
 
   return (
     // Phones: edge-to-edge image with dots; thumbnails and arrows from `md`.
-    <div className="max-md:-mx-3">
+    <div className="pdp-gallery max-md:-mx-[15px]">
       {grid && (
         <div className="hidden lg:grid grid-cols-2 gap-3">
           {images.map((img, i) =>
@@ -168,46 +168,38 @@ export function ProductImageGallery({
           left && count > 1 && "lg:grid lg:grid-cols-[64px_1fr] lg:gap-3"
         )}
       >
-        {/* Thumbnails */}
+        {/* Thumbnails: a row under the photo with arrows at both ends. */}
         {count > 1 && (
-          <div
-            className={cn(
-              "order-2 mt-3 hidden gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 md:flex lg:mx-0 lg:px-0.5 lg:py-0.5",
-              left && "lg:order-1 lg:mt-0 lg:flex-col lg:overflow-x-visible lg:max-h-[28rem] lg:overflow-y-auto"
-            )}
-          >
-            {images.map((img, i) => (
-              <button
-                key={img.id ?? i}
-                onClick={() => {
-                  setOrigin(null);
-                  setActiveIndex(i);
-                }}
-                aria-label={img.kind === "video" ? "Play video" : `View image ${i + 1}`}
-                aria-pressed={i === activeIndex}
-                className={cn(
-                  "relative shrink-0 w-16 h-16 rounded-[calc(var(--shape-image-radius,0.5rem)*0.6)] overflow-hidden bg-surface-100 border border-[var(--color-border)] transition-all",
-                  i === activeIndex
-                    ? "ring-2 ring-brand-500"
-                    : "opacity-60 hover:opacity-100"
-                )}
-              >
-                <Image
-                  src={img.url}
-                  alt=""
-                  fill
-                  sizes="64px"
-                  className="object-cover object-top"
-                />
-                {img.kind === "video" && (
-                  <span className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-black">
-                      <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
+          <div className={cn("pdp-thumbs order-2 hidden md:flex", left && "lg:order-1")}>
+            <button type="button" onClick={() => go(-1)} aria-label="Previous image" className="pdp-thumbs-arrow">
+              <ChevronLeft className="h-5 w-5" strokeWidth={2} />
+            </button>
+            <div className="pdp-thumbs-track scrollbar-none">
+              {images.map((img, i) => (
+                <button
+                  key={img.id ?? i}
+                  onClick={() => {
+                    setOrigin(null);
+                    setActiveIndex(i);
+                  }}
+                  aria-label={img.kind === "video" ? "Play video" : `View image ${i + 1}`}
+                  aria-pressed={i === activeIndex}
+                  className={cn("pdp-thumb", i === activeIndex && "is-active")}
+                >
+                  <Image src={img.url} alt="" fill sizes="90px" className="object-contain" />
+                  {img.kind === "video" && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-black">
+                        <Play className="h-3.5 w-3.5 fill-current ml-0.5" />
+                      </span>
                     </span>
-                  </span>
-                )}
-              </button>
-            ))}
+                  )}
+                </button>
+              ))}
+            </div>
+            <button type="button" onClick={() => go(1)} aria-label="Next image" className="pdp-thumbs-arrow">
+              <ChevronRight className="h-5 w-5" strokeWidth={2} />
+            </button>
           </div>
         )}
 
@@ -258,13 +250,15 @@ export function ProductImageGallery({
             </div>
           )}
 
+          {!isVideo && <p className="pdp-zoom-hint hidden lg:block">Roll over or click image to zoom in</p>}
+
           {count > 1 && (
             <>
               <button
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Previous image"
-                className="absolute left-3 top-1/2 -translate-y-1/2 hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
+                className="absolute left-3 top-1/2 -translate-y-1/2 hidden md:flex lg:!hidden h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
@@ -272,7 +266,7 @@ export function ProductImageGallery({
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Next image"
-                className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
+                className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex lg:!hidden h-9 w-9 items-center justify-center rounded-full bg-surface/85 backdrop-blur text-[var(--color-text-primary)] shadow-sm transition-opacity lg:opacity-0 lg:group-hover/main:opacity-100 hover:bg-surface"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>

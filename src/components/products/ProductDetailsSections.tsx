@@ -1,8 +1,11 @@
-import { FileText, MessageCircleQuestion, Phone, Star } from "lucide-react";
+import { MessageCircleQuestion, Star } from "lucide-react";
 import { Rating } from "@/components/ui/Rating";
 import { ReviewCard } from "./ReviewCard";
 import { ProductInfoSections, type InfoPanel } from "./ProductInfoSections";
 import { getServerT } from "@/lib/i18n/server";
+import { getDeliveryCharges, getPage, getPages } from "@/lib/api/content";
+import { formatPrice } from "@/lib/utils/format";
+import { resolveL10n } from "@/lib/utils/l10n";
 import { splitPhones } from "@/lib/utils/phone";
 import type { Product, Store, Review, Question } from "@/lib/api/types";
 
@@ -20,6 +23,12 @@ export async function ProductDetailsSections({
   questions,
 }: ProductDetailsSectionsProps) {
   const t = await getServerT();
+  // Shipping & Returns: the owner's shipping/returns page, else the delivery zones.
+  const shippingPage = await getPages()
+    .then((pages) => pages.find((p) => /shipping|delivery|return|refund/i.test(p.slug)))
+    .then((p) => (p ? getPage(p.slug) : null))
+    .catch(() => null);
+  const zones = shippingPage ? [] : await getDeliveryCharges().catch(() => []);
   const specs = product.specifications ?? [];
   const phones = splitPhones(store.phone);
   const showReviews = store.features?.reviews !== false;
@@ -32,10 +41,10 @@ export async function ProductDetailsSections({
   const distTotal = Math.max(reviews.length, 1);
 
   const description = (
-    <div className="space-y-6">
+    <div key="description" className="space-y-6">
       {product.description ? (
         <div
-          className="prose-content max-w-none text-sm leading-relaxed text-[var(--color-text-secondary)] [&_img]:rounded-lg [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_img]:mx-auto"
+          className="prose-content pdp-description [&_img]:my-4 [&_img]:h-auto [&_img]:max-w-full [&_img]:mx-auto"
           dangerouslySetInnerHTML={{ __html: product.description }}
         />
       ) : (
@@ -45,7 +54,7 @@ export async function ProductDetailsSections({
       )}
 
       {specs.length > 0 && (
-        <dl className="divide-y divide-[var(--color-border)] rounded-lg border border-[var(--color-border)] overflow-hidden text-sm">
+        <dl className="divide-y divide-[var(--color-border)] border border-[var(--color-border)] overflow-hidden text-[13px]">
           {specs.map((spec, i) => (
             <div key={i} className="grid grid-cols-[minmax(8rem,35%)_1fr] gap-4 px-4 py-3 odd:bg-surface-50">
               <dt className="text-[var(--color-text-secondary)]">{spec.label}</dt>
@@ -55,34 +64,51 @@ export async function ProductDetailsSections({
         </dl>
       )}
 
+      {(phones.length > 0 || store.social.whatsapp) && (
+        <a
+          href={store.social.whatsapp || `tel:${phones[0]}`}
+          target={store.social.whatsapp ? "_blank" : undefined}
+          rel="noopener noreferrer"
+          className="pdp-ask"
+        >
+          <span className="pdp-ask-icon" aria-hidden>
+            <MessageCircleQuestion className="h-[18px] w-[18px]" strokeWidth={1.75} />
+          </span>
+          <span className="pdp-ask-text">{t("ask_beauty_expert", "Have question? Ask an Beauty Expert")}</span>
+        </a>
+      )}
     </div>
   );
 
-  const contactPanel = (
-    <div className="text-center">
-      <p className="text-lg font-bold text-[var(--color-text-primary)]">
-        {t("contact_for_details", "Want to know more?")}
-      </p>
-      <p className="mt-2 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-base">
-        <span className="text-[var(--color-text-secondary)]">{t("call_us", "Call us")}:</span>
-        {phones.map((p, i) => (
-          <span key={p} className="inline-flex items-center gap-2">
-            {i > 0 && <span className="text-[var(--color-text-secondary)]">{t("or", "or")}</span>}
-            <a
-              href={`tel:${p}`}
-              className="inline-flex items-center gap-1 text-lg font-bold tabular-nums text-brand-ink"
-            >
-              <Phone className="h-[18px] w-[18px] fill-current" />
-              {p}
-            </a>
-          </span>
-        ))}
-      </p>
+  const shippingPanel = shippingPage ? (
+    <div key="shipping" className="prose-content pdp-description" dangerouslySetInnerHTML={{ __html: shippingPage.content }} />
+  ) : zones.length > 0 ? (
+    <div key="shipping" className="pdp-description">
+      <table className="pdp-zones">
+        <tbody>
+          {zones.map((z) => {
+            const free = z.free_delivery_above ? Number(z.free_delivery_above) : 0;
+            return (
+              <tr key={z.id}>
+                <th>{resolveL10n(z.zone_name)}</th>
+                <td>
+                  {formatPrice(Number(z.charge_amount) || 0, store.currency_symbol)}
+                  {free > 0 && (
+                    <span className="ml-2 text-[var(--color-text-muted)]">
+                      ({t("free_above", "Free above")} {formatPrice(free, store.currency_symbol)})
+                    </span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
-  );
+  ) : null;
 
   const reviewsPanel = (
-    <div>
+    <div key="reviews">
       <div className="grid gap-6 sm:grid-cols-[12rem_1fr] sm:items-center">
         <div className="text-center">
           <p className="text-3xl font-bold tabular-nums text-[var(--color-text-primary)]">
@@ -123,9 +149,9 @@ export async function ProductDetailsSections({
 
   const questionsPanel =
     questions.length === 0 ? (
-      <p className="text-sm text-[var(--color-text-muted)]">{t("no_questions_yet", "No questions yet.")}</p>
+      <p key="questions" className="text-sm text-[var(--color-text-muted)]">{t("no_questions_yet", "No questions yet.")}</p>
     ) : (
-      <ul className="space-y-3">
+      <ul key="questions" className="space-y-3">
         {questions.map((q) => (
           <li key={q.id} className="rounded-lg border border-[var(--color-border)] p-4 text-sm">
             <p className="font-medium text-[var(--color-text-primary)]">
@@ -145,42 +171,16 @@ export async function ProductDetailsSections({
     );
 
   const panels: InfoPanel[] = [
-    {
-      id: "product-description",
-      label: t("description", "Description"),
-      content: description,
-      icon: <FileText className="h-4 w-4" />,
-      tone: "#4F46E5",
-    },
+    { id: "product-description", label: t("description", "Description"), content: description },
+    ...(shippingPanel
+      ? [{ id: "product-shipping", label: t("shipping_returns", "Shipping & Returns"), content: shippingPanel }]
+      : []),
     ...(showReviews
-      ? [
-          {
-            id: "product-reviews",
-            label: `${t("ratings_reviews", "Ratings & Reviews")} (${product.rating_count})`,
-            content: reviewsPanel,
-            icon: <Star className="h-4 w-4 fill-current" />,
-            tone: "#F59E0B",
-          },
-        ]
+      ? [{ id: "product-reviews", label: t("customer_reviews", "Customer Reviews"), content: reviewsPanel }]
       : []),
-    ...(phones.length > 0
-      ? [
-          {
-            id: "product-contact",
-            label: t("contact_us", "Contact Us"),
-            content: contactPanel,
-            icon: <Phone className="h-4 w-4" />,
-            tone: "#16A34A",
-          },
-        ]
+    ...(questions.length > 0
+      ? [{ id: "product-questions", label: t("questions_answers", "Q&A"), content: questionsPanel }]
       : []),
-    {
-      id: "product-questions",
-      label: t("questions_answers", "Q&A"),
-      content: questionsPanel,
-      icon: <MessageCircleQuestion className="h-4 w-4" />,
-      tone: "#EA580C",
-    },
   ];
 
   return <ProductInfoSections panels={panels} />;

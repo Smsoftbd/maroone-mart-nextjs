@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { EffectFade, Autoplay, Pagination } from "swiper/modules";
-import { cn } from "@/lib/utils/cn";
 import type { Slider as SliderType } from "@/lib/api/types";
 
 import "swiper/css";
@@ -14,8 +13,6 @@ import "swiper/css/pagination";
 
 interface SliderProps {
   sliders: SliderType[];
-  /** Optional column rendered to the left of the banner (homepage categories). */
-  sidebar?: React.ReactNode;
   /** Homepage section settings (Appearance → Sections → Banner). */
   autoplay?: boolean;
   /** Seconds between slides. */
@@ -23,18 +20,16 @@ interface SliderProps {
 }
 
 /**
- * Homepage hero: the banner slider inside `.hero`. page.hero_style,
- * hero_height and effects.gradient_hero shape the frame (globals.css).
+ * Homepage hero: a full-width banner slider inside `.hero`, dots over the
+ * bottom edge. page.hero_height shapes the frame (globals.css).
  */
-export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: SliderProps) {
+export function Slider({ sliders, autoplay = true, interval = 5 }: SliderProps) {
   const [dotsEl, setDotsEl] = useState<HTMLDivElement | null>(null);
 
   if (!sliders.length) return null;
 
   return (
-    <section className={cn("banner hero-inner max-w-7xl mx-auto pt-4 lg:pt-5", sidebar && "has-cats")}>
-      <div className={sidebar ? "hero-with-cats" : undefined}>
-      {sidebar}
+    <section className="banner hero-inner">
       <div className="hero-banner relative">
         <Swiper
           modules={[EffectFade, Autoplay, Pagination]}
@@ -54,7 +49,7 @@ export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: Slid
                 alt="Banner"
                 fill
                 priority={i === 0}
-                sizes="(min-width: 1280px) 1216px, 100vw"
+                sizes="100vw"
                 className="object-cover object-center"
               />
             );
@@ -74,21 +69,9 @@ export function Slider({ sliders, autoplay = true, interval = 5, sidebar }: Slid
           })}
         </Swiper>
 
-        {/* Dots sit on a white tab notched into the bottom edge of the banner;
-            beside the category column they sit inside the banner instead. */}
         {sliders.length > 1 && (
-          <div
-            className={cn(
-              "absolute left-1/2 z-10 -translate-x-1/2",
-              sidebar
-                ? "bottom-0 translate-y-1/2 rounded-xl bg-[var(--color-surface-0)] px-4 py-2 lg:bottom-3 lg:translate-y-0 lg:bg-transparent lg:p-0"
-                : "bottom-0 translate-y-1/2 rounded-xl bg-[var(--color-surface-0)] px-4 py-2"
-            )}
-          >
-            <div ref={setDotsEl} className="home-dots home-dots-brand flex items-center justify-center" />
-          </div>
+          <div ref={setDotsEl} className="pf-hero-dots absolute inset-x-0 bottom-4 z-10 flex items-center justify-center" />
         )}
-      </div>
       </div>
     </section>
   );

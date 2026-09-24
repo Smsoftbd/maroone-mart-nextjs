@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { setTrackingUserData, track } from "@/lib/analytics/track";
 import { buildMetaUserData } from "@/lib/analytics/meta-shared";
 
@@ -12,7 +12,7 @@ interface FooterNewsletterProps {
   success: string;
 }
 
-/** Small email signup under the footer logo (page.footer_newsletter). */
+/** Footer email signup (page.footer_newsletter): label, field and a square arrow button on one row. */
 export function FooterNewsletter({ label, placeholder, button, success }: FooterNewsletterProps) {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
@@ -39,8 +39,8 @@ export function FooterNewsletter({ label, placeholder, button, success }: Footer
   if (status === "done") return <p className="text-sm font-medium">{success}</p>;
 
   return (
-    <form onSubmit={submit} className="space-y-2.5">
-      <label htmlFor="footer-newsletter" className="block text-[13px] leading-relaxed">
+    <form onSubmit={submit} className="pf-newsletter-form">
+      <label htmlFor="footer-newsletter" className="pf-newsletter-label">
         {label}
       </label>
       <div className="footer-subscribe">
@@ -53,10 +53,10 @@ export function FooterNewsletter({ label, placeholder, button, success }: Footer
           placeholder={placeholder}
         />
         <button type="submit" disabled={status === "loading"} aria-label={button} title={button}>
-          <Send className="h-[18px] w-[18px]" strokeWidth={1.75} />
+          <ChevronRight className="h-4 w-4" strokeWidth={2.5} />
         </button>
       </div>
-      {status === "error" && <p className="text-xs">Something went wrong. Please try again.</p>}
+      {status === "error" && <p className="w-full text-xs">Something went wrong. Please try again.</p>}
     </form>
   );
 }

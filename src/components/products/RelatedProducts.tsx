@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { ProductGrid } from "./ProductGrid";
+import { ProductCarousel } from "./ProductCarousel";
 import { ProductCardSkeleton } from "@/components/ui/Skeleton";
 import { useI18n } from "@/lib/i18n/I18nProvider";
 import type { Product } from "@/lib/api/types";
@@ -51,34 +49,23 @@ export function RelatedProducts({
   if (!isLoading && products.length === 0) return null;
 
   return (
-    <section id="same-category-products" className="phone-band mt-12 lg:mt-16">
-      <div className="section-panel">
-        <div className="mb-6 flex items-center justify-between gap-4">
-          <h2 className="font-display text-xl font-bold md:text-[22px]">
-            {t("related_products", "Related Products")}
-          </h2>
-          <Link
-            href={`/products?category=${encodeURIComponent(categorySlug)}`}
-            className="ruled-link"
-          >
-            {t("view_all", "View All")}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+    <section id="same-category-products" className="pdp-related">
+      <h2 className="pdp-related-title">{t("related_products", "Related Products")}</h2>
+      {isLoading ? (
+        <div className="product-grid pdp-related-skeleton">
+          {[...Array(4)].map((_, i) => (
+            <ProductCardSkeleton key={i} />
+          ))}
         </div>
-        {isLoading ? (
-          <div className="product-grid">
-            {[...Array(5)].map((_, i) => (
-              <ProductCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : (
-          <ProductGrid
-            products={products}
-            currency={currency}
-            list={{ id: "related_products", name: "Related products" }}
-          />
-        )}
-      </div>
+      ) : (
+        <ProductCarousel
+          products={products}
+          currency={currency}
+          columns={4}
+          arrows="top"
+          list={{ id: "related_products", name: "Related products" }}
+        />
+      )}
     </section>
   );
 }

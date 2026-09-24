@@ -8,8 +8,9 @@ import { AnnouncementBar } from "@/components/layout/AnnouncementBar";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { FloatingCart } from "@/components/cart/FloatingCart";
 import { PopupManager } from "@/components/home/PopupManager";
+import { BrandsCarousel } from "@/components/home/BrandsCarousel";
 import { getStore, getTranslations } from "@/lib/api/store";
-import { getCategories } from "@/lib/api/products";
+import { getBrands, getCategories } from "@/lib/api/products";
 import { getPages } from "@/lib/api/content";
 import { getLocale } from "@/lib/i18n/locale";
 import { I18nProvider } from "@/lib/i18n/I18nProvider";
@@ -25,11 +26,12 @@ export default async function StoreLayout({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const [store, categories, pages, dict] = await Promise.all([
+  const [store, categories, pages, dict, brands] = await Promise.all([
     getStore(),
     getCategories(),
     getPages(),
     getTranslations(locale),
+    getBrands().catch(() => []),
   ]);
   const footerScript = stripGtmSnippet(store.scripts.footer, getGtmConfig()?.id);
   const consentMode = getConsentBannerMode();
@@ -38,7 +40,7 @@ export default async function StoreLayout({
   return (
     <I18nProvider locale={locale} dict={dict}>
       <AnnouncementBar message={store.offer_message} />
-      <Navbar store={store} categories={categories} />
+      <Navbar store={store} categories={categories} brands={brands} />
       <MobileNav store={store} categories={categories} />
       <CartDrawer currency={store.currency_symbol} />
       <FloatingCart currency={store.currency_symbol} />
@@ -48,7 +50,8 @@ export default async function StoreLayout({
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer store={store} pages={pages} />
+      <BrandsCarousel brands={brands} />
+      <Footer store={store} pages={pages} categories={categories} />
       <ScrollToTop />
       <BottomTabBar chatUrl={messengerUrl(store.social.facebook, store.social.whatsapp)} phone={store.phone} />
       {footerScript && <script dangerouslySetInnerHTML={{ __html: footerScript }} />}

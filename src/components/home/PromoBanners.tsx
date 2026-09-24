@@ -3,97 +3,51 @@ import Link from "next/link";
 import type { HeroBanner } from "@/lib/api/types";
 
 interface PromoBannersProps {
+  /** One row of tiles (see groupBanners). */
   banners: HeroBanner[];
 }
 
-/** Phones: every banner full width at its own proportions, stacked. */
-function MobileStack({ items }: { items: HeroBanner[] }) {
-  return (
-    <div className="flex flex-col gap-3 md:hidden">
-      {items.map((b) => {
-        const img = (
-          <Image
-            src={b.image}
-            alt={b.title || "Banner"}
-            width={800}
-            height={400}
-            sizes="100vw"
-            className="h-auto w-full"
-          />
-        );
-        const cls = "block overflow-hidden rounded-[4px] bg-surface-100";
-        return b.link ? (
-          <Link key={b.id} href={b.link} aria-label={b.title || "Banner"} className={cls}>
-            {img}
-          </Link>
-        ) : (
-          <div key={b.id} className={cls}>
-            {img}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function BannerTile({ banner, className, sizes }: { banner: HeroBanner; className: string; sizes: string }) {
-  const img = (
-    <Image
-      src={banner.image}
-      alt={banner.title || "Banner"}
-      fill
-      sizes={sizes}
-      className="object-cover"
-    />
-  );
-  const cls = `relative block overflow-hidden rounded-[4px] bg-surface-100 ${className}`;
-  return banner.link ? (
-    <Link href={banner.link} aria-label={banner.title || "Banner"} className={cls}>
-      {img}
-    </Link>
-  ) : (
-    <div className={cls}>{img}</div>
-  );
-}
-
 /**
- * Bento promo row: one large tile, two stacked tiles and one tall tile.
- * Degrades to a plain grid when fewer than four banners are configured.
+ * Promo tiles in rows like the reference storefront: four, then three, then
+ * four … A short last row keeps its own column count.
  */
-export function PromoBanners({ banners }: PromoBannersProps) {
+export function groupBanners(banners: HeroBanner[]): HeroBanner[][] {
   const items = [...banners].sort((a, b) => a.sort_order - b.sort_order).filter((b) => b.image);
-  if (!items.length) return null;
-
-  if (items.length < 4) {
-    return (
-      <section className="max-w-7xl mx-auto px-4 pt-6 sm:px-6 lg:px-8 lg:pt-3" data-reveal>
-        <MobileStack items={items} />
-        <div className={`hidden md:grid gap-3 ${items.length === 1 ? "" : items.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
-          {items.map((b) => (
-            <BannerTile key={b.id} banner={b} className="aspect-[2/1]" sizes="(min-width: 768px) 33vw, 100vw" />
-          ))}
-        </div>
-      </section>
-    );
+  const rows: HeroBanner[][] = [];
+  for (let i = 0, size = 4; i < items.length; i += size, size = size === 4 ? 3 : 4) {
+    rows.push(items.slice(i, i + size));
   }
+  return rows;
+}
 
-  const [large, top, bottom, tall] = items;
+/** One row of 2:1 banner tiles inside the container. */
+export function PromoBanners({ banners }: PromoBannersProps) {
+  if (!banners.length) return null;
+  const cols = banners.length;
+
   return (
-    <section className="home-section max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" data-reveal>
-      <MobileStack items={items} />
-      <div className="hidden md:grid grid-cols-2 gap-4 lg:grid-cols-[5fr_4fr_2fr] lg:grid-rows-2">
-        <BannerTile
-          banner={large}
-          className="col-span-2 aspect-[16/10] lg:col-span-1 lg:row-span-2 lg:aspect-auto"
-          sizes="(min-width: 1024px) 45vw, 100vw"
-        />
-        <BannerTile banner={top} className="aspect-[16/10] lg:aspect-auto lg:min-h-[160px]" sizes="(min-width: 1024px) 36vw, 50vw" />
-        <BannerTile
-          banner={tall}
-          className="row-span-2 lg:col-start-3 lg:row-start-1"
-          sizes="(min-width: 1024px) 18vw, 50vw"
-        />
-        <BannerTile banner={bottom} className="aspect-[16/10] lg:aspect-auto lg:min-h-[160px]" sizes="(min-width: 1024px) 36vw, 50vw" />
+    <section className="pf-promo max-w-7xl mx-auto" data-reveal>
+      <div className="pf-promo-row" style={{ "--cols": cols } as React.CSSProperties}>
+        {banners.map((b) => {
+          const img = (
+            <Image
+              src={b.image}
+              alt={b.title || "Banner"}
+              fill
+              sizes={`(min-width: 1024px) ${Math.round(1200 / cols)}px, 50vw`}
+              className="object-cover"
+            />
+          );
+          return b.link ? (
+            <Link key={b.id} href={b.link} aria-label={b.title || "Banner"} className="pf-promo-tile">
+              {img}
+            </Link>
+          ) : (
+            <div key={b.id} className="pf-promo-tile">
+              {img}
+            </div>
+          );
+        })}
       </div>
     </section>
   );

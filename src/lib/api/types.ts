@@ -40,6 +40,8 @@ export interface Store {
   phone: string;
   address: string;
   country: string;
+  /** Admin "Google map link": the header's "Find a store" target. */
+  google_map_link: string | null;
   currency: string;
   currency_symbol: string;
   guest_checkout: boolean;

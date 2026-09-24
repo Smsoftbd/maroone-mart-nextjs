@@ -5,6 +5,7 @@ import { ProductImageGallery } from "@/components/products/ProductImageGallery";
 import { ProductInfo } from "@/components/products/ProductInfo";
 import { ProductDetailsSections } from "@/components/products/ProductDetailsSections";
 import { RelatedProducts } from "@/components/products/RelatedProducts";
+import { RecentlyViewed, TrackRecentlyViewed } from "@/components/products/RecentlyViewed";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import {
   getProduct,
@@ -16,8 +17,6 @@ import { getStore } from "@/lib/api/store";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { productSchema, breadcrumbSchema } from "@/lib/utils/structured-data";
 import { getServerT } from "@/lib/i18n/server";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
 export const revalidate = 300;
 export const dynamicParams = true;
@@ -100,10 +99,9 @@ export default async function ProductPage({ params }: PageProps) {
     { name: product.name, url: `/products/${product.slug}` },
   ];
 
-  const shareUrl = `${SITE_URL}/products/${product.slug}`;
-
   return (
-    <div className="product-page max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-8 md:pt-4 md:pb-16 lg:pt-6">
+    <>
+    <div className="product-page max-w-7xl mx-auto pb-16 max-md:pb-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -114,24 +112,18 @@ export default async function ProductPage({ params }: PageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: breadcrumbSchema(breadcrumbItems) }}
       />
+      <TrackRecentlyViewed product={product} />
 
       {store.theme.page.breadcrumbs && (
-      <div className="hidden md:block text-xs [&_ol]:text-xs [&_li:last-child]:max-w-[12rem] sm:[&_li:last-child]:max-w-xs [&_li:last-child_span]:truncate [&_li:last-child]:min-w-0">
-        <Breadcrumb
-          items={breadcrumbItems.map((i) => ({ label: i.name, href: i.url }))}
-        />
-      </div>
+        <div className="pf-breadcrumb max-md:hidden">
+          <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, { label: product.name }]} />
+        </div>
       )}
 
-      <div className="md:mt-4">
+      <div className="pt-[42px] max-md:pt-0">
         <ProductInfo
           product={product}
           currency={store.currency_symbol}
-          shareUrl={shareUrl}
-          phone={store.phone}
-          questionCount={questions.length}
-          whatsapp={store.social.whatsapp}
-          facebook={store.social.facebook}
           gallery={<ProductImageGallery images={galleryImages} productName={product.name} />}
         >
           <ProductDetailsSections
@@ -151,5 +143,7 @@ export default async function ProductPage({ params }: PageProps) {
         />
       </Suspense>
     </div>
+    <RecentlyViewed currency={store.currency_symbol} excludeId={product.id} />
+    </>
   );
 }

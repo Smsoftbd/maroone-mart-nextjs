@@ -1,58 +1,41 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, ShoppingCart, Zap } from "lucide-react";
+import { ChevronDown, Heart, Minus, Plus } from "lucide-react";
 import { ProductVariantSelector } from "./ProductVariantSelector";
-import { ShareButtons } from "./ShareButtons";
 import { useCart } from "@/lib/hooks/useCart";
+import { useWishlist } from "@/lib/hooks/useWishlist";
 import { formatPrice, formatDiscount } from "@/lib/utils/format";
-import { splitPhones } from "@/lib/utils/phone";
 import { cn } from "@/lib/utils/cn";
 import { useI18n } from "@/lib/i18n/I18nProvider";
-import { useTheme } from "@/components/providers/StoreConfigProvider";
+import { useStoreConfig, useTheme } from "@/components/providers/StoreConfigProvider";
 import { track } from "@/lib/analytics/track";
 import type { Product, Barcode } from "@/lib/api/types";
 
 interface ProductInfoProps {
   product: Product;
   currency: string;
-  shareUrl: string;
-  /** Store phone field; may hold several numbers separated by commas. */
-  phone?: string;
-  questionCount: number;
   /** Gallery rendered in the left column. */
   gallery: ReactNode;
   /** Server-rendered details (description, reviews, Q&A) under both columns. */
   children?: ReactNode;
-  /** Chat links for the two gradient buttons under the CTAs. */
-  whatsapp?: string | null;
-  facebook?: string | null;
 }
-
-const LOW_STOCK = 5;
 
 /**
  * Product page, in the reference storefront's shape: gallery on the left, and
- * on the right the title, the category/brand/code line, the green price, a
- * quantity stepper, the Order Now / Add to Cart pair, the two
- * chat bars and the share row. The detail panels run full width underneath.
+ * on the right the title, list/sale price, option pills, quantity, subtotal,
+ * the pink Add to cart (+ wishlist square) and the black Buy it now. The
+ * detail tabs run full width underneath; a slim add-to-cart bar slides up
+ * from the bottom once the buttons scroll away.
  */
-export function ProductInfo({
-  product,
-  currency,
-  shareUrl,
-  phone,
-  questionCount,
-  gallery,
-  children,
-  whatsapp,
-  facebook,
-}: ProductInfoProps) {
+export function ProductInfo({ product, currency, gallery, children }: ProductInfoProps) {
   const router = useRouter();
   const { t } = useI18n();
-  const { sticky_cart: stickyCart, show_stock: showStock } = useTheme().product;
+  const { sticky_cart: stickyCart } = useTheme().product;
+  const config = useStoreConfig();
+  const { isInWishlist, toggle } = useWishlist();
   const [selectedBarcode, setSelectedBarcode] = useState<Barcode>(
     product.barcodes.find((b) => b.is_active) ?? product.barcodes[0]
   );
@@ -67,9 +50,7 @@ export function ProductInfo({
   const hasDiscount = original > price && price > 0;
   const discountPct = hasDiscount ? formatDiscount(original, price) : null;
   const inStock = stock > 0;
-  const lowStock = inStock && stock <= LOW_STOCK;
   const category = product.child_category ?? product.sub_category ?? product.category;
-  const phones = splitPhones(phone);
   const maxQty = Math.max(product.max_order_qty ?? product.max_order_quantity ?? stock, 1);
 
   // Mobile sticky buy bar: shown once the CTA row scrolls above the viewport.
@@ -126,235 +107,154 @@ export function ProductInfo({
   };
 
   const disabled = isLoading || !inStock;
+  const wishlistOn = config.wishlist;
+  const inWishlist = wishlistOn && isInWishlist(product.id);
+  const subtotal = price * qty;
 
-  const ctaButtons = (
-    <div className="pdp-cta grid gap-3 sm:grid-cols-2">
-      <button onClick={handleBuyNow} disabled={disabled} className="btn btn-outline">
-        <Zap className="h-[18px] w-[18px]" strokeWidth={2} />
-        {t("order_now", "Order Now")}
-      </button>
-      <button onClick={() => addSelected()} disabled={disabled} className="btn btn-cart">
-        <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
-        {t("add_to_cart", "Add to Cart")}
-      </button>
-    </div>
-  );
+  const variantLabel = (b: Barcode) => {
+    const name = b.attributes.map((a) => a.value).join(" / ");
+    return `${name || product.name} - ${formatPrice(Math.max(b.effective_price ?? 0, 0), currency)}`;
+  };
 
-  const chatLinks = (whatsapp || facebook || phones.length > 0) && (
-    <div className="space-y-2.5">
-      {(whatsapp || phones.length > 0) && (
-        <a
-          href={
-            whatsapp ||
-            `https://wa.me/${phones[0].replace(/[^\d]/g, "")}?text=${encodeURIComponent(product.name)}`
-          }
-          target="_blank"
-          rel="noopener noreferrer"
-          className="chat-btn is-whatsapp"
-        >
-          <svg className="h-[18px] w-[18px]" viewBox="0 0 448 512" fill="currentColor">
-            <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 110.9L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6z" />
-          </svg>
-          {t("contact_with_whatsapp", "Contact with WhatsApp")}
-        </a>
-      )}
-      {facebook && (
-        <a href={facebook} target="_blank" rel="noopener noreferrer" className="chat-btn is-facebook">
-          <svg className="h-[18px] w-[18px]" viewBox="0 0 320 512" fill="currentColor">
-            <path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z" />
-          </svg>
-          {t("contact_with_facebook", "Contact with Facebook")}
-        </a>
-      )}
+  const stepper = (size: "md" | "sm" = "md") => (
+    <div className={cn("qty-stepper", size === "sm" && "is-sm")}>
+      <button
+        type="button"
+        onClick={() => setQty((q) => Math.max(minQty, q - 1))}
+        disabled={qty <= minQty}
+        aria-label={t("decrease_qty", "Decrease quantity")}
+      >
+        <Minus className="h-3.5 w-3.5" strokeWidth={2} />
+      </button>
+      <span aria-live="polite">{qty}</span>
+      <button
+        type="button"
+        onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
+        disabled={qty >= maxQty}
+        aria-label={t("increase_qty", "Increase quantity")}
+      >
+        <Plus className="h-3.5 w-3.5" strokeWidth={2} />
+      </button>
     </div>
   );
 
   return (
     <>
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12">
-        {/* Left: gallery (sticky on desktop) */}
-        <div className="min-w-0">
-          <div className="lg:sticky lg:top-32">{gallery}</div>
+      <div className="pdp-main">
+        {/* Left: gallery, with the discount tag on the photo */}
+        <div className="relative min-w-0">
+          {discountPct && <span className="badge badge-discount pdp-badge">-{discountPct}%</span>}
+          {gallery}
         </div>
 
-        {/* Right: everything the shopper acts on */}
-        <div className="min-w-0">
-          <h1 className="font-display text-[26px] font-bold uppercase leading-tight text-[var(--color-text-primary)] sm:text-[32px]">
-            {product.name}
-          </h1>
+        {/* Right: title, price, options, quantity and the two CTAs */}
+        <div className="pdp-info min-w-0">
+          <h1 className="pdp-title">{product.name}</h1>
 
-          <div className="pdp-meta mt-2.5">
-            {category && (
-              <span>
-                {t("category", "Category")}:{" "}
-                <Link
-                  href={`/products?category=${encodeURIComponent(category.slug)}`}
-                  className="font-bold text-[var(--color-text-primary)] hover:text-brand-ink"
-                >
-                  {category.name}
-                </Link>
-              </span>
-            )}
-            {product.brand && (
-              <span>
-                {t("brand", "Brand")}:{" "}
-                <Link
-                  href={`/products?brands=${product.brand.id}`}
-                  className="font-bold text-[var(--color-text-primary)] hover:text-brand-ink"
-                >
-                  {product.brand.name}
-                </Link>
-              </span>
-            )}
-            {product.sku && (
-              <span>
-                {t("product_code", "Product Code")}: <strong>{product.sku}</strong>
-              </span>
-            )}
+          <div className="pdp-price-row">
+            {hasDiscount && <s className="price-old">{formatPrice(original, currency)}</s>}
+            <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
           </div>
 
-          <p
-            className={cn(
-              "mt-3 flex items-center gap-2 text-sm font-medium",
-              inStock ? (lowStock ? "is-low" : "is-in") : "is-out"
-            )}
-          >
-            <span className="h-2 w-2 shrink-0 rounded-full bg-current" aria-hidden />
-            {!inStock
-              ? t("out_of_stock", "Out of Stock")
-              : lowStock
-              ? `${t("only", "Only")} ${stock} ${t("left_in_stock", "left in stock")}`
-              : t("in_stock", "In Stock")}
-          </p>
-
-          <div className="mt-5 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-            <span className="pdp-price">{formatPrice(price, currency)}</span>
-            {hasDiscount && (
-              <>
-                <s className="price-old text-base">{formatPrice(original, currency)}</s>
-                <span className="badge badge-discount">
-                  {discountPct}% {t("off", "OFF")}
-                </span>
-              </>
-            )}
-          </div>
-
-          {/* Short description */}
-          {product.short_description && (
-            <div
-              className="prose-content mt-4 max-w-none text-sm text-[var(--color-text-secondary)] [&_p:last-child]:mb-0"
-              dangerouslySetInnerHTML={{ __html: product.short_description }}
-            />
-          )}
-
-          {/* Variants */}
           {product.barcodes.length > 1 && (
-            <div className="mt-5">
+            <div className="pdp-block">
               <ProductVariantSelector barcodes={product.barcodes} onChange={handleVariantChange} />
             </div>
           )}
 
-          {/* Quantity */}
-          <div className="mt-6">
-            <p className="pdp-label mb-2">{t("quantity", "Quantity")}</p>
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="qty-stepper">
+          <div className="pdp-block">
+            <p className="pdp-label">{t("quantity", "Quantity")}:</p>
+            {stepper()}
+          </div>
+
+          <p className="pdp-subtotal">
+            {t("subtotal", "Subtotal")}: <strong>{formatPrice(subtotal, currency)}</strong>
+          </p>
+
+          <div ref={ctaRef} className="pdp-cta">
+            <div className="flex gap-[15px]">
+              <button onClick={() => addSelected()} disabled={disabled} className="btn btn-cart flex-1">
+                {inStock ? t("add_to_cart", "Add to Cart") : t("sold_out", "Sold out")}
+              </button>
+              {wishlistOn && (
                 <button
                   type="button"
-                  onClick={() => setQty((q) => Math.max(minQty, q - 1))}
-                  disabled={qty <= minQty}
-                  aria-label={t("decrease_qty", "Decrease quantity")}
+                  onClick={() =>
+                    toggle(product.slug, product.id, { id: selectedBarcode?.id ?? product.id, name: product.name, price, quantity: 1 })
+                  }
+                  aria-label={inWishlist ? t("remove_from_wishlist", "Remove from wishlist") : t("add_to_wishlist", "Add to wishlist")}
+                  aria-pressed={inWishlist}
+                  className="pdp-wish"
                 >
-                  <Minus className="h-4 w-4" strokeWidth={2} />
+                  <Heart className={cn("h-5 w-5", inWishlist && "fill-current")} strokeWidth={1.5} />
                 </button>
-                <span aria-live="polite">{qty}</span>
-                <button
-                  type="button"
-                  onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
-                  disabled={qty >= maxQty}
-                  aria-label={t("increase_qty", "Increase quantity")}
-                >
-                  <Plus className="h-4 w-4" strokeWidth={2} />
-                </button>
-              </div>
-              {(showStock || !inStock || lowStock) && (
-                <span className={cn("text-sm font-medium", inStock ? (lowStock ? "is-low" : "is-in") : "is-out")}>
-                  {!inStock ? t("out_of_stock", "Out of Stock") : t("in_stock", "In Stock")}
-                </span>
               )}
             </div>
+            <button onClick={handleBuyNow} disabled={disabled} className="btn btn-buy w-full">
+              {t("buy_it_now", "Buy it now")}
+            </button>
           </div>
-
-          <div ref={ctaRef} className="mt-6 space-y-3">
-            {ctaButtons}
-            {chatLinks}
-          </div>
-
-          <div className="mt-6">
-            <ShareButtons url={shareUrl} title={product.name} />
-          </div>
-
-          {questionCount > 0 && (
-            <a
-              href="#product-questions"
-              className="mt-4 inline-block text-sm text-[var(--color-text-secondary)] hover:text-brand-ink"
-            >
-              {questionCount} {t("questions_answers", "Q&A")}
-            </a>
-          )}
         </div>
       </div>
 
-      {/* Description / Contact / Q&A, full width under both columns. */}
+      {/* Description / Shipping / Reviews tabs, full width under both columns. */}
       {children}
 
       {/* Phones: fixed Add to cart / Buy now bar. */}
       <div className="sticky-buy-bar is-phone md:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)] px-3 pt-3 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
         <div className="pdp-cta grid grid-cols-2 gap-3">
           <button onClick={() => addSelected()} disabled={disabled} className="btn btn-cart">
-            <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
             {t("add_to_cart", "Add to Cart")}
           </button>
           <button onClick={handleBuyNow} disabled={disabled} className="btn btn-buy">
-            <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
-            {inStock ? t("order_now", "Order Now") : t("out_of_stock", "Out of Stock")}
+            {inStock ? t("buy_it_now", "Buy it now") : t("sold_out", "Sold out")}
           </button>
         </div>
       </div>
 
-      {/* Tablets: compact bar once the CTA row scrolls away (product.sticky_cart) */}
+      {/* Tablet and up: slim bar once the CTAs scroll away (product.sticky_cart) */}
       {stickyCart && (
         <div
-          className={cn(
-            "sticky-buy-bar hidden md:block lg:hidden fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-surface-0)]/95 backdrop-blur px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-transform duration-300",
-            showSticky ? "translate-y-0" : "translate-y-full"
-          )}
+          className={cn("pdp-sticky hidden md:block", showSticky && "is-visible")}
           aria-hidden={!showSticky}
         >
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs text-[var(--color-text-secondary)]">{product.name}</p>
-              <p>
-                <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
-                {hasDiscount && <s className="price-old ml-2 text-xs">{formatPrice(original, currency)}</s>}
-              </p>
+          <div className="pdp-sticky-inner">
+            <div className="pdp-sticky-product">
+              {product.image && (
+                <Image src={product.image} alt="" width={50} height={50} className="h-[50px] w-[50px] shrink-0 object-contain" />
+              )}
+              <p className="line-clamp-1">{product.name}</p>
             </div>
+            {product.barcodes.length > 1 ? (
+              <span className="shop-toolbar-select pdp-sticky-select">
+                <select
+                  value={selectedBarcode?.id}
+                  tabIndex={showSticky ? 0 : -1}
+                  onChange={(e) => {
+                    const b = product.barcodes.find((x) => x.id === Number(e.target.value));
+                    if (b) handleVariantChange(b);
+                  }}
+                  aria-label={t("select_options", "Select options")}
+                >
+                  {product.barcodes.map((b) => (
+                    <option key={b.id} value={b.id} disabled={b.stock <= 0}>
+                      {variantLabel(b)}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </span>
+            ) : (
+              <span className="pdp-sticky-price">{formatPrice(price, currency)}</span>
+            )}
+            {stepper("sm")}
             <button
               onClick={() => addSelected()}
               disabled={disabled}
               tabIndex={showSticky ? 0 : -1}
-              aria-label={t("add_to_cart", "Add to Cart")}
-              className="btn btn-cart w-11 shrink-0 !px-0"
+              className="btn btn-cart pdp-sticky-btn"
             >
-              <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
-            </button>
-            <button
-              onClick={handleBuyNow}
-              disabled={disabled}
-              tabIndex={showSticky ? 0 : -1}
-              className="btn btn-buy shrink-0 text-sm"
-            >
-              {t("order_now", "Order Now")}
+              {inStock ? t("add_to_cart", "Add to Cart") : t("sold_out", "Sold out")}
             </button>
           </div>
         </div>

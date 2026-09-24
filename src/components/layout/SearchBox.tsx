@@ -32,8 +32,8 @@ interface SearchBoxProps {
   /** Called after a search commits — mobile uses it to close the collapsible bar. */
   onNavigate?: () => void;
   className?: string;
-  /** "minimal" = boxed field with a solid brand search button, for the homepage's white header. */
-  variant?: "default" | "minimal";
+  /** "minimal" = boxed field with a solid brand search button; "compact" = the header's small field with an icon button. */
+  variant?: "default" | "minimal" | "compact";
 }
 
 interface RawBarcode {
@@ -67,6 +67,7 @@ export function SearchBox({
   variant = "default",
 }: SearchBoxProps) {
   const isMinimal = variant === "minimal";
+  const isCompact = variant === "compact";
   const router = useRouter();
   const t = useT();
   const { popular, add, clear, history } = useSearchHistory();
@@ -224,7 +225,9 @@ export function SearchBox({
           aria-label="Search products"
           className={cn(
             "w-full text-sm focus:outline-none",
-            isMinimal
+            isCompact
+              ? "pf-search-input"
+              : isMinimal
               ? "input-shape h-11 lg:h-[44px] border-[color:var(--color-header-search-border,var(--color-border))] bg-[var(--color-header-search-bg,var(--color-surface))] pl-4 pr-16 text-[var(--color-header-search-text,var(--color-text-primary))] placeholder:text-[var(--color-form-placeholder,var(--color-text-muted))] focus:border-[color:var(--color-form-input-focus,var(--color-brand-500))] transition-colors"
               : "rounded-full bg-surface text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] pl-5 pr-12 py-2.5 focus:ring-2 focus:ring-white/40"
           )}
@@ -234,13 +237,15 @@ export function SearchBox({
           onClick={() => runSearch(query)}
           className={cn(
             "absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-colors",
-            isMinimal
+            isCompact
+              ? "pf-search-btn"
+              : isMinimal
               ? "right-0 h-11 w-14 lg:h-[44px] lg:w-[60px] rounded-r-[var(--shape-input-radius,0.375rem)] bg-[var(--color-header-search-button-bg,var(--color-brand-500))] text-[var(--color-header-search-button-text,var(--color-primary-text))] hover:bg-[var(--color-button-primary-hover-bg,var(--color-brand-600))]"
               : "right-1.5 h-8 w-8 rounded-full text-brand-ink hover:bg-brand-50 hover:text-brand-ink"
           )}
           aria-label="Search"
         >
-          <Search className="h-5 w-5" strokeWidth={isMinimal ? 1.5 : 2} />
+          <Search className={isCompact ? "h-4 w-4" : "h-5 w-5"} strokeWidth={isMinimal || isCompact ? 1.5 : 2} />
         </button>
       </div>
 
@@ -250,7 +255,9 @@ export function SearchBox({
           role="listbox"
           className={cn(
             "absolute left-0 right-0 top-full z-50 mt-2 max-h-[70vh] overflow-y-auto bg-surface text-[var(--color-text-primary)] border",
-            isMinimal
+            isCompact
+              ? "pf-search-panel"
+              : isMinimal
               ? "rounded-[var(--shape-card-radius,0)] border-[var(--color-border)] shadow-[0_24px_48px_-32px_rgba(0,0,0,0.45)]"
               : "rounded-xl shadow-lg border-[var(--color-border)]"
           )}

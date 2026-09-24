@@ -5,18 +5,20 @@ import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductFilters, ProductFilterSidebar } from "@/components/products/ProductFilters";
 import { ProductListLoader } from "@/components/products/ProductListLoader";
 import { ProductSort } from "@/components/products/ProductSort";
+import { ShopToolbar } from "@/components/products/ShopToolbar";
+import { DEFAULT_PER_PAGE, PER_PAGE_OPTIONS } from "@/lib/utils/shop";
+import { SidebarProducts } from "@/components/products/SidebarProducts";
+import { RecentlyViewed } from "@/components/products/RecentlyViewed";
 import { Pagination } from "@/components/ui/Pagination";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { getProducts, getCategories, getBrands, getProductFilters } from "@/lib/api/products";
+import { getProducts, getCategories, getBrands, getProductFilters, getFeaturedProducts, getBestSelling } from "@/lib/api/products";
 import { getStore } from "@/lib/api/store";
 import { generatePageMetadata } from "@/lib/utils/metadata";
 import { getServerT } from "@/lib/i18n/server";
-import { ProductCategorySelect } from "@/components/products/ProductCategorySelect";
 import type { Category, Product } from "@/lib/api/types";
 
 export const revalidate = 300;
-
-const PER_PAGE = 20;
 
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
@@ -41,6 +43,7 @@ interface PageProps {
     search?: string;
     sort?: string;
     page?: string;
+    per_page?: string;
   }>;
 }
 
@@ -68,12 +71,15 @@ function findCategory(cats: Category[], slug: string): Category | undefined {
 export default async function ProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const { search, sort, price_min, price_max, discount, page = "1" } = params;
+  const perPage = (PER_PAGE_OPTIONS as readonly number[]).includes(Number(params.per_page))
+    ? Number(params.per_page)
+    : DEFAULT_PER_PAGE;
 
   const categories = toArray(params.category);
   const brands = toArray(params.brands);
   const attribute_values = toArray(params.attribute_values);
 
-  const [{ data: allProducts, meta }, categoryTree, brandList, filters, store] =
+  const [{ data: allProducts, meta }, categoryTree, brandList, filters, store, sidebarProducts] =
     await Promise.all([
       getProducts({
         categories,
@@ -84,12 +90,17 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         price_min: price_min ? Number(price_min) : undefined,
         price_max: price_max ? Number(price_max) : undefined,
         page: Number(page),
-        per_page: PER_PAGE,
+        per_page: perPage,
       }),
       getCategories(),
       getBrands(),
       getProductFilters(),
       getStore(),
+      // Sidebar "Featured products": the featured list, else best sellers.
+      getFeaturedProducts()
+        .then((f) => (f.length ? f : getBestSelling(5)))
+        .then((l) => l.slice(0, 5))
+        .catch(() => []),
     ]);
 
   // The API has no discount facet, so the Special Offers bucket is applied to
@@ -142,41 +153,17 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   };
   const loaderKey = JSON.stringify({ ...query, discount });
 
+  const pageTitle = search
+    ? `${t("search", "Search")}: "${search}"`
+    : currentCategory?.name ?? t("products", "Products");
+
   return (
     <div className="shop-page">
-      {/* Category banner (layout.shop_banner) */}
-      {layout.shop_banner && currentCategory && (
-        <section className="hidden bg-[var(--color-neutral-surface,var(--color-surface))] md:block">
-          <div className="shop-wide py-8 lg:py-10">
-            <h1 className="text-2xl font-bold lg:text-3xl">{currentCategory.name}</h1>
-            {currentCategory.description && (
-              <div
-                className="prose-content mt-2 max-w-3xl text-sm text-[var(--color-text-secondary)] [&_p:last-child]:mb-0"
-                dangerouslySetInnerHTML={{ __html: currentCategory.description }}
-              />
-            )}
-            <p className="mt-2 text-sm text-[var(--color-text-muted)] tabular-nums">
-              {t("x_products", ":count products").replace(":count", String(meta.total))}
-            </p>
-          </div>
-        </section>
-      )}
+      <div className="max-w-7xl mx-auto pf-breadcrumb">
+        <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, { label: pageTitle }]} />
+      </div>
 
-      <div className="shop-wide pt-3 pb-10 md:pt-6 md:pb-16">
-        {/* Toolbar: category and sort, right-aligned above the grid. */}
-        <div className="mb-5 flex flex-wrap items-center justify-end gap-3">
-          <Suspense fallback={null}>
-            <div className="hidden sm:block">
-              <ProductCategorySelect categories={categoryTree} />
-            </div>
-          </Suspense>
-          <Suspense fallback={null}>
-            <div className="hidden sm:block">
-              <ProductSort />
-            </div>
-          </Suspense>
-        </div>
-
+      <div className="max-w-7xl mx-auto pt-8 pb-16 max-md:pt-5 max-md:pb-10">
         {/* layout.filter_position: sidebar left/right on desktop, else the drawer */}
         <div className="shop">
           {layout.filter_position !== "drawer" && (
@@ -184,13 +171,36 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               <Suspense fallback={null}>
                 <ProductFilterSidebar {...filterProps} />
               </Suspense>
+              <SidebarProducts
+                title={t("featured_products", "Featured Products")}
+                products={sidebarProducts}
+                currency={store.currency_symbol}
+              />
             </aside>
           )}
           <div className="min-w-0">
-            {/* Phones: grey Sort + Filter buttons side by side. */}
-            <div className="mb-4 flex gap-3 sm:hidden">
+            {layout.shop_banner && currentCategory?.banner && !currentCategory.banner.includes("no_image") && (
+              <div className="shop-banner">
+                {/* eslint-disable-next-line @next/next/no-img-element -- banner keeps its own proportions */}
+                <img src={currentCategory.banner} alt={currentCategory.name} />
+              </div>
+            )}
+            <h1 className="pf-page-title shop-title">{pageTitle}</h1>
+            {currentCategory?.description && (
+              <div
+                className="prose-content shop-description"
+                dangerouslySetInnerHTML={{ __html: currentCategory.description }}
+              />
+            )}
+
+            <Suspense fallback={null}>
+              <ShopToolbar />
+            </Suspense>
+
+            {/* Phones: Sort + Filter buttons side by side. */}
+            <div className="mb-4 flex gap-3 lg:hidden">
               <Suspense fallback={null}>
-                <div className="flex min-w-0 flex-1">
+                <div className="flex min-w-0 flex-1 sm:hidden">
                   <ProductSort variant="button" />
                 </div>
               </Suspense>
@@ -199,58 +209,50 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               </Suspense>
             </div>
 
-            <h1 className="mb-3 text-2xl font-bold md:hidden">
-              {search ? `${t("search", "Search")}: "${search}"` : currentCategory?.name ?? t("all_products", "All Products")}
-            </h1>
-
-            {products.length === 0 ? (
-              <EmptyState
-                icon={PackageSearch}
-                title={t("no_products_found", "No products found")}
-                description={
-                  hasFilters
-                    ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
-                    : t("no_products_hint", "Check back soon — new products are on the way.")
-                }
-                action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
-                className="py-24"
-              />
-            ) : layout.pagination !== "numbers" ? (
-              <ProductListLoader
-                key={loaderKey}
-                initial={products}
-                query={query}
-                currentPage={meta.current_page}
-                lastPage={meta.last_page}
-                perPage={PER_PAGE}
-                total={meta.total}
-                currency={store.currency_symbol}
-                list={itemList}
-                mode={layout.pagination}
-              />
-            ) : (
-              <>
-                <ProductGrid products={products} currency={store.currency_symbol} list={itemList} />
-                <div className="mt-6 flex flex-col items-start justify-between gap-4 border-t border-[var(--color-border)] pt-4 sm:mt-10 sm:flex-row sm:items-center sm:pt-5">
-                  <p className="text-sm text-[var(--color-text-secondary)]">
-                    {t("showing_x_of_y", "Showing :count of :total")
-                      .replace(":count", String(products.length))
-                      .replace(":total", String(meta.total))}
-                  </p>
-                  <Suspense fallback={null}>
-                    <Pagination
-                      currentPage={meta.current_page}
-                      lastPage={meta.last_page}
-                      total={meta.total}
-                      variant="boxed"
-                    />
-                  </Suspense>
-                </div>
-              </>
-            )}
+            <div className="shop-results" data-view="grid">
+              {products.length === 0 ? (
+                <EmptyState
+                  icon={PackageSearch}
+                  title={t("no_products_found", "No products found")}
+                  description={
+                    hasFilters
+                      ? t("no_products_filters_hint", "Try removing some filters or searching for something else.")
+                      : t("no_products_hint", "Check back soon — new products are on the way.")
+                  }
+                  action={hasFilters ? { label: t("clear_filters", "Clear filters"), href: "/products" } : undefined}
+                  className="py-24"
+                />
+              ) : layout.pagination !== "numbers" ? (
+                <ProductListLoader
+                  key={loaderKey}
+                  initial={products}
+                  query={query}
+                  currentPage={meta.current_page}
+                  lastPage={meta.last_page}
+                  perPage={perPage}
+                  total={meta.total}
+                  currency={store.currency_symbol}
+                  list={itemList}
+                  mode={layout.pagination}
+                />
+              ) : (
+                <>
+                  <ProductGrid products={products} currency={store.currency_symbol} list={itemList} />
+                  {meta.last_page > 1 && (
+                    <div className="shop-pagination">
+                      <Suspense fallback={null}>
+                        <Pagination currentPage={meta.current_page} lastPage={meta.last_page} total={meta.total} />
+                      </Suspense>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
+
+      <RecentlyViewed currency={store.currency_symbol} />
     </div>
   );
 }

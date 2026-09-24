@@ -23,7 +23,10 @@ interface PaymentSelectorProps {
   onLoad?: (methods: PaymentMethod[]) => void;
 }
 
-/** Payment methods as bordered tiles: name and hint left, logo tile right. */
+/**
+ * Payment methods as one bordered list: a radio row per method (logo right)
+ * and the chosen method's instructions in a grey panel under it.
+ */
 export function PaymentSelector({ value, onChange, onLoad }: PaymentSelectorProps) {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -46,49 +49,38 @@ export function PaymentSelector({ value, onChange, onLoad }: PaymentSelectorProp
 
   if (isLoading) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="co-options">
         {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-[72px] rounded-lg" />
+          <Skeleton key={i} className="h-[48px] rounded-none" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
+    <div className="co-options" role="radiogroup">
       {methods.map((method) => {
         const displayName = resolveL10n(method.name);
         const selected = value === displayName;
+        const note = method.description ? resolveL10n(method.description) : "";
+        const icon = iconFor(method);
         return (
-          <label
-            key={method.id}
-            className={cn("choice-tile cursor-pointer !min-h-[72px]", selected && "is-active")}
-          >
-            <input
-              type="radio"
-              name="payment"
-              className="sr-only"
-              checked={selected}
-              onChange={() => onChange(method)}
-            />
-            <span className="min-w-0">
-              <span className="block truncate font-semibold">{displayName}</span>
-              {method.description && (
-                <span className="mt-0.5 block truncate text-xs text-[var(--color-text-muted)]">
-                  {resolveL10n(method.description)}
-                </span>
-              )}
-            </span>
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)]">
-              <Image
-                src={iconFor(method)}
-                alt=""
-                width={28}
-                height={20}
-                className="h-5 w-auto object-contain"
+          <div key={method.id} className="contents">
+            <label className={cn("co-option", selected && "is-active")}>
+              <input
+                type="radio"
+                name="payment"
+                className={cn("co-radio", methods.length === 1 && "sr-only")}
+                checked={selected}
+                onChange={() => onChange(method)}
               />
-            </span>
-          </label>
+              <span className="min-w-0 flex-1 truncate font-medium">{displayName}</span>
+              {icon !== DEFAULT_ICON && (
+                <Image src={icon} alt="" width={38} height={24} className="h-6 w-auto shrink-0 object-contain" />
+              )}
+            </label>
+            {selected && note && <div className="co-option-panel">{note}</div>}
+          </div>
         );
       })}
     </div>

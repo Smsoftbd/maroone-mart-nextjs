@@ -17,7 +17,7 @@ interface ShippingSelectorProps {
   onChange: (charge: DeliveryCharge) => void;
 }
 
-/** Delivery zones as the reference's two-column grid of bordered tiles. */
+/** Delivery zones as one bordered list of radio rows (name left, price right). */
 export function ShippingSelector({ currency, methodName, onChange }: ShippingSelectorProps) {
   const t = useT();
   const [charges, setCharges] = useState<DeliveryCharge[]>([]);
@@ -40,31 +40,31 @@ export function ShippingSelector({ currency, methodName, onChange }: ShippingSel
 
   if (isLoading) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2">
-        {[1, 2].map((i) => (
-          <Skeleton key={i} className="h-[50px] rounded-lg" />
+      <div className="co-options">
+        {[1, 2, 3].map((i) => (
+          <Skeleton key={i} className="h-[48px] rounded-none" />
         ))}
       </div>
     );
   }
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2" role="radiogroup">
+    <div className="co-options" role="radiogroup">
       {charges.map((charge) => {
         const displayName = resolveL10n(charge.zone_name);
         const cost = parseFloat(charge.charge_amount);
         const selected = methodName === displayName;
         return (
-          <label key={charge.id} className={cn("choice-tile cursor-pointer", selected && "is-active")}>
+          <label key={charge.id} className={cn("co-option", selected && "is-active")}>
             <input
               type="radio"
               name="delivery"
-              className="sr-only"
+              className="co-radio"
               checked={selected}
               onChange={() => onChange(charge)}
             />
-            <span className="truncate font-medium">{displayName}</span>
-            <span className="choice-price shrink-0">
+            <span className="min-w-0 flex-1 truncate font-medium">{displayName}</span>
+            <span className="shrink-0">
               {cost === 0 ? t("free", "Free") : formatPrice(cost, currency)}
             </span>
           </label>

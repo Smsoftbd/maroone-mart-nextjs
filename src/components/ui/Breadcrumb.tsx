@@ -12,11 +12,11 @@ interface BreadcrumbProps {
 
 export function Breadcrumb({ items }: BreadcrumbProps) {
   return (
-    <nav aria-label="Breadcrumb">
-      <ol className="flex flex-wrap items-center gap-1 text-sm text-[var(--color-text-secondary)]">
+    <nav aria-label="Breadcrumb" className="pf-crumbs">
+      <ol className="flex flex-wrap items-center gap-1.5">
         {items.map((item, i) => (
           <li key={i} className="flex items-center gap-1">
-            {i > 0 && <ChevronRight className="h-3.5 w-3.5 shrink-0" />}
+            {i > 0 && <ChevronRight className="h-3 w-3 shrink-0" strokeWidth={1.75} />}
             {item.href && i < items.length - 1 ? (
               <Link
                 href={item.href}
@@ -26,9 +26,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
               </Link>
             ) : (
               <span
-                className={
-                  i === items.length - 1 ? "text-[var(--color-text-primary)] font-medium" : ""
-                }
+                className="line-clamp-1"
                 aria-current={i === items.length - 1 ? "page" : undefined}
               >
                 {item.label}

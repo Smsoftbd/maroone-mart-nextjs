@@ -20,64 +20,65 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+const plain = (html?: string) => (html ?? "").replace(/<[^>]*>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+
+/** "Collections": every category as a card with photo, name, blurb and a pink button. */
 export default async function CategoriesPage() {
   const [categories, t] = await Promise.all([
     getCategories().catch(() => []),
     getServerT(),
   ]);
+  const list = categories.filter((c) => c.slug !== "uncategorized");
 
   return (
-    <div className="bg-surface">
-      <div className="border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Breadcrumb
-            items={[
-              { label: t("home", "Home"), href: "/" },
-              { label: t("categories", "Categories") },
-            ]}
-          />
-        </div>
+    <div>
+      <div className="max-w-7xl mx-auto pf-breadcrumb">
+        <Breadcrumb
+          items={[
+            { label: t("home", "Home"), href: "/" },
+            { label: t("collections", "Collections") },
+          ]}
+        />
       </div>
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <h1 className="mb-10 text-center text-2xl font-bold text-[var(--color-text-primary)] lg:mb-16 lg:text-4xl">
-          {t("all_categories", "All Categories")}
-        </h1>
+      <section className="max-w-7xl mx-auto pt-5 pb-20">
+        <h1 className="pf-page-title mb-10">{t("collections", "Collections")}</h1>
 
-        {categories.length === 0 ? (
+        {list.length === 0 ? (
           <EmptyState
             title={t("no_categories_found", "No categories found")}
             description={t("check_back_soon", "Check back soon.")}
           />
         ) : (
-          <ul className="grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 md:gap-x-8 lg:grid-cols-6 lg:gap-x-12 lg:gap-y-12">
-            {categories.map((cat) => (
-              <li key={cat.id}>
-                <Link
-                  href={`/products?category=${cat.slug}`}
-                  className="group flex flex-col items-center gap-3 text-center"
-                >
-                  <span className="flex aspect-[3/2] w-full items-center justify-center rounded-xl border border-slate-200 bg-surface transition-all duration-200 group-hover:-translate-y-0.5 group-hover:border-brand-500 group-hover:shadow-md">
-                    {cat.image ? (
-                      <span className="relative block h-1/2 w-1/2">
-                        <Image
-                          src={cat.image}
-                          alt={cat.name}
-                          fill
-                          sizes="80px"
-                          className="object-contain"
-                        />
-                      </span>
+          <ul className="pf-collections">
+            {list.map((cat) => {
+              const href = `/products?category=${cat.slug}`;
+              const image = cat.image && !cat.image.includes("no_image") ? cat.image : null;
+              const blurb = plain(cat.description);
+              return (
+                <li key={cat.id} className="pf-collection">
+                  <Link href={href} className="pf-collection-img" aria-label={cat.name}>
+                    {image ? (
+                      <Image src={image} alt={cat.name} fill sizes="(min-width: 1024px) 280px, 50vw" className="object-cover" />
                     ) : (
-                      <ImageOff className="h-7 w-7 text-slate-300" aria-hidden />
+                      <ImageOff className="h-8 w-8 text-[var(--color-text-muted)]" strokeWidth={1.25} aria-hidden />
                     )}
-                  </span>
-                  <span className="line-clamp-3 max-w-[10rem] text-sm leading-relaxed text-slate-700 transition-colors group-hover:text-brand-ink sm:text-base lg:text-lg">
-                    {cat.name}
-                  </span>
-                </Link>
-              </li>
-            ))}
+                  </Link>
+                  <h2 className="pf-collection-title">
+                    <Link href={href}>{cat.name}</Link>
+                  </h2>
+                  {cat.children?.length > 0 && (
+                    <p className="pf-collection-count">
+                      {t("x_collections", ":count collections").replace(":count", String(cat.children.length))}
+                    </p>
+                  )}
+                  {blurb && <p className="pf-collection-text">{blurb}</p>}
+                  <Link href={href} className="btn btn-primary pf-collection-btn">
+                    {t("shop_this_collection", "Shop this collection")}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

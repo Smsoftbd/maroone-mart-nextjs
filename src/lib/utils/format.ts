@@ -1,12 +1,14 @@
+/** Taka reads as "Tk 1,050.00", like the reference storefront. */
 export function formatPrice(
   amount: number,
   currencySymbol = "৳"
 ): string {
   const formatted = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount);
-  return `${currencySymbol}${formatted}`;
+  const symbol = currencySymbol === "৳" ? "Tk " : currencySymbol;
+  return `${symbol}${formatted}`;
 }
 
 export function formatDiscount(

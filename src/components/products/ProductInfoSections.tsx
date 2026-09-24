@@ -49,8 +49,8 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
       }
     };
     return (
-      <section className="info-tabs mt-8">
-        <div role="tablist" className="flex gap-6 overflow-x-auto scrollbar-none border-b [border-bottom-style:var(--shape-divider-style,solid)] border-[var(--color-border)] max-md:grid max-md:grid-flow-col max-md:auto-cols-fr max-md:gap-0">
+      <section className="info-tabs pdp-tabs">
+        <div role="tablist" className="pdp-tablist scrollbar-none">
           {panels.map((p) => (
             <button
               key={p.id}
@@ -60,15 +60,9 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
               aria-selected={active === p.id}
               aria-controls={p.id}
               onClick={() => select(p.id)}
-              className={cn(
-                "-mb-px whitespace-nowrap border-b-2 pb-3 text-sm font-medium transition-colors max-md:whitespace-normal max-md:border-b-0 max-md:px-1 max-md:py-3 max-md:text-sm max-md:font-normal max-md:!text-[var(--color-text-primary)] max-md:[&:not(:first-child)]:border-l max-md:[&:not(:first-child)]:border-l-[var(--color-border-dark)]",
-                active === p.id
-                  ? "border-brand-500 text-brand-ink"
-                  : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
-              )}
+              className={cn("pdp-tab", active === p.id && "is-active")}
             >
-              <span className="md:hidden">{p.label.replace(/\s*\(\d+\)$/, "")}</span>
-              <span className="hidden md:inline">{p.label}</span>
+              {p.label}
             </button>
           ))}
         </div>
@@ -79,11 +73,9 @@ export function ProductInfoSections({ panels }: { panels: InfoPanel[] }) {
             role="tabpanel"
             aria-labelledby={`${p.id}-tab`}
             // Class, not `hidden`: phones show every panel (preflight's [hidden] is !important).
-            className={cn("scroll-mt-32 pt-6", active !== p.id && "md:hidden")}
+            className={cn("pdp-tabpanel scroll-mt-32", active !== p.id && "md:hidden")}
           >
-            {i > 0 && (
-              <h2 className="mb-4 text-[22px] font-bold text-[var(--color-text-primary)] md:hidden">{p.label}</h2>
-            )}
+            {i > 0 && <h2 className="pdp-tabpanel-title md:hidden">{p.label}</h2>}
             {p.content}
           </div>
         ))}

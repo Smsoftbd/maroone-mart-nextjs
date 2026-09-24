@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
+  ChevronDown,
+  Heart,
+  MapPin,
   Menu,
   Search,
   ShoppingBag,
   ShoppingBasket,
   ShoppingCart,
-  Truck,
-  User,
 } from "lucide-react";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
@@ -19,151 +20,156 @@ import { useUiStore } from "@/lib/stores/uiStore";
 import { cn } from "@/lib/utils/cn";
 import { SearchBox } from "./SearchBox";
 import { LanguageSwitcher } from "./LanguageSwitcher";
-import { ColorSchemeToggle } from "./ColorSchemeToggle";
-import { CategoryIcon } from "@/components/home/HeroCategoryList";
 import { useT } from "@/lib/i18n/I18nProvider";
-import type { Category, Store } from "@/lib/api/types";
+import type { Brand, Category, Store } from "@/lib/api/types";
 
 interface HomeNavbarProps {
   store: Store;
   categories: Category[];
+  brands?: Brand[];
   scrolled: boolean;
 }
 
 const CART_ICONS = { bag: ShoppingBag, cart: ShoppingCart, basket: ShoppingBasket };
-const iconBtn =
-  "rounded-full p-2 text-[var(--color-header-icon,currentColor)] hover:bg-[color-mix(in_srgb,currentColor_8%,transparent)]";
+
+/** Uncategorized is a system bucket, never a menu entry. */
+const isMenuCategory = (c: Category) => c.slug !== "uncategorized";
 
 /**
- * Site header, two rows like the reference storefront:
- *   1. logo · search field with a solid button · Track Order, account, cart
- *   2. the green "All categories" block (opens the category panel) and the
- *      main navigation.
- * Colors, heights and the sticky behaviour still come from the Appearance
- * theme (see .site-header / .nav-bar in globals.css).
+ * Site header, like the reference storefront:
+ *   1. grey bar: "Find a store" · centered logo · sign in, wishlist, cart and
+ *      the compact search field
+ *   2. white bar: centered uppercase menu (Top brands, the top-level
+ *      categories, the offers page), each with a full-width dropdown.
+ * Phones get menu button · logo · search + cart; the drawer holds the menu.
  */
-export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
+export function HomeNavbar({ store, categories, brands = [], scrolled }: HomeNavbarProps) {
   const t = useT();
   const pathname = usePathname();
   const totalItems = useCartStore((s) => s.totalItems);
   const openCart = useCartStore((s) => s.openCart);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const { isSearchOpen, toggleSearch, closeSearch, toggleMobileNav } = useUiStore();
-  const [catOpen, setCatOpen] = useState(false);
-  const catRef = useRef<HTMLDivElement>(null);
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const layout = store.theme.layout;
   const CartIcon = CART_ICONS[layout.cart_icon];
-  const navCategories = categories.slice(0, 14);
+  const menuCategories = categories.filter(isMenuCategory).slice(0, 6);
+  const storeHref = store.google_map_link || "/contact";
 
-  // The category panel is a hover/click menu; close it on an outside press.
-  useEffect(() => {
-    if (!catOpen) return;
-    const onDown = (e: MouseEvent) => {
-      if (!catRef.current?.contains(e.target as Node)) setCatOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setCatOpen(false);
-    document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDown);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [catOpen]);
+  const logo = store.logo ? (
+    <Image
+      src={store.logo}
+      alt={store.name}
+      width={240}
+      height={80}
+      className="site-logo w-auto object-contain"
+      priority
+    />
+  ) : (
+    <span className="font-display text-xl font-bold uppercase lg:text-2xl">{store.name}</span>
+  );
 
-  const navLinks = [
-    { href: "/", label: t("home", "Home") },
-    { href: "/products", label: t("shop", "Shop") },
-    { href: "/flash-sale", label: t("promotion", "Promotion") },
-    { href: "/track-order", label: t("track_order", "Track Order") },
-    { href: "/contact", label: t("contact_us", "Contact Us") },
-  ];
+  const close = () => setOpenMenu(null);
 
   return (
     <>
       <header
         className={cn(
-          "site-header z-40",
+          "site-header pf-header z-40",
           layout.sticky_header ? "sticky top-0" : "relative",
           scrolled && "is-scrolled"
         )}
       >
         <div className="max-w-7xl mx-auto">
-          <div className="header-row flex items-center gap-3 lg:gap-6">
-            {/* Phones/tablets: the drawer menu button. */}
-            <button
-              className={cn("-ml-2 lg:hidden", iconBtn)}
-              onClick={toggleMobileNav}
-              aria-label={t("open_menu", "Open menu")}
-            >
-              <Menu className="h-6 w-6" />
-            </button>
+          <div className="pf-header-row">
+            {/* Left: drawer button (phones) / "Find a store" (desktop). */}
+            <div className="pf-header-left">
+              <button
+                className="pf-icon-btn -ml-2 lg:hidden"
+                onClick={toggleMobileNav}
+                aria-label={t("open_menu", "Open menu")}
+              >
+                <Menu className="h-6 w-6" strokeWidth={1.5} />
+              </button>
+              <a
+                href={storeHref}
+                target={storeHref.startsWith("http") ? "_blank" : undefined}
+                rel={storeHref.startsWith("http") ? "noopener noreferrer" : undefined}
+                className="pf-header-link hidden lg:inline-flex"
+              >
+                <MapPin className="h-[19px] w-[19px]" strokeWidth={1.5} />
+                {t("find_a_store", "Find a store")}
+              </a>
+            </div>
 
-            <Link href="/" className="flex shrink-0 items-center">
-              {store.logo ? (
-                <Image
-                  src={store.logo}
-                  alt={store.name}
-                  width={220}
-                  height={64}
-                  className="site-logo w-auto max-w-[140px] object-contain lg:max-w-[190px]"
-                  priority
-                />
-              ) : (
-                <span className="font-display text-xl font-bold lg:text-2xl">{store.name}</span>
-              )}
+            <Link href="/" className="pf-header-logo" aria-label={store.name}>
+              {logo}
             </Link>
 
-            {/* Centered search field. */}
-            <SearchBox
-              categories={categories}
-              currency={store.currency_symbol}
-              className="mx-auto hidden w-full max-w-[580px] lg:block"
-              variant="minimal"
-            />
-
-            <div className="ml-auto flex items-center gap-2 lg:gap-3">
-              <button
-                className={cn(iconBtn, "lg:hidden")}
-                onClick={toggleSearch}
-                aria-label={t("search", "Search")}
-                aria-expanded={isSearchOpen}
-              >
-                <Search className="h-6 w-6" />
-              </button>
-
-              <Link href="/track-order" className="header-pill hidden lg:inline-flex">
-                <Truck className="h-[18px] w-[18px]" strokeWidth={1.75} />
-                {t("track_order", "Track Order")}
-              </Link>
-
+            <div className="pf-header-right">
               {store.auth_mode !== "guest_only" && (
+                <>
+                  <Link
+                    href={isAuthenticated ? "/account" : "/login"}
+                    className="pf-header-link hidden lg:inline-flex"
+                  >
+                    {isAuthenticated ? t("my_account", "My Account") : t("sign_in", "Sign in")}
+                    <ChevronDown className="h-3 w-3" strokeWidth={1.5} />
+                  </Link>
+                  <span className="pf-header-divider hidden lg:block" aria-hidden />
+                </>
+              )}
+              {store.auth_mode === "guest_only" && (
+                <>
+                  <Link href="/track-order" className="pf-header-link hidden lg:inline-flex">
+                    {t("track_order", "Track Order")}
+                  </Link>
+                  <span className="pf-header-divider hidden lg:block" aria-hidden />
+                </>
+              )}
+
+              {store.features.wishlist && (
                 <Link
-                  href={isAuthenticated ? "/account" : "/login"}
-                  className="header-round hidden lg:inline-flex"
-                  aria-label={t("account", "Account")}
+                  href="/account/wishlist"
+                  className="pf-icon-btn hidden lg:inline-flex"
+                  aria-label={t("wishlist", "Wishlist")}
                 >
-                  <User className="h-5 w-5" strokeWidth={1.75} />
+                  <Heart className="h-[22px] w-[22px]" strokeWidth={1.3} />
                 </Link>
               )}
 
               <button
-                onClick={openCart}
-                className="header-round cart-icon-btn"
-                aria-label={`Cart, ${totalItems} items`}
+                className="pf-icon-btn lg:hidden"
+                onClick={toggleSearch}
+                aria-label={t("search", "Search")}
+                aria-expanded={isSearchOpen}
               >
-                <CartIcon className="h-5 w-5" strokeWidth={1.75} />
-                {totalItems > 0 && (
-                  <span className="cart-badge">{totalItems > 99 ? "99+" : totalItems}</span>
-                )}
+                <Search className="h-[22px] w-[22px]" strokeWidth={1.5} />
               </button>
 
-              <ColorSchemeToggle className={cn(iconBtn, "hidden sm:flex")} />
+              <button
+                onClick={openCart}
+                className="pf-icon-btn cart-icon-btn relative"
+                aria-label={`Cart, ${totalItems} items`}
+              >
+                <CartIcon className="h-[22px] w-[22px]" strokeWidth={1.3} />
+                <span className="cart-badge">{totalItems > 99 ? "99+" : totalItems}</span>
+              </button>
 
-              <LanguageSwitcher
-                languages={store.languages}
-                buttonClassName="header-icon-btn h-10 gap-1.5 rounded-full px-3"
+              <SearchBox
+                categories={categories}
+                currency={store.currency_symbol}
+                className="pf-header-search hidden lg:block"
+                variant="compact"
               />
+
+              {store.languages.length > 1 && (
+                <LanguageSwitcher
+                  languages={store.languages}
+                  buttonClassName="pf-header-link h-9 gap-1 px-1"
+                />
+              )}
             </div>
           </div>
 
@@ -181,59 +187,84 @@ export function HomeNavbar({ store, categories, scrolled }: HomeNavbarProps) {
         </div>
       </header>
 
-      {/* Row 2: category block + main nav (desktop only; phones use the drawer). */}
-      <div className="nav-bar hidden lg:block">
-        <div className="max-w-7xl mx-auto">
-          <div className="nav-bar-row">
-            {navCategories.length > 0 && (
-              <div
-                ref={catRef}
-                className="relative"
-                onMouseEnter={() => setCatOpen(true)}
-                onMouseLeave={() => setCatOpen(false)}
+      {/* Row 2: the centered menu (desktop; phones use the drawer). */}
+      <nav className="pf-nav hidden lg:block" onMouseLeave={close} aria-label={t("main_menu", "Main menu")}>
+        <ul className="pf-nav-list">
+          {brands.length > 0 && (
+            <li onMouseEnter={() => setOpenMenu("brands")}>
+              <Link
+                href="/products"
+                className="pf-nav-link"
+                aria-expanded={openMenu === "brands"}
+                onClick={close}
               >
-                <button
-                  type="button"
-                  onClick={() => setCatOpen((o) => !o)}
-                  aria-expanded={catOpen}
-                  className="nav-cats-btn"
-                >
-                  <Menu className="h-[18px] w-[18px]" strokeWidth={2} />
-                  {t("all_categories", "All Categories")}
-                </button>
-
-                {catOpen && (
-                  <div className="cat-list nav-cats-panel">
-                    {navCategories.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        href={`/products?category=${cat.slug}`}
-                        onClick={() => setCatOpen(false)}
-                      >
-                        <CategoryIcon image={cat.image} />
-                        <span className="truncate">{cat.name}</span>
+                {t("top_brands", "Top Brands")}
+              </Link>
+              {openMenu === "brands" && (
+                <div className="pf-mega">
+                  <div className="pf-mega-inner pf-mega-brands">
+                    {brands.map((b) => (
+                      <Link key={b.id} href={`/products?brands=${b.id}`} onClick={close}>
+                        {b.name}
                       </Link>
                     ))}
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </li>
+          )}
 
-            <nav className="header-nav flex items-stretch">
-              {navLinks.map((l) => (
+          {menuCategories.map((cat) => {
+            const href = `/products?category=${cat.slug}`;
+            const key = `cat-${cat.id}`;
+            const children = cat.children ?? [];
+            return (
+              <li key={cat.id} onMouseEnter={() => setOpenMenu(children.length ? key : null)}>
                 <Link
-                  key={l.href}
-                  href={l.href}
-                  aria-current={pathname === l.href ? "page" : undefined}
-                  className="header-nav-link"
+                  href={href}
+                  className="pf-nav-link"
+                  aria-expanded={children.length ? openMenu === key : undefined}
+                  onClick={close}
                 >
-                  {l.label}
+                  {cat.name}
                 </Link>
-              ))}
-            </nav>
-          </div>
-        </div>
-      </div>
+                {openMenu === key && children.length > 0 && (
+                  <div className="pf-mega">
+                    <div className="pf-mega-inner">
+                      {children.map((child) => (
+                        <div key={child.id} className="pf-mega-col">
+                          <Link
+                            href={`/products?category=${child.slug}`}
+                            className="pf-mega-title"
+                            onClick={close}
+                          >
+                            {child.name}
+                          </Link>
+                          {(child.children ?? []).slice(0, 8).map((g) => (
+                            <Link key={g.id} href={`/products?category=${g.slug}`} onClick={close}>
+                              {g.name}
+                            </Link>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+
+          <li onMouseEnter={close}>
+            <Link
+              href="/flash-sale"
+              className="pf-nav-link"
+              aria-current={pathname === "/flash-sale" ? "page" : undefined}
+            >
+              {t("pink_pocket_offer", "Pink Pocket Offer")}
+            </Link>
+          </li>
+        </ul>
+      </nav>
     </>
   );
 }

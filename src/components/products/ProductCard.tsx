@@ -38,13 +38,15 @@ interface ProductCardProps {
   currency: string;
   showWishlist?: boolean;
   variant?: ProductCardVariant;
+  /** Always show the wide button under the price (sidebar widget), whatever product.add_to_cart says. */
+  button?: boolean;
 }
 
 const LOW_STOCK = 5;
 const CART_ICONS = { bag: ShoppingBag, cart: ShoppingCart, basket: ShoppingBasket };
 const isHex = (c?: string): c is string => !!c && /^#[0-9a-f]{3,8}$/i.test(c);
 
-export function ProductCard({ product, currency, showWishlist = true }: ProductCardProps) {
+export function ProductCard({ product, currency, showWishlist = true, button = false }: ProductCardProps) {
   const router = useRouter();
   const { addItem, isLoading } = useCart();
   const { isInWishlist, toggle } = useWishlist();
@@ -92,19 +94,6 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
     await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock);
   };
 
-  const handleBuyNow = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!defaultBarcode) return;
-    if (isVariable) {
-      router.push(href);
-      return;
-    }
-    await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock, undefined, {
-      openDrawer: false,
-    });
-    router.push("/checkout");
-  };
-
   // "4.5 ★ | 12": the compact rating line, and the phone fallback for star rows.
   const ratingPill = (className?: string) => (
     <p className={cn("card-rating-pill", className)}>
@@ -126,18 +115,13 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
     )
   );
 
+  // Reference order: struck-through list price first, then the sale price.
   const priceRow = (
-    <div className="card-price flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-      <span className={cn("price text-base", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
+    <div className="card-price">
       {hasDiscount && opts.show_old_price && (
-        <s className="price-old text-sm">{formatPrice(original, currency)}</s>
+        <s className="price-old">{formatPrice(original, currency)}</s>
       )}
-      {/* The discount sits beside the price rather than on the image. */}
-      {hasDiscount && (
-        <span className="badge badge-discount card-price-off">
-          {formatDiscount(original, price)}% {t("off", "OFF")}
-        </span>
-      )}
+      <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
     </div>
   );
 
@@ -169,34 +153,21 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
   const inWishlist = wishlistOn && isInWishlist(product.id);
   const addLabel = isVariable ? t("select_options", "Select options") : t("add_to_cart", "Add to Cart");
 
-  /* Reference storefront: a product with options gets one wide "View Options"
-     button; a simple product gets "Order Now" plus the square cart tile. */
+  /* One wide button: "Add to cart" for a simple product, "Choose options"
+     (opens the product page) when it has variants. */
   const actionRow = (
-    <div className="card-actions flex items-center">
+    <div className="card-actions">
       <button
-        onClick={handleBuyNow}
+        onClick={handleAddToCart}
         disabled={isLoading || !inStock}
-        className="btn btn-buy flex min-w-0 flex-1 items-center justify-center gap-1.5 !px-2"
+        className="btn btn-cart card-action-btn"
       >
-        <span className="truncate">
-          {!inStock
-            ? t("out_of_stock", "Out of Stock")
-            : isVariable
-            ? t("view_options", "View Options")
-            : t("order_now", "Order Now")}
-        </span>
+        {!inStock
+          ? t("sold_out", "Sold out")
+          : isVariable
+          ? t("choose_options", "Choose options")
+          : t("add_to_cart", "Add to Cart")}
       </button>
-      {!isVariable && (
-        <button
-          aria-label={addLabel}
-          title={addLabel}
-          onClick={handleAddToCart}
-          disabled={isLoading || !inStock}
-          className="btn btn-cart flex aspect-square shrink-0 items-center justify-center !px-0"
-        >
-          <CartIcon className="h-[18px] w-[18px]" strokeWidth={1.75} />
-        </button>
-      )}
     </div>
   );
 
@@ -210,7 +181,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
             width={400}
             height={400}
             loading="lazy"
-            sizes="(min-width: 1024px) 25vw, 50vw"
+            sizes="(min-width: 1024px) 240px, 50vw"
             className="card-img-main h-full w-full"
           />
           {altImage && (
@@ -220,7 +191,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
               width={400}
               height={400}
               loading="lazy"
-              sizes="(min-width: 1024px) 25vw, 50vw"
+              sizes="(min-width: 1024px) 240px, 50vw"
               className="card-img-alt absolute inset-0 h-full w-full"
             />
           )}
@@ -267,10 +238,10 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
           </button>
         )}
 
-        {opts.add_to_cart === "hover" && <div className="card-hover-actions">{actionRow}</div>}
+        {opts.add_to_cart === "hover" && !button && <div className="card-hover-actions">{actionRow}</div>}
       </div>
 
-      <div className="card-body flex flex-1 flex-col gap-1.5">
+      <div className="card-body flex flex-1 flex-col">
         {opts.show_brand && (product.brand?.name || product.category?.name) && (
           <p className="card-brand">{product.brand?.name || product.category?.name}</p>
         )}
@@ -287,7 +258,7 @@ export function ProductCard({ product, currency, showWishlist = true }: ProductC
         )}
         {priceRow}
         {stockLine}
-        {opts.add_to_cart === "button" && <div className="mt-auto pt-1">{actionRow}</div>}
+        {(opts.add_to_cart === "button" || button) && <div className="card-actions-below mt-auto w-full">{actionRow}</div>}
       </div>
 
       {quickOpen && (

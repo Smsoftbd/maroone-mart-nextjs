@@ -1,48 +1,40 @@
-"use client";
+import type { Metadata } from "next";
+import { CartView } from "@/components/cart/CartView";
+import { HomeProductSection } from "@/components/home/FeaturedProducts";
+import { Breadcrumb } from "@/components/ui/Breadcrumb";
+import { getStore } from "@/lib/api/store";
+import { getBestSelling } from "@/lib/api/products";
+import { getDeliveryCharges } from "@/lib/api/content";
+import { getServerT } from "@/lib/i18n/server";
+import { resolveL10n } from "@/lib/utils/l10n";
 
-import { ShoppingBag } from "lucide-react";
-import { CartItem } from "@/components/cart/CartItem";
-import { CartSummary } from "@/components/cart/CartSummary";
-import { EmptyState } from "@/components/ui/EmptyState";
-import { useCartStore } from "@/lib/stores/cartStore";
-import { useTrackViewCart } from "@/lib/hooks/useTrackViewCart";
+export const metadata: Metadata = { title: "Shopping Cart" };
 
-export default function CartPage() {
-  const { items, totalItems, subTotal } = useCartStore();
-  const currency = "৳"; // Will use store currency in a real implementation
-  useTrackViewCart(true);
+export default async function CartPage() {
+  const [store, t, zones, alsoLike] = await Promise.all([
+    getStore(),
+    getServerT(),
+    getDeliveryCharges().catch(() => []),
+    getBestSelling(10).catch(() => []),
+  ]);
+  const rates = zones.map((z) => ({ name: resolveL10n(z.zone_name), amount: Number(z.charge_amount) || 0 }));
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="font-display text-3xl font-bold mb-8">
-        Your Cart {totalItems > 0 && `(${totalItems})`}
-      </h1>
-
-      {items.length === 0 ? (
-        <EmptyState
-          icon={ShoppingBag}
-          title="Your cart is empty"
-          description="Discover our products and add something you love."
-          action={{ label: "Start Shopping", href: "/products" }}
-        />
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 divide-y divide-[var(--color-border)]">
-            {items.map((item) => (
-              <CartItem key={item.id} item={item} currency={currency} />
-            ))}
-          </div>
-          <div className="lg:col-span-1">
-            <div className="bg-surface-50 rounded-xl sticky top-24">
-              <CartSummary
-                subTotal={subTotal}
-                currency={currency}
-                totalItems={totalItems}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+    <div className="cart-page">
+      <div className="max-w-7xl mx-auto pf-breadcrumb">
+        <Breadcrumb items={[{ label: t("home", "Home"), href: "/" }, { label: t("shopping_cart", "Shopping Cart") }]} />
+      </div>
+      <div className="max-w-7xl mx-auto pt-5 pb-10">
+        <CartView currency={store.currency_symbol} country={store.country || "Bangladesh"} rates={rates} />
+      </div>
+      <HomeProductSection
+        title={t("you_may_also_like", "You May Also Like")}
+        viewAllLabel={t("view_all", "View All")}
+        products={alsoLike}
+        currency={store.currency_symbol}
+        list={{ id: "cart_also_like", name: "You may also like" }}
+      />
+      <div className="pb-20 max-md:pb-10" />
     </div>
   );
 }

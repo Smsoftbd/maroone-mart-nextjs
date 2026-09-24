@@ -12,7 +12,7 @@ interface CheckoutItemProps {
   currency: string;
 }
 
-/** One line in the checkout's Order Summary: thumb, name, "n × price", total. */
+/** One line in the checkout summary: thumb with a quantity bubble, name, option, line total. */
 export function CheckoutItem({ item, currency }: CheckoutItemProps) {
   const priceOverrides = useCartStore((s) => s.priceOverrides);
   const attributeOverrides = useCartStore((s) => s.attributeOverrides);
@@ -22,34 +22,22 @@ export function CheckoutItem({ item, currency }: CheckoutItemProps) {
   const href = `/products/${item.product_slug}`;
 
   return (
-    <div className="summary-row">
-      <Link
-        href={href}
-        className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md bg-[var(--color-surface)]"
-      >
+    <div className="co-line">
+      <Link href={href} className="co-line-img">
         {item.product_image ? (
-          <Image src={item.product_image} alt={item.product_name} fill className="object-cover" sizes="48px" />
+          <Image src={item.product_image} alt={item.product_name} fill className="object-contain" sizes="64px" />
         ) : (
           <Package className="absolute inset-0 m-auto h-5 w-5 text-[var(--color-text-muted)]" />
         )}
+        <span className="co-line-qty">{item.quantity}</span>
       </Link>
-
       <div className="min-w-0 flex-1">
-        <Link
-          href={href}
-          className="block truncate text-sm font-bold text-[var(--color-text-primary)] transition-colors hover:text-brand-ink"
-        >
+        <Link href={href} className="co-line-name">
           {item.product_name}
         </Link>
-        <p className="mt-0.5 truncate text-xs text-[var(--color-text-muted)] tabular-nums">
-          {item.quantity} x {formatPrice(unit, currency)}
-          {attrs.length > 0 && ` · ${attrs.map((a) => `${a.name}: ${a.value}`).join(", ")}`}
-        </p>
+        {attrs.length > 0 && <p className="co-line-meta">{attrs.map((a) => a.value).join(" / ")}</p>}
       </div>
-
-      <p className="shrink-0 text-sm font-bold tabular-nums text-[var(--color-brand-500)]">
-        {formatPrice(unit * item.quantity, currency)}
-      </p>
+      <p className="co-line-price">{formatPrice(unit * item.quantity, currency)}</p>
     </div>
   );
 }

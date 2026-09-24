@@ -21,6 +21,8 @@ interface ProductCarouselProps {
   list?: ItemList;
   /** Slides per view from `xl` up; defaults to layout.products_per_row. */
   columns?: number;
+  /** "top": the arrows sit together above the rail's right end (related products). */
+  arrows?: "sides" | "top";
 }
 
 export function ProductCarousel({
@@ -29,6 +31,7 @@ export function ProductCarousel({
   variant = "default",
   list,
   columns,
+  arrows = "sides",
 }: ProductCarouselProps) {
   const { layout } = useTheme();
   const perRow = columns ?? layout.products_per_row;
@@ -40,14 +43,14 @@ export function ProductCarousel({
 
   const carousel = (
     <div>
-      <div className="relative">
+      <div className={arrows === "top" ? "relative carousel-top-arrows" : "relative"}>
         <Swiper
           modules={[Navigation]}
           spaceBetween={layout.grid_gap}
           grabCursor
           watchOverflow
           breakpoints={{
-            0: { slidesPerView: mobile, spaceBetween: 10 },
+            0: { slidesPerView: mobile, spaceBetween: 14 },
             640: { slidesPerView: Math.min(3, perRow), spaceBetween: layout.grid_gap },
             1024: { slidesPerView: Math.min(4, perRow) },
             1280: { slidesPerView: perRow },
@@ -65,16 +68,16 @@ export function ProductCarousel({
         <button
           ref={setPrevEl}
           aria-label="Previous products"
-          className="carousel-arrow -left-4"
+          className="carousel-arrow is-prev"
         >
-          <ChevronLeft height={20} width={20} />
+          <ChevronLeft height={34} width={34} strokeWidth={1} />
         </button>
         <button
           ref={setNextEl}
           aria-label="Next products"
-          className="carousel-arrow -right-4"
+          className="carousel-arrow is-next"
         >
-          <ChevronRight height={20} width={20} />
+          <ChevronRight height={34} width={34} strokeWidth={1} />
         </button>
       </div>
     </div>

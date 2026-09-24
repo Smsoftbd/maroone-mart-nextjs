@@ -63,19 +63,15 @@ export function ProductVariantSelector({
   };
 
   return (
-    <div className="product-size space-y-5">
+    <div className="product-size space-y-[22px]">
       {attributeGroups.map(({ name, entries }) => {
         const current = entries.find((e) => e.value === selected[name]);
         return (
           <div key={name}>
-            <p className="text-sm text-[var(--color-text-secondary)]">
-              <span className="capitalize">{name}</span>
-              {current ? (
-                <span className="ml-1.5 font-medium text-[var(--color-text-primary)]">
-                  {current.label}
-                </span>
-              ) : (
-                <span className="ml-1.5 text-[var(--color-text-muted)]">— select</span>
+            <p className="pdp-label">
+              <span className="capitalize">{name}</span> <span className="text-[var(--color-brand-500)]">*</span>
+              {current && isHexColor(current.code) && (
+                <span className="ml-1.5 font-normal text-[var(--color-text-secondary)]">{current.label}</span>
               )}
             </p>
             {style === "dropdown" ? (
@@ -96,7 +92,7 @@ export function ProductVariantSelector({
                 ))}
               </select>
             ) : (
-            <div className="flex gap-2 flex-wrap mt-2.5">
+            <div className="pdp-variants">
               {entries.map(({ value, code, label }) => {
                 const oos = isOutOfStock(name, value);
                 const active = selected[name] === value;
@@ -135,13 +131,10 @@ export function ProductVariantSelector({
                     onClick={() => !oos && handleSelect(name, value)}
                     disabled={oos}
                     className={cn(
-                      "min-w-12 h-10 px-4 border text-sm transition-colors md:h-[52px] md:min-w-[7rem] md:px-5 md:text-[15px]",
-                      style === "pills" ? "rounded-full" : "rounded-[var(--shape-button-radius,0.375rem)]",
-                      active
-                        ? "border-brand-500 bg-brand-500 text-[var(--color-primary-text)] font-medium"
-                        : "border-[var(--color-border-dark)] bg-surface text-[var(--color-text-primary)] hover:border-brand-500",
-                      oos &&
-                        "opacity-40 cursor-not-allowed line-through decoration-[var(--color-text-muted)] hover:border-[var(--color-border-dark)]"
+                      "pdp-variant",
+                      style !== "pills" && "is-square",
+                      active && "is-active",
+                      oos && "is-oos"
                     )}
                     aria-pressed={active}
                     aria-disabled={oos}
