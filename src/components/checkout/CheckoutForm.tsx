@@ -430,14 +430,13 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const bd = isBangladesh(country);
   const steps = [
     { n: 1, label: t("shipping", "Shipping") },
-    { n: 2, label: t("delivery_zone", "Delivery Zone") },
-    { n: 3, label: t("payment", "Payment") },
-    { n: 4, label: t("success", "Success") },
+    { n: 2, label: t("payment", "Payment") },
+    { n: 3, label: t("success", "Success") },
   ];
   // The rail follows how far the shopper has actually got, so it opens on
   // "Shipping" rather than jumping ahead to the auto-selected defaults.
   const addressDone = !!watchedName?.trim() && !!watchedPhone?.trim() && (watchedAddress?.trim().length ?? 0) >= 10;
-  const activeStep = !addressDone ? 1 : !delivery ? 2 : !paymentMethod ? 3 : 3;
+  const activeStep = !addressDone ? 1 : 2;
   const stepDone = (n: number) => n < activeStep;
 
   return (
