@@ -456,6 +456,13 @@ body[data-pattern="glow"] {
   .card-actions .btn { min-height: 38px; font-size: 13px; }
   .product-card .card-actions .btn-cart { width: 38px; }
   .product-card .card-actions .btn-buy { font-weight: 600; }
+  /* Two-up cards on small phones: keep "Order Now" + the cart tile on one row. */
+  @media (max-width: 400px) {
+    .card-actions { gap: 6px; }
+    .card-actions .btn { min-height: 34px; font-size: 12px; }
+    .product-card .card-actions .btn-cart { width: 34px; }
+    .product-card .card-body { padding: 12px 10px 12px; }
+  }
   .card-badges {
     position: absolute;
     top: 10px;
@@ -729,7 +736,8 @@ body[data-nav-align="center"] .header-nav { flex: 1; justify-content: center; }
 .hero {
   background: var(--color-section-hero-bg, transparent);
   color: var(--color-section-hero-text, inherit);
-  --hero-ratio: 16 / 7;
+  /* Banners are uploaded ~3:1; a taller phone frame crops their text. */
+  --hero-ratio: 3 / 1;
 }
 .hero .hero-frame { border-radius: var(--shape-section-radius, 1rem); overflow: hidden; }
 .hero .hero-slide { aspect-ratio: var(--hero-ratio); }
@@ -1107,8 +1115,11 @@ body[data-sticky-cta] .scroll-to-top {
     padding: 12px;
     background: var(--color-neutral-surface-alt, var(--color-surface-100));
   }
+  .home-quick-links::-webkit-scrollbar { display: none; }
   .home-quick-links a {
-    flex-shrink: 0;
+    flex: 1 0 auto;
+    text-align: center;
+    white-space: nowrap;
     padding: 8px 10px;
     border-radius: 6px;
     background: var(--color-surface);
@@ -1116,6 +1127,10 @@ body[data-sticky-cta] .scroll-to-top {
     font-size: 15px;
     font-weight: 500;
     box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  }
+  @media (max-width: 374px) {
+    .home-quick-links { padding: 10px; gap: 6px; }
+    .home-quick-links a { padding: 7px 8px; font-size: 14px; }
   }
   .mobile-view-all {
     display: flex;
@@ -1458,7 +1473,10 @@ body[data-sticky-cta] .scroll-to-top {
   }
 
   /* Homepage: the category column sits beside the banner. */
-  .hero-with-cats { display: grid; gap: 12px; }
+  /* minmax(0,1fr): an implicit auto track lets Swiper size itself to its
+     own content and blow the page out to millions of px on phones. */
+  .hero-with-cats { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .hero-banner { min-width: 0; }
   @media (min-width: 1024px) {
     .hero-with-cats { grid-template-columns: 250px minmax(0, 1fr); }
   }
@@ -1953,6 +1971,19 @@ body[data-sticky-cta] .scroll-to-top {
     background: rgba(148, 163, 184, 0.3);
   }
   .checkout-step-line.is-done { background: #f97316; }
+  /* Phones: four steps must fit ~340px, so shrink the dots and let labels wrap. */
+  @media (max-width: 639px) {
+    .checkout-step { flex: 0 1 auto; min-width: 0; gap: 8px; }
+    .checkout-step-dot { height: 34px; width: 34px; font-size: 14px; }
+    .checkout-step-label {
+      font-size: 10px;
+      letter-spacing: 0.02em;
+      white-space: normal;
+      text-align: center;
+      line-height: 1.25;
+    }
+    .checkout-step-line { min-width: 8px; margin-top: 16px; }
+  }
 
   .checkout-card {
     background: var(--color-neutral-surface, var(--color-surface));

@@ -132,6 +132,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
     </div>
   );
 
+  const hasContact = phones.length > 0 || !!store.email || !!store.address;
   const contactList = (
     <ul className="space-y-3.5 text-[15px] md:text-sm [&_svg]:text-[var(--color-brand-500)]">
       {phones.length > 0 && (
@@ -165,7 +166,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
 
   const accordion = (title: string, links: { href: string; label: string }[]) => (
     <details className="footer-accordion group">
-      <summary className="flex cursor-pointer list-none items-center justify-between py-2 text-[15px] font-medium text-[var(--color-brand-secondary,var(--color-secondary-500))] [&::-webkit-details-marker]:hidden">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-2 text-[15px] font-medium text-[var(--color-footer-heading,#fff)] [&::-webkit-details-marker]:hidden">
         {title}
         <ChevronDown className="h-5 w-5 text-[var(--color-footer-text)] opacity-70 transition-transform group-open:rotate-180" />
       </summary>
@@ -185,7 +186,7 @@ export async function Footer({ store, pages = [] }: FooterProps) {
   const mobileFooter = (
     <div className="space-y-5 px-4 pb-6 pt-6 md:hidden">
       {logo}
-      {contactList}
+      {hasContact && contactList}
       <div>
         {accordion(t("company", "Company"), companyLinks)}
         {accordion(t("help", "Help"), helpLinks)}
