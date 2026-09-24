@@ -2113,6 +2113,64 @@ body[data-sticky-cta] .scroll-to-top {
   }
 }
 
+/* ── Contact ─────────────────────────────────────────────────────────────
+   Reuses the checkout hero, cards and fields; adds hero shortcut chips and
+   tappable contact rows. */
+@layer components {
+  .contact-page { background: var(--color-neutral-surface-alt, var(--color-surface-100)); }
+  /* Brand-tinted glow and pill instead of checkout's fixed orange. */
+  .contact-page .checkout-hero {
+    background:
+      radial-gradient(circle at 88% 50%, color-mix(in srgb, var(--color-brand-500) 38%, transparent), transparent 55%),
+      linear-gradient(90deg, #05070c 0%, #111827 45%, #1d2433 100%);
+  }
+  .contact-page .checkout-eyebrow {
+    background: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+    color: color-mix(in srgb, var(--color-brand-500) 55%, #fff);
+  }
+  .contact-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 16px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color var(--effects-transition-speed, 200ms), border-color var(--effects-transition-speed, 200ms);
+  }
+  .contact-chip:hover {
+    background: color-mix(in srgb, var(--color-brand-500) 22%, transparent);
+    border-color: color-mix(in srgb, var(--color-brand-500) 60%, transparent);
+  }
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    color: var(--color-text-primary);
+    transition: border-color var(--effects-transition-speed, 200ms), background-color var(--effects-transition-speed, 200ms);
+  }
+  a.contact-method:hover { border-color: var(--color-brand-500); background: var(--color-brand-50); }
+  .contact-social {
+    display: inline-flex;
+    height: 42px;
+    width: 42px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    color: var(--color-text-secondary);
+    transition: color var(--effects-transition-speed, 200ms), border-color var(--effects-transition-speed, 200ms), background-color var(--effects-transition-speed, 200ms);
+  }
+  .contact-social:hover { border-color: var(--color-brand-500); background: var(--color-brand-50); color: var(--color-brand-500); }
+}
+
 /* ── Footer ──────────────────────────────────────────────────────────────
    Four columns, a thin bottom bar and the "We accept" band. */
 @layer components {
