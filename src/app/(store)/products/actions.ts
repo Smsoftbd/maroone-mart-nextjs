@@ -1,6 +1,6 @@
 "use server";
 
-import { getProducts } from "@/lib/api/products";
+import { getProduct, getProducts } from "@/lib/api/products";
 import type { Product, ProductListParams } from "@/lib/api/types";
 
 const ids = (v: unknown) =>
@@ -29,4 +29,18 @@ export async function loadProductsPage(
     per_page: Math.min(40, Math.max(1, Math.floor(num(perPage) ?? 20))),
   });
   return { products: data, lastPage: meta.last_page };
+}
+
+/**
+ * Full product for the card quick view: the list endpoint omits images, the
+ * short description and per-variant attributes. Null when it can't be loaded.
+ */
+export async function loadQuickViewProduct(slug: string): Promise<Product | null> {
+  const s = str(slug);
+  if (!s || /[/?#\\\s]/.test(s)) return null;
+  try {
+    return await getProduct(s);
+  } catch {
+    return null;
+  }
 }

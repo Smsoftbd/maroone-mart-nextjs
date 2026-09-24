@@ -508,6 +508,7 @@ body[data-pattern="glow"] {
     transition: all var(--effects-transition-speed, 200ms) var(--easing, ease);
   }
   body[data-add-to-cart="icon"] .card-quick-view { left: 10px; transform: translateY(8px); }
+  body[data-add-to-cart="hover"] .card-quick-view { bottom: 60px; }
   .card-hover-actions {
     position: absolute;
     inset-inline: 8px;
@@ -2655,6 +2656,18 @@ body .pdp-cta .btn-buy:hover:not(:disabled) { background: var(--color-button-buy
   transition: background-color var(--effects-transition-speed, 200ms);
 }
 .pdp-wish:hover, .pdp-wish[aria-pressed="true"] { background: var(--color-brand-500); }
+
+/* Quick view modal: the product page's right column, condensed. */
+@media (min-width: 768px) { .quick-view.pdp-main { gap: 40px; } }
+.quick-view .pdp-zoom-hint { margin-top: 24px; }
+.qv-sold { display: flex; justify-content: flex-end; align-items: center; gap: 6px; margin-top: 14px; color: var(--color-brand-500); font-size: 13px; }
+.qv-meta { display: grid; grid-template-columns: max-content 1fr; gap: 10px 40px; margin-top: 18px; color: #232323; font-size: 13px; }
+.qv-meta dt { color: #000; font-weight: 600; }
+.qv-short { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 22px; }
+.qv-short * { display: inline; margin: 0; }
+.qv-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 22px; padding-bottom: 18px; border-bottom: 1px solid #e6e6e6; color: #232323; font-size: 13px; }
+.qv-details { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.qv-details:hover { color: var(--color-brand-500); }
 
 /* Tabs: grey boxes on a hairline, the open one white. */
 .pdp-tabs { margin-top: 55px; }

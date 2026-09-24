@@ -256,7 +256,7 @@
     "image_fit": "contain",
     "hover_image": true,
     "add_to_cart": "hover",
-    "quick_view": false,
+    "quick_view": true,
     "badge_position": "left",
     "sale_display": "percent",
     "rating_style": "stars",
