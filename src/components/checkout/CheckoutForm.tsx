@@ -359,21 +359,63 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const loginRequired = authMode !== "guest_only" && !guestCheckout && !isAuthenticated;
 
   if (loginRequired) {
+    const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
+
     return (
-      <div className="bg-surface border border-[var(--color-border)] rounded-2xl p-8 text-center max-w-md mx-auto">
-        <h2 className="font-display text-lg font-semibold mb-2">
-          {t("login_to_checkout", "Please sign in to checkout")}
-        </h2>
-        <p className="text-sm text-[var(--color-text-secondary)] mb-6">
-          {authMode === "sms_otp"
-            ? t("login_to_checkout_otp", "Verify your phone number to place your order.")
-            : t("login_to_checkout_email", "Sign in to your account to place your order.")}
-        </p>
-        <Link href="/login">
-          <Button variant="primary" fullWidth>
-            {t("sign_in", "Sign In")}
-          </Button>
-        </Link>
+      <div className="px-4 py-12 sm:py-20">
+        <div className="mx-auto max-w-md overflow-hidden rounded-2xl border border-[var(--color-border)] bg-surface shadow-sm">
+          <div className="px-6 pt-10 pb-8 text-center sm:px-10">
+            <span className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-brand-50 text-brand-ink ring-8 ring-brand-50/40">
+              <Lock className="h-7 w-7" />
+            </span>
+            <h1 className="font-display text-2xl font-bold mb-2">
+              {t("login_to_checkout", "Please sign in to checkout")}
+            </h1>
+            <p className="text-sm text-[var(--color-text-secondary)]">
+              {authMode === "sms_otp"
+                ? t("login_to_checkout_otp", "Verify your phone number to place your order.")
+                : t("login_to_checkout_email", "Sign in to your account to place your order.")}
+            </p>
+          </div>
+
+          {items.length > 0 && (
+            <div className="mx-6 mb-6 flex items-center gap-3 rounded-xl bg-[var(--color-surface-100)] px-4 py-3 sm:mx-10">
+              <ShoppingBag className="h-5 w-5 shrink-0 text-brand-ink" />
+              <p className="flex-1 text-sm text-[var(--color-text-secondary)]">
+                {itemCount} {itemCount === 1 ? t("item", "item") : t("items", "items")}{" "}
+                {t("in_your_cart", "in your cart")}
+              </p>
+              <p className="text-sm font-bold tabular-nums text-[var(--color-text-primary)]">
+                {formatPrice(subTotal, currency)}
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-3 px-6 pb-8 sm:px-10">
+            <Link href="/login" className="block">
+              <Button variant="primary" fullWidth>
+                {t("sign_in", "Sign In")}
+              </Button>
+            </Link>
+            {authMode === "email_password" && (
+              <Link href="/register" className="block">
+                <Button variant="secondary" fullWidth>
+                  {t("create_account", "Create Account")}
+                </Button>
+              </Link>
+            )}
+          </div>
+
+          <div className="border-t border-[var(--color-border)] px-6 py-4 text-center">
+            <Link
+              href="/cart"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-text-secondary)] transition-colors hover:text-brand-ink"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              {t("back_to_cart", "Back to cart")}
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -511,10 +553,9 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
                   {t("order_note", "Write your any note or any instruction")}{" "}
                   <span className="font-normal text-[var(--color-text-muted)]">({t("optional", "Optional")})</span>
                 </label>
-                <textarea
+                <input
                   id="checkout-note"
-                  rows={3}
-                  className="checkout-input resize-y"
+                  className="checkout-input"
                   {...register("note")}
                 />
               </div>

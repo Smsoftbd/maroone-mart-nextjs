@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,12 +8,15 @@ import { Package } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
+import { OrderItemVariants } from "@/components/account/OrderItemVariants";
 import { formatPrice, formatDate } from "@/lib/utils/format";
 import { useI18n } from "@/lib/i18n/I18nProvider";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { cn } from "@/lib/utils/cn";
 import type { Order } from "@/lib/api/types";
 
 const schema = z.object({
-  orderId: z.string().min(1, "Order ID is required"),
+  invoiceNumber: z.string().min(1, "Invoice number is required"),
   phone: z.string().min(5, "Phone is required"),
 });
 
@@ -21,11 +24,12 @@ type FormData = z.infer<typeof schema>;
 
 export default function TrackOrderPage() {
   const { t, locale } = useI18n();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+  const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
@@ -34,9 +38,9 @@ export default function TrackOrderPage() {
     setError(null);
     setOrder(null);
     try {
-      const res = await fetch(`/api/orders/${data.orderId}?phone=${encodeURIComponent(data.phone)}`);
+      const res = await fetch(`/api/orders/${encodeURIComponent(data.invoiceNumber.trim())}?phone=${encodeURIComponent(data.phone.trim())}`);
       if (!res.ok) {
-        setError("Order not found. Please check your order ID and phone number.");
+        setError("Order not found. Please check your invoice number and phone number.");
         return;
       }
       const result = await res.json();
@@ -48,22 +52,36 @@ export default function TrackOrderPage() {
     }
   };
 
+  // Prefill + auto-track when opened from an order page
+  // (/track-order?invoice=SI-10002&phone=017…). Read from window.location
+  // rather than useSearchParams so the page stays prerenderable without
+  // a Suspense boundary.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const invoiceNumber = params.get("invoice")?.trim() ?? "";
+    const phone = params.get("phone")?.trim() ?? "";
+    if (!invoiceNumber && !phone) return;
+    reset({ invoiceNumber, phone });
+    if (invoiceNumber && phone) handleSubmit(onSubmit)();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-12">
+    <div className={cn("max-w-2xl mx-auto", !isAuthenticated && "px-4 sm:px-6 py-12")}>
       <div className="text-center mb-10">
         <Package className="h-12 w-12 text-brand-ink mx-auto mb-4" />
         <h1 className="font-display text-3xl font-bold mb-2">{t("track_your_order", "Track Your Order")}</h1>
         <p className="text-[var(--color-text-secondary)]">
-          {t("track_order_hint", "Enter your order ID and phone number to track your order.")}
+          {t("track_order_invoice_hint", "Enter your invoice number and phone number to track your order.")}
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mb-8">
         <Input
-          label={t("order_id", "Order ID")}
-          placeholder={t("order_id_ph", "e.g. 12345")}
-          {...register("orderId")}
-          error={errors.orderId?.message}
+          label={t("invoice_number", "Invoice Number")}
+          placeholder={t("invoice_number_ph", "e.g. SI-10002")}
+          {...register("invoiceNumber")}
+          error={errors.invoiceNumber?.message}
         />
         <Input
           label={t("phone_number", "Phone Number")}
@@ -107,11 +125,14 @@ export default function TrackOrderPage() {
             <h3 className="font-semibold mb-3">{t("items_heading", "Items")}</h3>
             <div className="space-y-2">
               {order.details.map((detail) => (
-                <div key={detail.id} className="flex justify-between text-sm">
-                  <span className="text-[var(--color-text-secondary)]">
-                    {detail.product.name} × {detail.qty}
-                  </span>
-                  <span className="font-medium">{formatPrice(detail.sub_total, "৳")}</span>
+                <div key={detail.id} className="flex justify-between gap-3 text-sm">
+                  <div className="min-w-0">
+                    <span className="text-[var(--color-text-secondary)]">
+                      {detail.product.name} × {detail.qty}
+                    </span>
+                    <OrderItemVariants detail={detail} />
+                  </div>
+                  <span className="font-medium flex-shrink-0">{formatPrice(detail.sub_total, "৳")}</span>
                 </div>
               ))}
             </div>

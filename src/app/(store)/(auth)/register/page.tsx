@@ -12,12 +12,16 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
 import { appToast } from "@/lib/utils/toast";
 import { useT } from "@/lib/i18n/I18nProvider";
+import { isBdPhone, normalizePhone } from "@/lib/utils/phone";
 
 const schema = z
   .object({
     name: z.string().min(2, "Name must be at least 2 characters"),
     email: z.string().email("Invalid email"),
-    phone: z.string().min(5, "Phone is required"),
+    phone: z
+      .string()
+      .min(1, "Phone is required")
+      .refine(isBdPhone, "Enter a valid Bangladeshi number, e.g. 01712345678"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     password_confirmation: z.string(),
   })
@@ -47,7 +51,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: FormData) => {
     try {
-      await registerUser(data);
+      await registerUser({ ...data, phone: normalizePhone(data.phone) });
       appToast.loginSuccess(data.name);
       router.push("/account");
     } catch (e) {
@@ -68,7 +72,7 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input label={`${t("full_name", "Full Name")} *`} {...register("name")} error={errors.name?.message} />
         <Input label={`${t("email", "Email")} *`} type="email" {...register("email")} error={errors.email?.message} />
-        <Input label={`${t("phone", "Phone")} *`} type="tel" {...register("phone")} error={errors.phone?.message} />
+        <Input label={`${t("phone", "Phone")} *`} type="tel" inputMode="tel" placeholder="01XXXXXXXXX" {...register("phone")} error={errors.phone?.message} />
         <Input
           label={`${t("password", "Password")} *`}
           type="password"

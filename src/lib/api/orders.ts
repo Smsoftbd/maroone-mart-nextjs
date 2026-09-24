@@ -33,11 +33,12 @@ export async function getCouponAvailability(): Promise<boolean> {
   }
 }
 
+/** `ref` is the invoice number (e.g. "SI-10002") or the numeric order ID. */
 export async function getOrder(
-  id: number,
+  ref: string | number,
   phone: string
 ): Promise<{ data: Order }> {
-  return apiRequest<{ data: Order }>(`/orders/${id}?phone=${encodeURIComponent(phone)}`, {
+  return apiRequest<{ data: Order }>(`/orders/${encodeURIComponent(String(ref).trim())}?phone=${encodeURIComponent(phone)}`, {
     keyType: "secret",
     cache: "no-store",
   });

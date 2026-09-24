@@ -4,9 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
+import { Truck } from "lucide-react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Badge } from "@/components/ui/Badge";
 import { StatusHistoryTimeline } from "@/components/account/StatusHistoryTimeline";
+import { OrderItemVariants } from "@/components/account/OrderItemVariants";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { getCustomerOrder } from "@/lib/api/customer";
 import { formatPrice, formatDate } from "@/lib/utils/format";
@@ -16,7 +19,7 @@ import type { Order, StatusHistoryItem } from "@/lib/api/types";
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { t, locale } = useI18n();
-  const { token } = useAuthStore();
+  const { token, customer } = useAuthStore();
   const [order, setOrder] = useState<Order | null>(null);
   const [statusHistory, setStatusHistory] = useState<StatusHistoryItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -36,6 +39,12 @@ export default function OrderDetailPage() {
   if (isLoading) return <div className="flex justify-center py-12"><Spinner size="lg" /></div>;
   if (notFoundError || !order) return notFound();
 
+  const trackPhone = order.customer?.phone || customer?.phone || "";
+  const trackHref = `/track-order?${new URLSearchParams({
+    invoice: order.invoice_number,
+    ...(trackPhone ? { phone: trackPhone } : {}),
+  })}`;
+
   const paymentBadgeVariant = order.payment_status === "paid" ? "success" : order.payment_status === "partial" ? "warning" : "error";
 
   return (
@@ -46,11 +55,15 @@ export default function OrderDetailPage() {
           <h2 className="font-display text-xl font-semibold">{order.invoice_number}</h2>
           <p className="text-sm text-[var(--color-text-muted)]">{formatDate(order.date, locale)}</p>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <Badge variant={paymentBadgeVariant} className="capitalize">
             {order.payment_status}
           </Badge>
           <Badge className="capitalize">{order.status_label || order.status}</Badge>
+          <Link href={trackHref} className="btn btn-secondary !min-h-0 px-3 py-1.5 text-sm inline-flex items-center gap-1.5">
+            <Truck className="h-4 w-4" />
+            {t("track_order", "Track Order")}
+          </Link>
         </div>
       </div>
 
@@ -96,25 +109,7 @@ export default function OrderDetailPage() {
                   {sku && (
                     <p className="text-[var(--color-text-muted)] text-xs">{sku}</p>
                   )}
-                  {detail.barcode?.values && detail.barcode.values.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-0.5">
-                      {detail.barcode.values.map((v) => (
-                        <span key={v.id} className="flex items-center gap-1 text-[var(--color-text-muted)] text-xs">
-                          {v.code?.startsWith("#") ? (
-                            <>
-                              <span
-                                className="inline-block w-3 h-3 rounded-full border border-black/10 flex-shrink-0"
-                                style={{ backgroundColor: v.code }}
-                              />
-                              {v.value}
-                            </>
-                          ) : (
-                            <span>{v.attribute.name}: {v.value}</span>
-                          )}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                  <OrderItemVariants detail={detail} />
                   <p className="text-[var(--color-text-muted)] text-xs">{t("qty", "Qty")}: {detail.qty}</p>
                 </div>
                 <div className="text-right flex-shrink-0">

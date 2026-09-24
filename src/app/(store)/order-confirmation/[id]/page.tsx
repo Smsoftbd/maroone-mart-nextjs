@@ -39,7 +39,7 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
       <div className="bg-surface-50 rounded-2xl p-6 text-left space-y-3 mb-8">
         <div className="flex items-center justify-between">
           <span className="flex items-center gap-2 text-sm text-[var(--color-text-secondary)]">
-            <Package className="h-4 w-4" /> {t("order_id", "Order ID")}
+            <Package className="h-4 w-4" /> {invoice ? t("invoice_number", "Invoice Number") : t("order_id", "Order ID")}
           </span>
           <span className="font-mono font-medium">{invoice || `#${id}`}</span>
         </div>

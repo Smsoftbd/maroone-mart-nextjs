@@ -8,7 +8,7 @@ export async function GET(
   const { id } = await params;
   const phone = req.nextUrl.searchParams.get("phone") || "";
   try {
-    const result = await getOrder(Number(id), phone);
+    const result = await getOrder(id, phone);
     return NextResponse.json(result);
   } catch {
     return NextResponse.json({ error: "Order not found" }, { status: 404 });
