@@ -17,6 +17,8 @@ export const appToast = {
 
   logoutSuccess: () => toast.success("Logged out"),
 
+  profileUpdated: () => toast.success("Profile updated"),
+
   apiError: (message?: string) =>
     toast.error(message || "Something went wrong. Please try again."),
 

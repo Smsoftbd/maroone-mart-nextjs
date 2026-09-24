@@ -132,13 +132,10 @@ export const useAuthStore = create<AuthStore>()(
       updateProfile: async (data) => {
         const { token } = get();
         if (!token) return;
-        set({ isLoading: true });
-        try {
-          const res = await updateCustomerProfile(token, data);
-          set({ customer: res.customer });
-        } finally {
-          set({ isLoading: false });
-        }
+        // No global isLoading here: the account layout swaps its children for
+        // a spinner while it's set, which would unmount the profile form.
+        const res = await updateCustomerProfile(token, data);
+        set({ customer: res.customer });
       },
     }),
     {
