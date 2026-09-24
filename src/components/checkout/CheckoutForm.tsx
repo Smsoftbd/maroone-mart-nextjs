@@ -84,6 +84,9 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
   const { authMode, guestCheckout, checkoutOtp } = useStoreConfig();
   const [delivery, setDelivery] = useState<DeliveryCharge | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
+  // Cash-on-delivery-only stores have nothing to pay at checkout, so the rail
+  // drops its Payment step. Assume online payment until the list loads.
+  const [hasOnlinePayment, setHasOnlinePayment] = useState(true);
   const [couponCode, setCouponCode] = useState("");
   const [discountAmount, setDiscountAmount] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -429,15 +432,16 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
 
   const bd = isBangladesh(country);
   const steps = [
-    { n: 1, label: t("shipping", "Shipping") },
-    { n: 2, label: t("payment", "Payment") },
-    { n: 3, label: t("success", "Success") },
-  ];
+    t("shipping", "Shipping"),
+    ...(hasOnlinePayment ? [t("payment", "Payment")] : []),
+    t("success", "Success"),
+  ].map((label, i) => ({ n: i + 1, label }));
   // The rail follows how far the shopper has actually got, so it opens on
   // "Shipping" rather than jumping ahead to the auto-selected defaults.
+  // Without a Payment step, Shipping stays active until the order is placed.
   const addressDone = !!watchedName?.trim() && !!watchedPhone?.trim() && (watchedAddress?.trim().length ?? 0) >= 10;
-  const activeStep = !addressDone ? 1 : 2;
-  const stepDone = (n: number) => n < activeStep;
+  const activeStep = addressDone && hasOnlinePayment ? 2 : 1;
+  const stepDone = (n: number) => n < activeStep || (n === 1 && addressDone);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -595,7 +599,11 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
                 </span>
                 <h2>{t("payment_method", "Payment Method")}</h2>
               </div>
-              <PaymentSelector value={resolveL10n(paymentMethod?.name) ?? ""} onChange={setPaymentMethod} />
+              <PaymentSelector
+                value={resolveL10n(paymentMethod?.name) ?? ""}
+                onChange={setPaymentMethod}
+                onLoad={(methods) => setHasOnlinePayment(methods.some((m) => isOnlinePaymentGateway(m.code)))}
+              />
             </section>
           </div>
 

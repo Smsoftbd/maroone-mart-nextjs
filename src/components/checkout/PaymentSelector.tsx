@@ -19,10 +19,12 @@ function iconFor(method: PaymentMethod) {
 interface PaymentSelectorProps {
   value: string;
   onChange: (method: PaymentMethod) => void;
+  /** Called once with the fetched list, so the parent can adapt (e.g. hide the Payment step). */
+  onLoad?: (methods: PaymentMethod[]) => void;
 }
 
 /** Payment methods as bordered tiles: name and hint left, logo tile right. */
-export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
+export function PaymentSelector({ value, onChange, onLoad }: PaymentSelectorProps) {
   const [methods, setMethods] = useState<PaymentMethod[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -34,6 +36,7 @@ export function PaymentSelector({ value, onChange }: PaymentSelectorProps) {
       .then((data) => {
         const list: PaymentMethod[] = data.data || [];
         setMethods(list);
+        onLoad?.(list);
         if (list.length === 1) onChange(list[0]);
       })
       .catch(() => {})
