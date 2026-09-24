@@ -14,7 +14,6 @@ import { CouponInput } from "./CouponInput";
 import Link from "next/link";
 import {
   ArrowLeft,
-  CalendarDays,
   CreditCard,
   Loader2,
   Lock,
@@ -541,10 +540,6 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
                 methodName={resolveL10n(delivery?.zone_name) ?? ""}
                 onChange={setDelivery}
               />
-              <p className="mt-4 flex items-center gap-2 rounded-lg bg-[color-mix(in_srgb,var(--color-brand-500)_7%,transparent)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
-                <CalendarDays className="h-4 w-4 shrink-0 text-[var(--color-brand-500)]" />
-                {t("estimated_delivery", "Estimated Delivery")}
-              </p>
             </section>
 
             <section className="checkout-card">

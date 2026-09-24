@@ -36,7 +36,7 @@ const LOW_STOCK = 5;
 /**
  * Product page, in the reference storefront's shape: gallery on the left, and
  * on the right the title, the category/brand/code line, the green price, a
- * quantity stepper, the Order Now / 1 Click Order / Add to Cart trio, the two
+ * quantity stepper, the Order Now / Add to Cart pair, the two
  * chat bars and the share row. The detail panels run full width underneath.
  */
 export function ProductInfo({
@@ -128,14 +128,10 @@ export function ProductInfo({
   const disabled = isLoading || !inStock;
 
   const ctaButtons = (
-    <div className="pdp-cta grid gap-3 sm:grid-cols-3">
-      <button onClick={() => addSelected()} disabled={disabled} className="btn btn-outline">
+    <div className="pdp-cta grid gap-3 sm:grid-cols-2">
+      <button onClick={handleBuyNow} disabled={disabled} className="btn btn-outline">
         <Zap className="h-[18px] w-[18px]" strokeWidth={2} />
         {t("order_now", "Order Now")}
-      </button>
-      <button onClick={handleBuyNow} disabled={disabled} className="btn btn-buy">
-        <Zap className="h-[18px] w-[18px] fill-current" strokeWidth={1.75} />
-        {inStock ? t("one_click_order", "1 Click Order") : t("out_of_stock", "Out of Stock")}
       </button>
       <button onClick={() => addSelected()} disabled={disabled} className="btn btn-cart">
         <ShoppingCart className="h-[18px] w-[18px]" strokeWidth={1.75} />
