@@ -26,7 +26,11 @@ import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/stores/cartStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
-import { requestOtp as requestOtpApi, checkoutVerifyOtp } from "@/lib/api/customer";
+import {
+  requestOtp as requestOtpApi,
+  checkoutVerifyOtp,
+  updateCustomerProfile,
+} from "@/lib/api/customer";
 import { formatPrice } from "@/lib/utils/format";
 import { appToast } from "@/lib/utils/toast";
 import { useT } from "@/lib/i18n/I18nProvider";
@@ -216,6 +220,19 @@ export function CheckoutForm({ currency, country, showCoupon }: CheckoutFormProp
         }
         appToast.apiError(firstMsg || result.error || result.message || "Order failed. Please review the form.");
         return;
+      }
+
+      // First order from a signed-in customer with no saved address → keep the
+      // checkout address on their profile. Best-effort; never blocks the order.
+      if (token && customer && !customer.address?.trim()) {
+        await updateCustomerProfile(token, {
+          address: data.address,
+          city: data.city || undefined,
+          state: data.state || undefined,
+          country: data.country || country,
+        })
+          .then((r) => useAuthStore.setState({ customer: r.customer }))
+          .catch(() => {});
       }
 
       const gateway = paymentMethod.code;
