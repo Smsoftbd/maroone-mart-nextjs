@@ -613,7 +613,6 @@ body[data-button-hover="darken"] .btn-secondary:hover:not(:disabled) { backgroun
 body[data-button-hover="darken"] .btn-buy:hover:not(:disabled) { background: var(--color-button-buy-now-hover-bg, var(--color-brand-600)); }
 body[data-button-hover="darken"] .btn-cart:hover:not(:disabled) { background: var(--color-button-add-to-cart-hover-bg, var(--color-secondary-600)); }
 body[data-button-hover="darken"] .btn-outline:hover:not(:disabled) { background: var(--color-button-outline-hover-bg, var(--color-brand-50)); }
-body[data-button-hover="darken"] .product-card .card-actions .btn-cart:hover:not(:disabled) { background: var(--color-button-outline-hover-bg, var(--color-brand-50)); }
 body[data-button-hover="lift"] :is(.btn, .btn-buy, .btn-cart, .btn-outline):hover:not(:disabled) {
   transform: translateY(calc(var(--effects-lift-distance, 4px) / -2));
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
@@ -2158,7 +2157,7 @@ body .product-card .card-badges { top: 0; left: 0; gap: 3px; }
 body .product-card .card-badges .badge-discount { display: inline-flex; }
 body .product-card .badge {
   padding: 2px 7px;
-  border-radius: 0;
+  border-radius: 3px;
   font-size: 12px;
   font-weight: 400;
   line-height: 15px;
@@ -2203,21 +2202,22 @@ body .product-card { isolation: isolate; }
 body .product-card::before {
   content: "";
   position: absolute;
-  inset: -11px -24px -96px;
+  inset: -22px -23px -100px;
   z-index: -1;
+  border-radius: 4px;
   background: #fff;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 0 14px rgba(0, 0, 0, 0.12);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--effects-transition-speed, 200ms) var(--easing, ease);
 }
-body .card-hover-actions { inset-inline: 0; top: 100%; bottom: auto; padding-top: 16px; transform: none; }
+body .card-hover-actions { inset-inline: 0; top: 100%; bottom: auto; padding-top: 18px; transform: none; }
 .card-actions { display: flex; width: 100%; }
 body .card-actions .card-action-btn {
   width: 100%;
   min-height: 40px;
   padding: 0 10px;
-  border-radius: 3px;
+  border-radius: 4px;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -2229,14 +2229,14 @@ body .product-card .card-quick-view {
   left: 50%;
   display: block;
   width: 100px;
-  padding: 6px 20px;
-  border-radius: 2px;
+  padding: 3px 16px;
+  border-radius: 3px;
   background: #fff;
   color: #232323;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.1em;
-  line-height: 19px;
+  letter-spacing: 0.05em;
+  line-height: 22px;
   text-align: center;
   text-transform: uppercase;
   white-space: normal;
@@ -2246,8 +2246,8 @@ body .product-card .card-quick-view {
 body .product-card .card-quick-view svg { display: none; }
 body .product-card .card-quick-view:hover { color: var(--color-brand-500); }
 body .product-card .card-wishlist {
-  top: 10px;
-  right: 6px;
+  top: -1px;
+  right: 0;
   width: 26px;
   height: 26px;
   background: transparent;
@@ -2267,7 +2267,7 @@ body .product-card .card-wishlist.is-active { opacity: 1; }
   /* Swiper clips its slides: pad the rail so the panel has room, and pull it
      back so the layout doesn't move (the side pad stays under the gap). */
   @media (min-width: 640px) {
-    body .product-carousel.swiper { margin: -11px -24px -96px; padding: 11px 24px 96px !important; }
+    body .product-carousel.swiper { margin: -22px -23px -100px; padding: 22px 23px 100px; }
   }
 }
 /* Touch screens: no hover, so the card stays flat (heart always shown). */

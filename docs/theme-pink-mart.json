@@ -264,7 +264,7 @@
     "show_swatches": false,
     "show_rating": false,
     "show_stock": false,
-    "show_wishlist": false,
+    "show_wishlist": true,
     "show_old_price": true,
     "gallery_layout": "thumbs_bottom",
     "info_layout": "tabs",

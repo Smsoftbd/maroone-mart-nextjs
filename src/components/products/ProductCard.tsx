@@ -153,7 +153,7 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
   const inWishlist = wishlistOn && isInWishlist(product.id);
   const addLabel = isVariable ? t("select_options", "Select options") : t("add_to_cart", "Add to Cart");
 
-  /* One wide button: "Add to cart" for a simple product, "Choose options"
+  /* One wide button: "Add to cart" for a simple product, "Select options"
      (opens the product page) when it has variants. */
   const actionRow = (
     <div className="card-actions">
@@ -164,9 +164,7 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
       >
         {!inStock
           ? t("sold_out", "Sold out")
-          : isVariable
-          ? t("choose_options", "Choose options")
-          : t("add_to_cart", "Add to Cart")}
+          : addLabel}
       </button>
     </div>
   );

@@ -56,7 +56,7 @@ export function ProductCarousel({
             1280: { slidesPerView: perRow },
           }}
           navigation={{ prevEl, nextEl }}
-          className="product-carousel !py-1"
+          className="product-carousel py-1"
         >
           {products.map((product) => (
             <SwiperSlide key={product.id} className="!h-auto">
