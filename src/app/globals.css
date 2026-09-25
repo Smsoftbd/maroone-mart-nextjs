@@ -2196,21 +2196,85 @@ body .product-card .card-title a:hover { color: var(--color-brand-500); }
 .product-card .card-rating { justify-content: center; margin-top: 6px; }
 .product-card .card-stock { margin-top: 6px; }
 
-/* Hover: second photo, and a full-width button over the photo's foot. */
-body .card-hover-actions { inset-inline: 0; bottom: 0; }
+/* Hover: the card lifts into a white panel with a soft shadow that spills
+   past its cell (over the next row), the photo gets a centred "Quick view"
+   box and an outline heart, and "Add to cart" drops in under the price. */
+body .product-card { isolation: isolate; }
+body .product-card::before {
+  content: "";
+  position: absolute;
+  inset: -11px -24px -96px;
+  z-index: -1;
+  background: #fff;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.12);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--effects-transition-speed, 200ms) var(--easing, ease);
+}
+body .card-hover-actions { inset-inline: 0; top: 100%; bottom: auto; padding-top: 16px; transform: none; }
 .card-actions { display: flex; width: 100%; }
 body .card-actions .card-action-btn {
   width: 100%;
   min-height: 40px;
   padding: 0 10px;
-  border-radius: 0;
-  font-size: 12px;
+  border-radius: 3px;
+  font-size: 14px;
   font-weight: 700;
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
+body .product-card .card-quick-view {
+  top: 50%;
+  bottom: auto;
+  left: 50%;
+  display: block;
+  width: 100px;
+  padding: 6px 20px;
+  border-radius: 2px;
+  background: #fff;
+  color: #232323;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: 19px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: normal;
+  box-shadow: 0 1px 8px rgba(0, 0, 0, 0.14);
+  transform: translate(-50%, -50%);
+}
+body .product-card .card-quick-view svg { display: none; }
+body .product-card .card-quick-view:hover { color: var(--color-brand-500); }
+body .product-card .card-wishlist {
+  top: 10px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  box-shadow: none;
+  color: #000;
+  opacity: 0;
+}
+body .product-card .card-wishlist svg { width: 22px; height: 22px; stroke-width: 1.5; }
+body .product-card .card-wishlist:hover,
+body .product-card .card-wishlist.is-active { color: var(--color-commerce-wishlist-active, var(--color-brand-500)); }
+body .product-card .card-wishlist.is-active { opacity: 1; }
+@media (hover: hover) {
+  body .product-card:is(:hover, :has(:focus-visible)) { z-index: 5; }
+  body .product-card:is(:hover, :has(:focus-visible))::before { opacity: 1; }
+  body .product-card:is(:hover, :has(:focus-visible)) .card-wishlist { opacity: 1; }
+  body .product-card:is(:hover, :has(:focus-visible)) .card-quick-view { transform: translate(-50%, -50%); }
+  /* Swiper clips its slides: pad the rail so the panel has room, and pull it
+     back so the layout doesn't move (the side pad stays under the gap). */
+  @media (min-width: 640px) {
+    body .product-carousel.swiper { margin: -11px -24px -96px; padding: 11px 24px 96px !important; }
+  }
+}
+/* Touch screens: no hover, so the card stays flat (heart always shown). */
 @media (hover: none) {
   body .card-hover-actions { display: none; }
+  body .product-card .card-quick-view { display: none; }
+  body .product-card .card-wishlist { opacity: 1; }
 }
 
 /* Carousel arrows: thin chevrons outside the 1200px column. */

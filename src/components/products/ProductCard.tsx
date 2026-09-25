@@ -237,8 +237,6 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
             {t("quick_view", "Quick view")}
           </button>
         )}
-
-        {opts.add_to_cart === "hover" && !button && <div className="card-hover-actions">{actionRow}</div>}
       </div>
 
       <div className="card-body flex flex-1 flex-col">
@@ -260,6 +258,9 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
         {stockLine}
         {(opts.add_to_cart === "button" || button) && <div className="card-actions-below mt-auto w-full">{actionRow}</div>}
       </div>
+
+      {/* Hover: drops in under the price, inside the card's floating panel. */}
+      {opts.add_to_cart === "hover" && !button && <div className="card-hover-actions">{actionRow}</div>}
 
       {quickOpen && (
         <QuickView product={product} currency={currency} open={quickOpen} onClose={() => setQuickOpen(false)} />
