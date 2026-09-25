@@ -64,3 +64,9 @@ export function truncate(text: string, maxLength: number): string {
 export function formatNumber(n: number): string {
   return new Intl.NumberFormat("en-US").format(n);
 }
+
+/** Card price like "Tk.7500": no grouping, decimals only when there are any. */
+export function formatShortPrice(amount: number, currencySymbol = "৳"): string {
+  const symbol = currencySymbol === "৳" ? "Tk." : currencySymbol;
+  return `${symbol}${Number.isInteger(amount) ? amount : amount.toFixed(2)}`;
+}

@@ -14,21 +14,17 @@ interface SectionHeaderProps {
 }
 
 /**
- * Homepage section title, like the reference storefront: an uppercase title
- * centered between two short rules, optional subtitle and tabs under it.
- * Like the reference there is no desktop "View all"; phones get MobileViewAll.
+ * Homepage section title, like the Marooned storefront: a large centered
+ * uppercase Poppins title, optional subtitle and tabs under it. "See All"
+ * sits under the grid (SeeAllButton), not in the header.
  */
 export function SectionHeader({ title, subtitle, icon, inverted, children }: SectionHeaderProps) {
   const ink = inverted ? "text-[var(--color-section-category-band-text,var(--color-secondary-text))]" : "";
   return (
     <div className={`section-head pf-section-head ${ink}`}>
       <h2 className={`section-title pf-section-title ${ink}`}>
-        <span className="pf-section-rule" aria-hidden />
-        <span className="pf-section-text">
-          {icon}
-          {title}
-        </span>
-        <span className="pf-section-rule" aria-hidden />
+        {icon}
+        {title}
       </h2>
       {subtitle && <p className="pf-section-sub">{subtitle}</p>}
       {children}
@@ -44,5 +40,17 @@ export function MobileViewAll({ href, label, inverted }: { href?: string; label?
       {label}
       <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
     </Link>
+  );
+}
+
+/** Centered outlined "See All" under a product grid. */
+export function SeeAllButton({ href, label }: { href?: string; label?: string }) {
+  if (!href || !label) return null;
+  return (
+    <div className="mr-see-all-row">
+      <Link href={href} className="mr-see-all">
+        {label}
+      </Link>
+    </div>
   );
 }

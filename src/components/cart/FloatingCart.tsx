@@ -9,30 +9,20 @@ interface FloatingCartProps {
   currency: string;
 }
 
+/** Maroon cart tab on the right edge (tablets and up): item count over the subtotal, shown even when empty. */
 export function FloatingCart({ currency }: FloatingCartProps) {
   const { totalItems, subTotal, openCart } = useCart();
   const t = useT();
 
-  if (totalItems <= 0) return null;
-
   return (
-    <button
-      onClick={openCart}
-      aria-label={`${t("cart", "Cart")} — ${totalItems}`}
-      className="cart fixed max-md:hidden top-1/2 -translate-y-1/2 mt-16 md:mt-0 right-0 z-30 rounded-s-md overflow-hidden shadow-lg bg-brand-500 text-[var(--color-primary-text)] border border-brand-500 active:scale-95 transition-transform"
-    >
-      <div className="p-2 pb-1 text-center">
-        <ShoppingBag className="mx-auto h-7 w-7" strokeWidth={2} />
-        <p className="text-xs mt-1 font-medium">
-          {totalItems} {totalItems === 1 ? t("item", "item") : t("items", "items")}
-        </p>
-      </div>
-      <hr className="border-[var(--color-primary-text)]/20" />
-      <div className="text-center p-2">
-        <div className="text-sm font-semibold">
-          {formatPrice(subTotal, currency)}
-        </div>
-      </div>
+    <button onClick={openCart} aria-label={`${t("cart", "Cart")} — ${totalItems}`} className="mr-floating-cart">
+      <span className="mr-floating-cart-top">
+        <ShoppingBag className="mx-auto h-6 w-6" strokeWidth={2} />
+        <span className="block">
+          {totalItems} {totalItems === 1 ? t("item", "Item") : t("items", "Items")}
+        </span>
+      </span>
+      <span className="mr-floating-cart-total">{formatPrice(subTotal, currency)}</span>
     </button>
   );
 }

@@ -17,13 +17,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { Eye, Heart, ShoppingBag, ShoppingBasket, ShoppingCart, Star } from "lucide-react";
+import { ArrowRight, Eye, Heart, ShoppingBag, ShoppingBasket, ShoppingCart, Star } from "lucide-react";
 import { useCart } from "@/lib/hooks/useCart";
 import { useWishlist } from "@/lib/hooks/useWishlist";
 import { useT } from "@/lib/i18n/I18nProvider";
 import { useStoreConfig } from "@/components/providers/StoreConfigProvider";
 import { Rating } from "@/components/ui/Rating";
-import { formatPrice, formatDiscount } from "@/lib/utils/format";
+import { formatPrice, formatDiscount, formatShortPrice } from "@/lib/utils/format";
 import { cn } from "@/lib/utils/cn";
 import { useSelectItem } from "@/components/analytics/ItemListTracker";
 import type { Product } from "@/lib/api/types";
@@ -94,6 +94,18 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
     await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock);
   };
 
+  // Buy now: straight to checkout (variants are picked on the product page).
+  const handleBuyNow = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!defaultBarcode) return;
+    if (isVariable) {
+      router.push(href);
+      return;
+    }
+    await addItem(defaultBarcode.id, 1, product.name, price, defaultBarcode.stock, undefined, { openDrawer: false });
+    router.push("/checkout");
+  };
+
   // "4.5 ★ | 12": the compact rating line, and the phone fallback for star rows.
   const ratingPill = (className?: string) => (
     <p className={cn("card-rating-pill", className)}>
@@ -119,9 +131,9 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
   const priceRow = (
     <div className="card-price">
       {hasDiscount && opts.show_old_price && (
-        <s className="price-old">{formatPrice(original, currency)}</s>
+        <s className="price-old">{formatShortPrice(original, currency)}</s>
       )}
-      <span className={cn("price", hasDiscount && "is-sale")}>{formatPrice(price, currency)}</span>
+      <span className={cn("price", hasDiscount && "is-sale")}>{formatShortPrice(price, currency)}</span>
     </div>
   );
 
@@ -153,18 +165,33 @@ export function ProductCard({ product, currency, showWishlist = true, button = f
   const inWishlist = wishlistOn && isInWishlist(product.id);
   const addLabel = isVariable ? t("select_options", "Select options") : t("add_to_cart", "Add to Cart");
 
-  /* One wide button: "Add to cart" for a simple product, "Select options"
-     (opens the product page) when it has variants. */
+  /* Marooned row: a square cart button (adds, or opens the product page for
+     variants) beside a wide outlined "Buy Now →". */
   const actionRow = (
     <div className="card-actions">
       <button
+        type="button"
         onClick={handleAddToCart}
         disabled={isLoading || !inStock}
-        className="btn btn-cart card-action-btn"
+        aria-label={addLabel}
+        className="card-cart-btn"
       >
-        {!inStock
-          ? t("sold_out", "Sold out")
-          : addLabel}
+        <CartIcon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+      </button>
+      <button
+        type="button"
+        onClick={handleBuyNow}
+        disabled={isLoading || !inStock}
+        className="card-buy-btn"
+      >
+        {!inStock ? (
+          t("sold_out", "Sold out")
+        ) : (
+          <>
+            {t("buy_now", "Buy Now")}
+            <ArrowRight className="h-[18px] w-[18px]" strokeWidth={1.5} />
+          </>
+        )}
       </button>
     </div>
   );

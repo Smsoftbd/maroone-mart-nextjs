@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Category, Store, PageSummary, PaymentMethod } from "@/lib/api/types";
 import { socialIcons } from "./social-icons";
-import { FooterNewsletter } from "./FooterNewsletter";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
 import { getPaymentMethods } from "@/lib/api/content";
 import { resolveL10n } from "@/lib/utils/l10n";
@@ -17,13 +17,15 @@ interface FooterProps {
 
 const linkClass = "footer-link transition-colors";
 const headingClass = "footer-heading";
+
 /**
- * Site footer, like the reference storefront: four columns (About,
- * Information, Popular categories, Info), a bar with the newsletter field and
- * social icons, then the centered copyright and payment logos.
- * page.footer_style = minimal keeps only the bottom block.
+ * Site footer, like the Marooned storefront: on the maroon ground, the logo
+ * with address, phones and email; "Customer service" and "Company" link
+ * columns; "Follow us" with the networks in their brand colors; then a thin
+ * rule over the centered copyright. page.footer_style = minimal keeps only
+ * the copyright line.
  */
-export async function Footer({ store, pages = [], categories = [] }: FooterProps) {
+export async function Footer({ store, pages = [] }: FooterProps) {
   const t = await getServerT();
   const { page } = store.theme;
   const style = page.footer_style;
@@ -33,19 +35,19 @@ export async function Footer({ store, pages = [], categories = [] }: FooterProps
     ? await getPaymentMethods().catch(() => [])
     : [];
   const phones = store.phone.split(/[,/]/).map((p) => p.trim()).filter(Boolean);
+  const footerLogo = store.footer_logo || store.logo;
 
-  // Information: the owner's CMS pages (FAQs, policies …), falling back to
-  // the account routes.
-  const helpLinks =
-    pages.length > 0
-      ? pages.map((p) => ({ href: `/pages/${p.slug}`, label: p.title }))
-      : [
-          { href: "/track-order", label: t("track_order", "Track Order") },
-          { href: "/account", label: t("my_account", "My Account") },
-        ];
+  const customerService = [
+    { href: "/contact", label: t("contact", "Contact") },
+    { href: "/track-order", label: t("track_order", "Track Order") },
+    ...(store.features.blog ? [{ href: "/blog", label: t("blogs", "Blogs") }] : []),
+    ...(store.auth_mode !== "guest_only" ? [{ href: "/account", label: t("my_account", "My Account") }] : []),
+  ];
+  // Company: the owner's CMS pages (About, policies, outlets …).
+  const company = pages.map((p) => ({ href: `/pages/${p.slug}`, label: p.title }));
 
   const socialRow = socials.length > 0 && (
-    <div className="pf-footer-social flex flex-wrap items-center">
+    <div className="mr-footer-social">
       {socials.map(([key, url]) => (
         <a
           key={key}
@@ -53,25 +55,16 @@ export async function Footer({ store, pages = [], categories = [] }: FooterProps
           target="_blank"
           rel="noopener noreferrer"
           aria-label={key}
+          data-network={key}
           className="footer-social"
         >
-          <svg className="h-[18px] w-[18px]" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="h-[22px] w-[22px]" fill="currentColor" viewBox="0 0 24 24">
             {socialIcons[key]}
           </svg>
         </a>
       ))}
     </div>
   );
-
-  const newsletter = page.footer_newsletter && (
-    <FooterNewsletter
-      label={t("newsletter_signup", "Sign up for our Newsletter")}
-      placeholder={t("your_email_address", "Your email address")}
-      button={t("subscribe", "Subscribe")}
-      success={t("newsletter_success", "Thank you for subscribing!")}
-    />
-  );
-
 
   const payments = paymentMethods.length > 0 && (
     <div className="flex flex-wrap items-center justify-center gap-4" aria-label={t("payment_methods", "Payment Methods")}>
@@ -96,21 +89,10 @@ export async function Footer({ store, pages = [], categories = [] }: FooterProps
     </div>
   );
 
-  const about = [
-    { href: "/", label: t("home", "Home") },
-    { href: "/products", label: t("shop", "Shop") },
-    ...(store.features.blog ? [{ href: "/blog", label: t("blogs", "Blogs") }] : []),
-    { href: "/contact", label: t("contact_us", "Contact Us") },
-  ];
-  const popular = categories
-    .filter((c) => c.slug !== "uncategorized")
-    .slice(0, 5)
-    .map((c) => ({ href: `/products?category=${c.slug}`, label: c.name }));
-
   const column = (title: string, links: { href: string; label: string }[]) => (
-    <div>
+    <div className="mr-footer-col">
       <h6 className={headingClass}>{title}</h6>
-      <ul className="pf-footer-links">
+      <ul className="mr-footer-links">
         {links.map((l) => (
           <li key={l.href}>
             <Link href={l.href} className={linkClass}>
@@ -122,68 +104,75 @@ export async function Footer({ store, pages = [], categories = [] }: FooterProps
     </div>
   );
 
-  const info = (
+  const about = (
     <div>
-      <h6 className={headingClass}>{t("info", "Info")}</h6>
-      <div className="pf-footer-info">
-        {store.address && <p className="whitespace-pre-line">{store.address}</p>}
-        {(phones.length > 0 || store.email) && (
-          <p>
-            {phones.length > 0 && (
-              <>
-                {t("call_us_at", "Call us at")}:{" "}
-                {phones.map((p, i) => (
-                  <span key={p}>
-                    {i > 0 && ", "}
-                    <a href={`tel:${p.replace(/\s+/g, "")}`} className={linkClass}>
-                      {p}
-                    </a>
-                  </span>
-                ))}
-                <br />
-              </>
-            )}
-            {store.email && (
-              <>
-                {t("email", "Email")}:{" "}
-                <a href={`mailto:${store.email}`} className={`${linkClass} break-all`}>
-                  {store.email}
-                </a>
-              </>
-            )}
-          </p>
+      <Link href="/" aria-label={store.name} className="inline-block">
+        {footerLogo ? (
+          <Image src={footerLogo} alt={store.name} width={240} height={80} className="mr-footer-logo w-auto object-contain" />
+        ) : (
+          <span className="font-display text-3xl font-bold uppercase">{store.name}</span>
         )}
-      </div>
+      </Link>
+      <ul className="mr-footer-info">
+        {store.address && (
+          <li>
+            <MapPin className="mr-footer-icon" />
+            <span className="whitespace-pre-line">{store.address}</span>
+          </li>
+        )}
+        {phones.length > 0 && (
+          <li>
+            <Phone className="mr-footer-icon fill-current" strokeWidth={0} />
+            <span>
+              {phones.map((p, i) => (
+                <span key={p}>
+                  {i > 0 && ","}
+                  <a href={`tel:${p.replace(/\s+/g, "")}`} className={linkClass}>
+                    {p}
+                  </a>
+                </span>
+              ))}
+            </span>
+          </li>
+        )}
+        {store.email && (
+          <li>
+            <Mail className="mr-footer-icon" />
+            <a href={`mailto:${store.email}`} className={`${linkClass} break-all`}>
+              {store.email}
+            </a>
+          </li>
+        )}
+      </ul>
     </div>
   );
 
   return (
-    <footer className="site-footer pf-footer mt-auto">
-      {style !== "minimal" && (
-        <div className="max-w-7xl mx-auto">
-          <div className="pf-footer-cols">
-            {column(t("about", "About"), about)}
-            {column(t("information", "Information"), helpLinks)}
-            {popular.length > 0 && column(t("popular_categories", "Popular Categories"), popular)}
-            {info}
+    <footer className="site-footer mr-footer mt-auto">
+      <div className="max-w-7xl mx-auto">
+        {style !== "minimal" && (
+          <div className="mr-footer-cols">
+            {about}
+            {column(t("customer_service", "Customer Service"), customerService)}
+            {company.length > 0 && column(t("company", "Company"), company)}
+            {socialRow && (
+              <div className="mr-footer-col">
+                <h6 className={headingClass}>{t("follow_us", "Follow Us")}</h6>
+                {socialRow}
+              </div>
+            )}
           </div>
-
-          <div className="pf-footer-bar">
-            {newsletter && <div className="pf-footer-newsletter">{newsletter}</div>}
-            {socialRow}
-          </div>
-        </div>
-      )}
-
-      <div className="pf-footer-bottom">
-        <p>
-          &copy; {year} {store.name.toUpperCase()}. {t("all_rights_reserved", "All Rights Reserved")}.
-        </p>
-        {getConsentBannerMode() !== "off" && (
-          <ConsentSettingsLink label={t("cookie_settings", "Cookie settings")} className={linkClass} />
         )}
-        {style === "minimal" && <div className="mt-3 flex justify-center">{socialRow}</div>}
-        {payments && <div className="pf-footer-payments">{payments}</div>}
+
+        <div className="mr-footer-bottom">
+          <p>
+            &copy; {year}, {t("all_rights_reserved_by", "All Rights Reserved By")} {store.name}
+          </p>
+          {getConsentBannerMode() !== "off" && (
+            <ConsentSettingsLink label={t("cookie_settings", "Cookie settings")} className={linkClass} />
+          )}
+          {payments && <div className="mt-4">{payments}</div>}
+        </div>
       </div>
     </footer>
   );

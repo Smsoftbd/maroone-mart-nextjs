@@ -13,6 +13,9 @@ import { getGtmConfig, isMetaViaSgtm, stripGtmSnippet } from "@/lib/analytics/gt
 import { getDefaultConsent } from "@/lib/analytics/consent-server";
 import { headers } from "next/headers";
 
+const MAROONED_FONTS_URL =
+  "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Poppins:wght@400;500&display=swap";
+
 export async function generateMetadata(): Promise<Metadata> {
   const store = await getStore();
   return {
@@ -57,13 +60,11 @@ export default async function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {store.theme_fonts_url && (
-          <>
-            <link rel="preconnect" href="https://fonts.googleapis.com" />
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-            <link rel="stylesheet" href={store.theme_fonts_url} />
-          </>
-        )}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* Marooned type: Noto Sans text, Poppins section titles (globals.css). */}
+        <link rel="stylesheet" href={MAROONED_FONTS_URL} />
+        {store.theme_fonts_url && <link rel="stylesheet" href={store.theme_fonts_url} />}
         <style id="store-theme" dangerouslySetInnerHTML={{ __html: themeStyle }} />
         {colorScheme !== "off" && (
           <script dangerouslySetInnerHTML={{ __html: COLOR_SCHEME_SCRIPT }} />

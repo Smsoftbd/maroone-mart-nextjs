@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTheme } from "@/components/providers/StoreConfigProvider";
 
-/** Floating back-to-top button (page.back_to_top); appears after scrolling a screen. */
+/** Back-to-top arrow, bottom right (page.back_to_top); appears after scrolling a screen. */
 export function ScrollToTop() {
   const { page } = useTheme();
   const [visible, setVisible] = useState(false);
@@ -24,12 +24,10 @@ export function ScrollToTop() {
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       aria-label="Scroll to top"
       tabIndex={visible ? 0 : -1}
-      className={`scroll-to-top fixed right-[60px] bottom-10 max-md:right-4 max-md:bottom-5 z-40 inline-flex h-[43px] w-[43px] items-center justify-center rounded-full bg-brand-500 text-[var(--color-primary-text)] shadow-lg transition-all hover:-translate-y-0.5 ${
-        visible ? "opacity-100" : "pointer-events-none translate-y-2 opacity-0"
-      }`}
+      className={`scroll-to-top mr-scroll-top ${visible ? "is-visible" : ""}`}
     >
-      <svg viewBox="0 0 24 24" height="26" width="26" fill="none" stroke="currentColor" strokeWidth="1.5">
-        <path d="m6 15 6-6 6 6" />
+      <svg viewBox="0 0 24 24" height="20" width="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M5 3h14M12 21V8M7 12l5-5 5 5" />
       </svg>
     </button>
   );
